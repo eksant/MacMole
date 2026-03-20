@@ -25,21 +25,14 @@ temp/
 *.tmp
 *.temp
 *.dmg
-tests/tmp-*
 
 # Cache
 .cache/
 *.cache
-.gocache/
-.gomod/
 
 # Backup files
 *.bak
 *.backup
-
-# System files
-*.pid
-*.lock
 
 # AI Assistant Instructions
 .claude/
@@ -54,31 +47,31 @@ AGENTS.md
 journal/
 .cursorrules
 
-# Go build artifacts (development)
-cmd/analyze/analyze
-cmd/status/status
-/status
-/analyze
-mole-analyze
-# Go binaries
-bin/analyze-go
-bin/status-go
-bin/analyze-darwin-*
-bin/status-darwin-*
+# Desktop app — build artifacts and dependencies
+frontend/node_modules/
+frontend/dist/
+build/bin/
+build/darwin/
+build/windows/
+desktop
 
-# Test artifacts
-tests/tmp-*/
-tests/*.tmp
-tests/*.log
+# Mole CLI — build artifacts
+mole/cmd/analyze/analyze
+mole/cmd/status/status
+mole/bin/analyze-go
+mole/bin/status-go
+mole/bin/analyze-darwin-*
+mole/bin/status-darwin-*
+mole/tests/tmp-*/
+mole/tests/*.tmp
+mole/tests/*.log
 
-# Go test coverage files
+# Go test coverage
 *.out
 coverage.out
 coverage.html
 
 session.json
 run_tests.ps1
-AGENTS.md
 mole_guidelines.md
-CLAUDE.md
 .claude/settings.local.json

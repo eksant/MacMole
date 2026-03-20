@@ -1,20 +1,42 @@
 <div align="center">
-  <h1>Mole</h1>
-  <p><em>Deep clean and optimize your Mac.</em></p>
+  <h1>MacMole</h1>
+  <p><em>Deep clean and optimize your Mac — CLI &amp; native Desktop app.</em></p>
 </div>
 
 <p align="center">
-  <a href="https://github.com/tw93/mole/stargazers"><img src="https://img.shields.io/github/stars/tw93/mole?style=flat-square" alt="Stars"></a>
-  <a href="https://github.com/tw93/mole/releases"><img src="https://img.shields.io/github/v/tag/tw93/mole?label=version&style=flat-square" alt="Version"></a>
+  <a href="https://github.com/eksant/MacMole/releases"><img src="https://img.shields.io/github/v/release/eksant/MacMole?label=desktop&style=flat-square" alt="Desktop Release"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square" alt="License"></a>
-  <a href="https://github.com/tw93/mole/commits"><img src="https://img.shields.io/github/commit-activity/m/tw93/mole?style=flat-square" alt="Commits"></a>
-  <a href="https://twitter.com/HiTw93"><img src="https://img.shields.io/badge/follow-Tw93-red?style=flat-square&logo=Twitter" alt="Twitter"></a>
-  <a href="https://t.me/+GclQS9ZnxyI2ODQ1"><img src="https://img.shields.io/badge/chat-Telegram-blueviolet?style=flat-square&logo=Telegram" alt="Telegram"></a>
+  <a href="https://github.com/tw93/Mole"><img src="https://img.shields.io/badge/forked%20from-tw93%2FMole-orange?style=flat-square" alt="Forked from tw93/Mole"></a>
+  <a href="https://github.com/eksant/MacMole/commits"><img src="https://img.shields.io/github/commit-activity/m/eksant/MacMole?style=flat-square" alt="Commits"></a>
 </p>
+
+> **Fork of [tw93/Mole](https://github.com/tw93/Mole)** — this repository extends the original Mole CLI with a native macOS Desktop application built with [Wails v2](https://wails.io) + React.
 
 <p align="center">
   <img src="https://cdn.tw93.fun/img/mole.jpeg" alt="Mole - 95.50GB freed" width="1000" />
 </p>
+
+## Desktop App
+
+A native macOS desktop application that wraps the Mole CLI in a clean, modern UI — real-time system metrics, one-click clean/optimize, menu-bar icon, and more.
+
+**Desktop App** — this repository root is the desktop app source. Run `wails build` to build.
+
+| Feature | Detail |
+|---------|--------|
+| Real-time Dashboard | CPU, RAM, Disk, Network with health score |
+| Deep Cleaner | `mo clean` with live output stream |
+| System Optimizer | `mo optimize` with dry-run preview |
+| Deep Purge | `mo purge` for orphaned files |
+| Installer Cleanup | `mo install` — remove .pkg/.dmg/.zip leftovers |
+| Disk Analyzer | Visual disk usage explorer |
+| Optimize All | One-click clean + optimize from Dashboard |
+| Menu Bar Icon | Runs silently in menu bar, close = hide |
+| Notifications | macOS alerts when tasks complete |
+| Launch at Login | Auto-start on macOS login |
+| Update Checker | Check latest release from GitHub |
+
+---
 
 ## Features
 
@@ -85,12 +107,12 @@ Mole uses safety-first defaults: path validation, protected-directory rules, con
 
 `mo analyze` is safer for ad hoc cleanup because it moves files to Trash through Finder instead of deleting them directly.
 
-Review [SECURITY.md](SECURITY.md) and [SECURITY_AUDIT.md](SECURITY_AUDIT.md) for reporting guidance, safety boundaries, and current limitations.
+Review [SECURITY.md](mole/SECURITY.md) and [SECURITY_AUDIT.md](mole/SECURITY_AUDIT.md) for reporting guidance, safety boundaries, and current limitations.
 
 ## Tips
 
 - Video tutorial: Watch the [Mole tutorial video](https://www.youtube.com/watch?v=UEe9-w4CcQ0), thanks to PAPAYA 電腦教室.
-- Safety and logs: `clean`, `uninstall`, `purge`, `installer`, and `remove` are destructive. Review with `--dry-run` first, and add `--debug` when needed. File operations are logged to `~/Library/Logs/mole/operations.log`. Disable with `MO_NO_OPLOG=1`. Review [SECURITY.md](SECURITY.md) and [SECURITY_AUDIT.md](SECURITY_AUDIT.md).
+- Safety and logs: `clean`, `uninstall`, `purge`, `installer`, and `remove` are destructive. Review with `--dry-run` first, and add `--debug` when needed. File operations are logged to `~/Library/Logs/mole/operations.log`. Disable with `MO_NO_OPLOG=1`. Review [SECURITY.md](mole/SECURITY.md) and [SECURITY_AUDIT.md](mole/SECURITY_AUDIT.md).
 - Navigation: Mole supports arrow keys and Vim bindings `h/j/k/l`.
 
 ## Features in Detail
@@ -334,7 +356,7 @@ Mole auto-detects your terminal app. iTerm2 has known compatibility issues. We h
 Thanks to everyone who helped build Mole. Go follow them. ❤️
 
 <a href="https://github.com/tw93/Mole/graphs/contributors">
-  <img src="./CONTRIBUTORS.svg?v=2" width="1000" />
+  <img src="./mole/CONTRIBUTORS.svg?v=2" width="1000" />
 </a>
 
 <br/><br/>
@@ -345,11 +367,14 @@ Real feedback from users who shared Mole on X.
 ## Support
 
 - If Mole helped you, star the repo or [share it](https://twitter.com/intent/tweet?url=https://github.com/tw93/Mole&text=Mole%20-%20Deep%20clean%20and%20optimize%20your%20Mac.) with friends.
-- Got ideas or bugs? Read the [Contributing Guide](CONTRIBUTING.md) and open an issue or PR.
+- Got ideas or bugs? Read the [Contributing Guide](mole/CONTRIBUTING.md) and open an issue or PR.
 - Like Mole? <a href="https://miaoyan.app/cats.html?name=Mole" target="_blank">Buy Tw93 a Coke</a> to support the project. 🥤 Supporters are below.
 
 <a href="https://miaoyan.app/cats.html?name=Mole"><img src="https://miaoyan.app/assets/sponsors.svg" width="1000" loading="lazy" /></a>
 
 ## License
 
-MIT License. Feel free to use Mole and contribute.
+MIT License. See [LICENSE](LICENSE) for details.
+
+- Original Mole CLI — © 2025 [tw93](https://github.com/tw93) · [tw93/Mole](https://github.com/tw93/Mole)
+- MacMole Desktop — © 2025 [eksant](https://github.com/eksant) · [eksant/MacMole](https://github.com/eksant/MacMole)
