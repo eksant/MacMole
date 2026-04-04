@@ -1,0 +1,117 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <!-- Background: dark forest green, top-left lighter to bottom-right near-black -->
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#306c25"/>
+      <stop offset="55%" stop-color="#1e4718"/>
+      <stop offset="100%" stop-color="#091505"/>
+    </linearGradient>
+
+    <!-- Ground disc: warm cream/sand, radial to give depth -->
+    <radialGradient id="ground" cx="44%" cy="36%" r="60%">
+      <stop offset="0%" stop-color="#f7efe2"/>
+      <stop offset="65%" stop-color="#e6d9c8"/>
+      <stop offset="100%" stop-color="#cfc1ac"/>
+    </radialGradient>
+
+    <!-- Mole fur: warm dark brown, lighter top → dark bottom for 3D sphere feel -->
+    <linearGradient id="fur" x1="22%" y1="0%" x2="78%" y2="100%">
+      <stop offset="0%" stop-color="#7a5640"/>
+      <stop offset="45%" stop-color="#4e3328"/>
+      <stop offset="100%" stop-color="#211410"/>
+    </linearGradient>
+
+    <!-- Mole head fur: slightly lighter on the top-left for ambient light -->
+    <radialGradient id="furHead" cx="38%" cy="28%" r="62%">
+      <stop offset="0%" stop-color="#7a5640"/>
+      <stop offset="50%" stop-color="#52362a"/>
+      <stop offset="100%" stop-color="#241610"/>
+    </radialGradient>
+
+    <!-- Snout: softer terracotta -->
+    <radialGradient id="snout" cx="44%" cy="36%" r="55%">
+      <stop offset="0%" stop-color="#c49a80"/>
+      <stop offset="100%" stop-color="#8c5c42"/>
+    </radialGradient>
+
+    <!-- Paw: darker variant of fur -->
+    <linearGradient id="paw" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#604030"/>
+      <stop offset="100%" stop-color="#1e1008"/>
+    </linearGradient>
+
+    <!-- Drop shadow for ground disc -->
+    <filter id="groundShadow" x="-15%" y="-15%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="10" stdDeviation="18" flood-color="#000" flood-opacity="0.38"/>
+    </filter>
+
+    <!-- Drop shadow for mole body/head -->
+    <filter id="moleShadow" x="-25%" y="-25%" width="150%" height="150%">
+      <feDropShadow dx="0" dy="6" stdDeviation="12" flood-color="#000" flood-opacity="0.32"/>
+    </filter>
+
+    <!-- Soft inner glow for eye whites -->
+    <filter id="eyeGlow">
+      <feGaussianBlur stdDeviation="1.2" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <!-- ── App icon background: rounded square ── -->
+  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+
+  <!-- Top gloss ellipse (3D pill / glass feel) -->
+  <ellipse cx="256" cy="118" rx="190" ry="78" fill="white" opacity="0.07"/>
+
+  <!-- ── Ground disc — the hole opening ── -->
+  <circle cx="256" cy="305" r="192" fill="url(#ground)" filter="url(#groundShadow)"/>
+
+  <!-- Rim of the hole — thin inner ring for depth -->
+  <circle cx="256" cy="305" r="192" fill="none" stroke="#bfb09c" stroke-width="3" opacity="0.55"/>
+
+  <!-- Subtle dark lip just inside the rim for tunnel depth -->
+  <circle cx="256" cy="310" r="188" fill="none" stroke="#00000022" stroke-width="8"/>
+
+  <!-- ── Mole body (torso, hidden below hole rim) ── -->
+  <ellipse cx="256" cy="402" rx="122" ry="98" fill="url(#fur)"/>
+
+  <!-- ── Mole head ── -->
+  <ellipse cx="256" cy="272" rx="106" ry="100" fill="url(#furHead)" filter="url(#moleShadow)"/>
+
+  <!-- Subtle ambient-light highlight on head (top-left) -->
+  <ellipse cx="226" cy="238" rx="56" ry="50" fill="white" opacity="0.048" transform="rotate(-12 226 238)"/>
+
+  <!-- ── Snout / muzzle ── -->
+  <ellipse cx="256" cy="312" rx="46" ry="34" fill="url(#snout)"/>
+
+  <!-- Nose tip -->
+  <ellipse cx="256" cy="298" rx="17" ry="12" fill="#311b0f"/>
+
+  <!-- ── Eyes ── -->
+  <!-- Left eye -->
+  <circle cx="214" cy="262" r="15" fill="#140c07"/>
+  <circle cx="218" cy="257" r="6" fill="white" opacity="0.78" filter="url(#eyeGlow)"/>
+  <circle cx="221" cy="255" r="2.5" fill="white" opacity="0.4"/>
+
+  <!-- Right eye -->
+  <circle cx="298" cy="262" r="15" fill="#140c07"/>
+  <circle cx="302" cy="257" r="6" fill="white" opacity="0.78" filter="url(#eyeGlow)"/>
+  <circle cx="305" cy="255" r="2.5" fill="white" opacity="0.4"/>
+
+  <!-- ── Left paw gripping hole edge ── -->
+  <ellipse cx="155" cy="348" rx="54" ry="30" fill="url(#paw)" transform="rotate(-24 155 348)"/>
+  <!-- Left claws (3 elongated ellipses) -->
+  <ellipse cx="118" cy="320" rx="10" ry="20" fill="#170d07" transform="rotate(-42 118 320)"/>
+  <ellipse cx="133" cy="309" rx="10" ry="20" fill="#170d07" transform="rotate(-22 133 309)"/>
+  <ellipse cx="149" cy="305" rx="10" ry="20" fill="#170d07" transform="rotate(-4 149 305)"/>
+
+  <!-- ── Right paw gripping hole edge ── -->
+  <ellipse cx="357" cy="348" rx="54" ry="30" fill="url(#paw)" transform="rotate(24 357 348)"/>
+  <!-- Right claws -->
+  <ellipse cx="394" cy="320" rx="10" ry="20" fill="#170d07" transform="rotate(42 394 320)"/>
+  <ellipse cx="379" cy="309" rx="10" ry="20" fill="#170d07" transform="rotate(22 379 309)"/>
+  <ellipse cx="363" cy="305" rx="10" ry="20" fill="#170d07" transform="rotate(4 363 305)"/>
+
+  <!-- ── Bottom vignette to ground the composition ── -->
+  <ellipse cx="256" cy="497" rx="192" ry="30" fill="#000" opacity="0.22"/>
+</svg>

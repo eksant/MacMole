@@ -6,22 +6,28 @@ import Optimizer from "./pages/Optimizer";
 import Analyzer from "./pages/Analyzer";
 import Purge from "./pages/Purge";
 import Installer from "./pages/Installer";
+import Uninstall from "./pages/Uninstall";
+import Logs from "./pages/Logs";
+import NodeModules from "./pages/NodeModules";
 import Settings from "./pages/Settings";
 
-export type Page = "dashboard" | "cleaner" | "optimizer" | "analyzer" | "purge" | "installer" | "settings";
+export type Page = "dashboard" | "cleaner" | "optimizer" | "analyzer" | "purge" | "installer" | "uninstall" | "logs" | "nodemodules" | "settings";
 
 export default function App() {
   const [page, setPage] = useState<Page>("dashboard");
 
   const renderPage = () => {
     switch (page) {
-      case "dashboard":  return <Dashboard />;
-      case "cleaner":    return <Cleaner />;
-      case "optimizer":  return <Optimizer />;
-      case "analyzer":   return <Analyzer />;
-      case "purge":      return <Purge />;
-      case "installer":  return <Installer />;
-      case "settings":   return <Settings />;
+      case "dashboard":    return <Dashboard />;
+      case "cleaner":      return <Cleaner />;
+      case "optimizer":    return <Optimizer />;
+      case "analyzer":     return <Analyzer />;
+      case "purge":        return <Purge />;
+      case "installer":    return <Installer />;
+      case "uninstall":    return <Uninstall />;
+      case "logs":         return <Logs />;
+      case "nodemodules":  return <NodeModules />;
+      case "settings":     return <Settings />;
     }
   };
 

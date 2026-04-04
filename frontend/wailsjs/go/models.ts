@@ -1,5 +1,37 @@
 export namespace main {
 	
+	export class AppEntry {
+	    name: string;
+	    path: string;
+	    size: number;
+	    bundle_id: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new AppEntry(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.name = source["name"];
+	        this.path = source["path"];
+	        this.size = source["size"];
+	        this.bundle_id = source["bundle_id"];
+	    }
+	}
+	export class BatteryInfo {
+	    percent: number;
+	    status: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new BatteryInfo(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.percent = source["percent"];
+	        this.status = source["status"];
+	    }
+	}
 	export class CPUMetrics {
 	    usage: number;
 	    per_core: number[];
@@ -92,6 +124,26 @@ export namespace main {
 	        this.uptime_seconds = source["uptime_seconds"];
 	    }
 	}
+	export class LogEntry {
+	    name: string;
+	    path: string;
+	    size: number;
+	    mod_time: number;
+	    is_dir: boolean;
+	
+	    static createFrom(source: any = {}) {
+	        return new LogEntry(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.name = source["name"];
+	        this.path = source["path"];
+	        this.size = source["size"];
+	        this.mod_time = source["mod_time"];
+	        this.is_dir = source["is_dir"];
+	    }
+	}
 	export class MemoryMetrics {
 	    total: number;
 	    used: number;
@@ -124,12 +176,50 @@ export namespace main {
 	        this.bytes_recv_per_sec = source["bytes_recv_per_sec"];
 	    }
 	}
+	export class NodeModulesEntry {
+	    project_name: string;
+	    project_path: string;
+	    path: string;
+	    size: number;
+	    mod_time: number;
+	
+	    static createFrom(source: any = {}) {
+	        return new NodeModulesEntry(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.project_name = source["project_name"];
+	        this.project_path = source["project_path"];
+	        this.path = source["path"];
+	        this.size = source["size"];
+	        this.mod_time = source["mod_time"];
+	    }
+	}
+	export class ProcessInfo {
+	    name: string;
+	    cpu: number;
+	    memory: number;
+	
+	    static createFrom(source: any = {}) {
+	        return new ProcessInfo(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.name = source["name"];
+	        this.cpu = source["cpu"];
+	        this.memory = source["memory"];
+	    }
+	}
 	export class SystemMetrics {
 	    cpu: CPUMetrics;
 	    memory: MemoryMetrics;
 	    disk: DiskMetrics;
 	    network: NetworkMetrics;
 	    host: HostInfo;
+	    battery: BatteryInfo;
+	    top_processes: ProcessInfo[];
 	
 	    static createFrom(source: any = {}) {
 	        return new SystemMetrics(source);
@@ -142,6 +232,8 @@ export namespace main {
 	        this.disk = this.convertValues(source["disk"], DiskMetrics);
 	        this.network = this.convertValues(source["network"], NetworkMetrics);
 	        this.host = this.convertValues(source["host"], HostInfo);
+	        this.battery = this.convertValues(source["battery"], BatteryInfo);
+	        this.top_processes = this.convertValues(source["top_processes"], ProcessInfo);
 	    }
 	
 		convertValues(a: any, classs: any, asMap: boolean = false): any {

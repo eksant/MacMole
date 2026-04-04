@@ -9,10 +9,14 @@ package main
 
 void MacMoleSetupTray(const unsigned char* icon1x, int len1x,
                       const unsigned char* icon2x, int len2x);
+
+void MacMoleUpdateTrayMetrics(double cpu, double mem, double disk,
+                               int battery, const char* battStatus);
 */
 import "C"
 import (
 	_ "embed"
+	"time"
 	"unsafe"
 )
 
@@ -31,5 +35,36 @@ func initTray() {
 	C.MacMoleSetupTray(
 		(*C.uchar)(p1), C.int(len(trayIcon1x)),
 		(*C.uchar)(p2), C.int(len(trayIcon2x)),
+	)
+
+	// Start background goroutine to push live metrics into the popover.
+	go func() {
+		svc := NewMetricsService()
+		ticker := time.NewTicker(5 * time.Second)
+		defer ticker.Stop()
+
+		// Push an initial snapshot immediately (after a short delay so the
+		// Objective-C popover view has been constructed on the main thread).
+		time.Sleep(500 * time.Millisecond)
+		pushTrayMetrics(svc)
+
+		for range ticker.C {
+			pushTrayMetrics(svc)
+		}
+	}()
+}
+
+func pushTrayMetrics(svc *MetricsService) {
+	m := svc.GetMetrics()
+
+	status := C.CString(m.Battery.Status)
+	defer C.free(unsafe.Pointer(status))
+
+	C.MacMoleUpdateTrayMetrics(
+		C.double(m.CPU.Usage),
+		C.double(m.Memory.UsedPercent),
+		C.double(m.Disk.UsedPercent),
+		C.int(m.Battery.Percent),
+		status,
 	)
 }

@@ -17,14 +17,14 @@ var assets embed.FS
 
 func buildMenu(app *App) *menu.Menu {
 	appMenu := menu.NewMenu()
-	moleMenu := appMenu.AddSubmenu("Mole")
+	moleMenu := appMenu.AddSubmenu("Mac Mole")
 	moleMenu.AddText("Show Window", keys.CmdOrCtrl("1"), func(_ *menu.CallbackData) {
 		wruntime.WindowShow(app.ctx)
 		wruntime.WindowSetAlwaysOnTop(app.ctx, true)
 		wruntime.WindowSetAlwaysOnTop(app.ctx, false)
 	})
 	moleMenu.AddSeparator()
-	moleMenu.AddText("Quit Mole", keys.CmdOrCtrl("q"), func(_ *menu.CallbackData) {
+	moleMenu.AddText("Quit Mac Mole", keys.CmdOrCtrl("q"), func(_ *menu.CallbackData) {
 		wruntime.Quit(app.ctx)
 	})
 	return appMenu
@@ -39,7 +39,7 @@ func main() {
 
 	err := wails.Run(&options.App{
 		Menu:             buildMenu(app),
-		Title:            "Mole",
+		Title:            "Mac Mole",
 		Width:            1200,
 		Height:           760,
 		MinWidth:         900,

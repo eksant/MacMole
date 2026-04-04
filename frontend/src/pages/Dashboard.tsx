@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Cpu, MemoryStick, HardDrive, Wifi, Clock, Zap, CheckCircle2, XCircle } from "lucide-react";
+import { Cpu, MemoryStick, HardDrive, Wifi, Clock, Zap, CheckCircle2, XCircle, BatteryMedium, Activity } from "lucide-react";
 import { useMetrics } from "../hooks/useMetrics";
 import MetricCard from "../components/MetricCard";
 import GaugeBar from "../components/GaugeBar";
@@ -300,6 +300,72 @@ export default function Dashboard() {
               }} />
             </div>
           </div>
+        </MetricCard>
+
+      </div>
+
+      {/* Battery + Top Processes row */}
+      <div className="grid grid-cols-2 gap-3">
+
+        {/* Battery */}
+        <MetricCard title="Battery" icon={<BatteryMedium size={13} />} accentColor="#f59e0b">
+          {m.battery && m.battery.percent >= 0 ? (
+            <>
+              <div className="flex items-end justify-between">
+                <span className="text-2xl font-bold tabular-nums text-white">
+                  {m.battery.percent}<span className="text-sm ml-0.5" style={{ color: "rgba(255,255,255,0.35)" }}>%</span>
+                </span>
+                <span
+                  className="text-xs px-2 py-0.5 rounded-full"
+                  style={{
+                    background: m.battery.status === "Charging"
+                      ? "rgba(34,197,94,0.15)"
+                      : m.battery.status === "Full"
+                      ? "rgba(245,158,11,0.15)"
+                      : "rgba(255,255,255,0.08)",
+                    color: m.battery.status === "Charging"
+                      ? "#4ade80"
+                      : m.battery.status === "Full"
+                      ? "#fbbf24"
+                      : "rgba(255,255,255,0.4)",
+                  }}
+                >
+                  {m.battery.status}
+                </span>
+              </div>
+              <GaugeBar value={m.battery.percent} />
+            </>
+          ) : (
+            <div className="flex items-center gap-2 mt-2" style={{ color: "rgba(255,255,255,0.3)" }}>
+              <BatteryMedium size={14} />
+              <span className="text-sm">Desktop / No Battery</span>
+            </div>
+          )}
+        </MetricCard>
+
+        {/* Top Processes */}
+        <MetricCard title="Top Processes" icon={<Activity size={13} />} accentColor="#f97316">
+          {m.top_processes && m.top_processes.length > 0 ? (
+            <div className="flex flex-col gap-1.5 mt-1">
+              {m.top_processes.map((p, i) => (
+                <div key={i} className="flex items-center gap-2">
+                  <span className="text-xs text-white/60 truncate flex-1">{p.name}</span>
+                  <span className="text-xs tabular-nums flex-shrink-0" style={{ color: "rgba(249,115,22,0.85)" }}>
+                    {p.cpu.toFixed(1)}%
+                  </span>
+                  <span className="text-xs tabular-nums flex-shrink-0" style={{ color: "rgba(255,255,255,0.25)" }}>
+                    {p.memory.toFixed(1)}%
+                  </span>
+                </div>
+              ))}
+              <div className="flex justify-end gap-4 text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.2)" }}>
+                <span>cpu</span>
+                <span>mem</span>
+              </div>
+            </div>
+          ) : (
+            <p className="text-sm mt-2" style={{ color: "rgba(255,255,255,0.3)" }}>No process data</p>
+          )}
         </MetricCard>
 
       </div>

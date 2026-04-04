@@ -7,6 +7,8 @@ export interface SystemMetrics {
   disk: { path: string; total: number; used: number; free: number; used_percent: number };
   network: { bytes_sent_per_sec: number; bytes_recv_per_sec: number };
   host: { hostname: string; os: string; platform: string; platform_version: string; kernel_version: string; uptime_seconds: number };
+  battery: { percent: number; status: string };
+  top_processes: { name: string; cpu: number; memory: number }[];
 }
 
 export function useMetrics(intervalMs = 2000) {

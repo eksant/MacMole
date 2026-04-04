@@ -3,6 +3,10 @@ package main
 import (
 	"context"
 	"fmt"
+	"os/exec"
+	"path/filepath"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/shirou/gopsutil/v4/cpu"
@@ -58,12 +62,25 @@ type HostInfo struct {
 	UptimeSeconds   uint64 `json:"uptime_seconds"`
 }
 
+type BatteryInfo struct {
+	Percent int    `json:"percent"` // -1 = no battery / not applicable
+	Status  string `json:"status"`  // "Charging" | "Discharging" | "Full" | "N/A"
+}
+
+type ProcessInfo struct {
+	Name   string  `json:"name"`
+	CPU    float64 `json:"cpu"`
+	Memory float64 `json:"memory"`
+}
+
 type SystemMetrics struct {
-	CPU     CPUMetrics     `json:"cpu"`
-	Memory  MemoryMetrics  `json:"memory"`
-	Disk    DiskMetrics    `json:"disk"`
-	Network NetworkMetrics `json:"network"`
-	Host    HostInfo       `json:"host"`
+	CPU          CPUMetrics    `json:"cpu"`
+	Memory       MemoryMetrics `json:"memory"`
+	Disk         DiskMetrics   `json:"disk"`
+	Network      NetworkMetrics `json:"network"`
+	Host         HostInfo      `json:"host"`
+	Battery      BatteryInfo   `json:"battery"`
+	TopProcesses []ProcessInfo `json:"top_processes"`
 }
 
 // GetMetrics collects all system metrics and returns them as a single snapshot.
@@ -148,11 +165,88 @@ func (m *MetricsService) GetMetrics() SystemMetrics {
 			PerCore:  cpuPerCore,
 			NumCores: numCores,
 		},
-		Memory:  memMetrics,
-		Disk:    diskMetrics,
-		Network: netMetrics,
-		Host:    hostInfo,
+		Memory:       memMetrics,
+		Disk:         diskMetrics,
+		Network:      netMetrics,
+		Host:         hostInfo,
+		Battery:      collectBattery(),
+		TopProcesses: collectTopProcesses(),
 	}
+}
+
+// collectBattery parses `pmset -g batt` to get current battery status.
+// Returns Percent=-1 on desktops or parse errors.
+func collectBattery() BatteryInfo {
+	out, err := exec.Command("pmset", "-g", "batt").Output()
+	if err != nil {
+		return BatteryInfo{Percent: -1, Status: "N/A"}
+	}
+	lines := strings.Split(string(out), "\n")
+	for _, line := range lines {
+		// Line looks like: "\t-InternalBattery-0 (id=...)	97%; discharging; 3:42 remaining present: true"
+		if !strings.Contains(line, "%") {
+			continue
+		}
+		// Extract percentage
+		idx := strings.Index(line, "%")
+		if idx == -1 {
+			continue
+		}
+		start := idx - 1
+		for start > 0 && line[start-1] >= '0' && line[start-1] <= '9' {
+			start--
+		}
+		pct, err := strconv.Atoi(strings.TrimSpace(line[start:idx]))
+		if err != nil {
+			continue
+		}
+		status := "Discharging"
+		lower := strings.ToLower(line)
+		switch {
+		case strings.Contains(lower, "charging;") || strings.Contains(lower, "ac attached"):
+			status = "Charging"
+		case strings.Contains(lower, "charged") || strings.Contains(lower, "finishing charge"):
+			status = "Full"
+		case strings.Contains(lower, "discharging"):
+			status = "Discharging"
+		}
+		return BatteryInfo{Percent: pct, Status: status}
+	}
+	return BatteryInfo{Percent: -1, Status: "N/A"}
+}
+
+// collectTopProcesses returns the top 5 processes by CPU usage.
+func collectTopProcesses() []ProcessInfo {
+	out, err := exec.Command("ps", "-Aceo", "pcpu,pmem,comm", "-r").Output()
+	if err != nil {
+		return nil
+	}
+	lines := strings.Split(strings.TrimSpace(string(out)), "\n")
+	var procs []ProcessInfo
+	for _, line := range lines {
+		if len(procs) >= 5 {
+			break
+		}
+		line = strings.TrimSpace(line)
+		if strings.HasPrefix(line, "%CPU") || line == "" {
+			continue
+		}
+		fields := strings.Fields(line)
+		if len(fields) < 3 {
+			continue
+		}
+		cpuVal, err1 := strconv.ParseFloat(fields[0], 64)
+		memVal, err2 := strconv.ParseFloat(fields[1], 64)
+		if err1 != nil || err2 != nil {
+			continue
+		}
+		name := filepath.Base(fields[2])
+		if len(name) > 24 {
+			name = name[:24]
+		}
+		procs = append(procs, ProcessInfo{Name: name, CPU: cpuVal, Memory: memVal})
+	}
+	return procs
 }
 
 // FormatUptime converts seconds to human-readable uptime string.

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { LayoutDashboard, Trash2, Zap, HardDrive, Flame, Package, Settings, Loader2, CheckCircle2, AlertCircle } from "lucide-react";
+import { LayoutDashboard, Trash2, Zap, HardDrive, Flame, Package, Settings, Loader2, CheckCircle2, AlertCircle, AppWindow, FileText } from "lucide-react";
+import logoSvg from "../assets/images/logo.svg";
 import { EventsOn, EventsOff } from "../../wailsjs/runtime/runtime";
 import { IsMoInstalled } from "../../wailsjs/go/main/CommandService";
 import type { Page } from "../App";
@@ -10,24 +11,30 @@ interface Props {
 }
 
 const nav: { id: Page; label: string; icon: React.ReactNode; group?: string }[] = [
-  { id: "dashboard",  label: "Dashboard",        icon: <LayoutDashboard size={17} /> },
-  { id: "cleaner",    label: "Cleaner",           icon: <Trash2 size={17} />,    group: "Tools" },
-  { id: "optimizer",  label: "Optimizer",         icon: <Zap size={17} />,       group: "Tools" },
-  { id: "purge",      label: "Purge",             icon: <Flame size={17} />,     group: "Tools" },
-  { id: "installer",  label: "App Cleanup",       icon: <Package size={17} />,   group: "Tools" },
-  { id: "analyzer",   label: "Analyzer",          icon: <HardDrive size={17} />, group: "Tools" },
-  { id: "settings",   label: "Settings",          icon: <Settings size={17} /> },
+  { id: "dashboard",    label: "Dashboard",       icon: <LayoutDashboard size={17} /> },
+  { id: "cleaner",      label: "Cleaner",          icon: <Trash2 size={17} />,     group: "Tools" },
+  { id: "optimizer",    label: "Optimizer",        icon: <Zap size={17} />,        group: "Tools" },
+  { id: "purge",        label: "Purge",            icon: <Flame size={17} />,      group: "Tools" },
+  { id: "installer",    label: "App Cleanup",      icon: <Package size={17} />,    group: "Tools" },
+  { id: "uninstall",    label: "Uninstall",        icon: <AppWindow size={17} />,  group: "Tools" },
+  { id: "logs",         label: "Clean Logs",       icon: <FileText size={17} />,   group: "Tools" },
+  { id: "nodemodules",  label: "Node Modules",     icon: <Package size={17} />,    group: "Tools" },
+  { id: "analyzer",     label: "Analyzer",         icon: <HardDrive size={17} />,  group: "Tools" },
+  { id: "settings",     label: "Settings",         icon: <Settings size={17} /> },
 ];
 
 /* Accent colors per page for the active glow */
 const accentMap: Partial<Record<Page, string>> = {
-  dashboard:  "#8b5cf6",
-  cleaner:    "#3b82f6",
-  optimizer:  "#f59e0b",
-  purge:      "#f97316",
-  installer:  "#10b981",
-  analyzer:   "#06b6d4",
-  settings:   "#94a3b8",
+  dashboard:   "#8b5cf6",
+  cleaner:     "#3b82f6",
+  optimizer:   "#f59e0b",
+  purge:       "#f97316",
+  installer:   "#10b981",
+  uninstall:   "#ef4444",
+  logs:        "#a78bfa",
+  nodemodules: "#22c55e",
+  analyzer:    "#06b6d4",
+  settings:    "#94a3b8",
 };
 
 function NavBtn({ id, label, icon, current, onNavigate }: {
@@ -103,14 +110,14 @@ export default function Sidebar({ current, onNavigate }: Props) {
       {/* App brand */}
       <div className="no-drag px-3 pt-3 mb-5">
         <div className="flex items-center gap-2">
-          <div
-            className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0"
-            style={{ background: "linear-gradient(135deg, #8b5cf6, #6366f1)" }}
-          >
-            <span className="text-white text-xs font-bold">M</span>
-          </div>
+          <img
+            src={logoSvg}
+            alt="MacMole"
+            className="w-8 h-8 rounded-xl flex-shrink-0"
+            style={{ imageRendering: "auto" }}
+          />
           <div>
-            <h1 className="text-sm font-semibold tracking-tight text-white leading-none">MacMole</h1>
+            <h1 className="text-sm font-semibold tracking-tight text-white leading-none">Mac Mole</h1>
             <p className="text-xs mt-0.5" style={{ color: "rgba(139,92,246,0.7)" }}>Mac Cleaner</p>
           </div>
         </div>

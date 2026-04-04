@@ -25,8 +25,8 @@ html, body {
 }
 
 /* macOS drag region for the custom title bar */
-.drag-region { -webkit-app-region: drag; }
-.no-drag     { -webkit-app-region: no-drag; }
+.drag-region { -webkit-app-region: drag; --wails-draggable: drag; }
+.no-drag     { -webkit-app-region: no-drag; --wails-draggable: no-drag; }
 
 /* Scrollbar */
 ::-webkit-scrollbar { width: 4px; }

@@ -1,4 +1,5 @@
 <div align="center">
+  <img src="./assets/logo.svg" alt="MacMole" width="128" height="128" />
   <h1>MacMole</h1>
   <p><em>Deep clean and optimize your Mac — CLI &amp; native Desktop app.</em></p>
 </div>
@@ -22,14 +23,30 @@ A native macOS desktop application that wraps the Mole CLI in a clean, modern UI
 
 **Desktop App** — this repository root is the desktop app source. Run `wails build` to build.
 
+<table>
+  <tr>
+    <td><img src="./assets/screenshot-dashboard.jpeg" alt="Dashboard" /></td>
+    <td><img src="./assets/screenshot-optimizer.jpeg" alt="System Optimizer" /></td>
+  </tr>
+  <tr>
+    <td><img src="./assets/screenshot-uninstall.jpeg" alt="App Uninstaller" /></td>
+    <td><img src="./assets/screenshot-analyzer.jpeg" alt="Disk Analyzer" /></td>
+  </tr>
+</table>
+
 | Feature | Detail |
 |---------|--------|
-| Real-time Dashboard | CPU, RAM, Disk, Network with health score |
+| Real-time Dashboard | CPU, RAM, Disk, Network, Battery with health score |
+| Top Processes | Live CPU & memory usage per process |
 | Deep Cleaner | `mo clean` with live output stream |
-| System Optimizer | `mo optimize` with dry-run preview |
-| Deep Purge | `mo purge` for orphaned files |
-| Installer Cleanup | `mo install` — remove .pkg/.dmg/.zip leftovers |
-| Disk Analyzer | Visual disk usage explorer |
+| System Optimizer | 5-step optimization with dry-run preview |
+| Deep Purge | `mo purge` for orphaned project artifacts |
+| App Cleanup | Remove app-specific caches and leftovers |
+| App Uninstaller | Remove apps + all hidden remnants by size |
+| Node Modules | Scan and purge unused `node_modules` directories |
+| Clean Logs | Remove system and app log files |
+| Installer Cleanup | Remove .pkg/.dmg/.zip installer leftovers |
+| Disk Analyzer | Visual disk usage breakdown by directory |
 | Optimize All | One-click clean + optimize from Dashboard |
 | Menu Bar Icon | Runs silently in menu bar, close = hide |
 | Notifications | macOS alerts when tasks complete |
@@ -48,22 +65,36 @@ A native macOS desktop application that wraps the Mole CLI in a clean, modern UI
 
 ## Quick Start
 
-**Install via Homebrew**
+**Desktop App**
+
+Download the latest `.dmg` from the [Releases](https://github.com/eksant/MacMole/releases) page, open it, and drag MacMole to your Applications folder.
+
+**Or build from source**
+
+```bash
+git clone https://github.com/eksant/MacMole.git
+cd MacMole
+wails build
+open build/bin/MacMole.app
+```
+
+**CLI (Mole)**
+
+Install the bundled Mole CLI via Homebrew:
 
 ```bash
 brew install mole
 ```
 
-**Or via script**
+Or via script:
 
 ```bash
-# Optional args: -s latest for main branch code, -s 1.17.0 for specific version
 curl -fsSL https://raw.githubusercontent.com/tw93/mole/main/install.sh | bash
 ```
 
-> Note: Mole is built for macOS. An experimental Windows version is available in the [windows branch](https://github.com/tw93/Mole/tree/windows) for early adopters.
+> Note: MacMole is macOS-only. The desktop app requires macOS 10.13+.
 
-**Run**
+**CLI commands**
 
 ```bash
 mo                           # Interactive menu
@@ -77,9 +108,8 @@ mo installer                 # Find and remove installer files
 
 mo touchid                   # Configure Touch ID for sudo
 mo completion                # Set up shell tab completion
-mo update                    # Update Mole
-mo update --nightly          # Update to latest unreleased main build, script install only
-mo remove                    # Remove Mole from system
+mo update                    # Update Mole CLI
+mo remove                    # Remove Mole CLI from system
 mo --help                    # Show help
 mo --version                 # Show installed version
 ```
