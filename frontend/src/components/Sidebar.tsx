@@ -13,6 +13,7 @@ import {
   AppWindow,
   FileText,
   Code2,
+  Activity,
 } from "lucide-react";
 import logoSvg from "../assets/images/logo.svg";
 import { EventsOn, EventsOff } from "../../wailsjs/runtime/runtime";
@@ -34,6 +35,7 @@ const nav: { id: Page; label: string; icon: React.ReactNode; group?: string }[] 
   { id: "logs", label: "Clean Logs", icon: <FileText size={17} />, group: "Tools" },
   { id: "nodemodules", label: "Node Modules", icon: <Package size={17} />, group: "Tools" },
   { id: "devcaches", label: "Dev Caches", icon: <Code2 size={17} />, group: "Tools" },
+  { id: "processes", label: "Processes", icon: <Activity size={17} />, group: "Tools" },
   { id: "analyzer", label: "Analyzer", icon: <HardDrive size={17} />, group: "Tools" },
   { id: "settings", label: "Settings", icon: <Settings size={17} /> },
 ];
@@ -49,6 +51,7 @@ const accentMap: Partial<Record<Page, string>> = {
   logs: "#a78bfa",
   nodemodules: "#22c55e",
   devcaches: "#10b981",
+  processes: "#f97316",
   analyzer: "#06b6d4",
   settings: "#94a3b8",
 };
