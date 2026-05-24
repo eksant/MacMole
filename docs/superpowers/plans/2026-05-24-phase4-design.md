@@ -1,6 +1,6 @@
 # Phase 4: Design Overhaul — Dashboard, Sidebar, UX Polish
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
 
 **Goal:** Restructure the navigation from 10+ flat items to ~6 meaningful groups, make the health ring the hero element of the dashboard with post-action state, fix icon duplication, improve contrast, add ARIA attributes, and persist last-run result.
 
@@ -19,7 +19,7 @@
 
 The sidebar uses `Package` icon for both "App Cleanup" and "Node Modules". This makes the two entries visually identical.
 
-- [ ] **Step 1: Replace duplicate icons**
+- [x] **Step 1: Replace duplicate icons**
 
 In `Sidebar.tsx`, import `Archive` and `FolderX` from `lucide-react` (in addition to existing imports):
 
@@ -27,7 +27,7 @@ In `Sidebar.tsx`, import `Archive` and `FolderX` from `lucide-react` (in additio
 import { ..., Archive, FolderX } from "lucide-react";
 ```
 
-- [ ] **Step 2: Update nav array**
+- [x] **Step 2: Update nav array**
 
 Change the two entries:
 
@@ -36,7 +36,7 @@ Change the two entries:
 { id: "nodemodules", label: "Node Modules", icon: <FolderX size={17} />,  group: "Tools" },
 ```
 
-- [ ] **Step 3: Raise group label opacity**
+- [x] **Step 3: Raise group label opacity**
 
 Find the group label `<p>` element with `color: "rgba(255,255,255,0.18)"` and raise to `0.40`:
 
@@ -44,7 +44,7 @@ Find the group label `<p>` element with `color: "rgba(255,255,255,0.18)"` and ra
 style={{ color: "rgba(255,255,255,0.40)", letterSpacing: "0.08em" }}
 ```
 
-- [ ] **Step 4: Add aria-current to active NavBtn**
+- [x] **Step 4: Add aria-current to active NavBtn**
 
 In the `NavBtn` component, add `aria-current={active ? "page" : undefined}` to the `<button>` element:
 
@@ -56,13 +56,13 @@ In the `NavBtn` component, add `aria-current={active ? "page" : undefined}` to t
 >
 ```
 
-- [ ] **Step 5: Type-check and lint**
+- [x] **Step 5: Type-check and lint**
 
 ```bash
 cd frontend && npm run type-check && npm run lint
 ```
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add frontend/src/components/Sidebar.tsx
@@ -78,7 +78,7 @@ git commit -m "fix: replace duplicate Package icons, raise group label contrast,
 
 Currently all tools are in one flat "Tools" group. With new pages from Phase 3, the sidebar is ~12 items. Group into: **Clean** (Cleaner, Optimizer, Purge, Dev Caches), **Manage** (Uninstall, App Cleanup, Logs, Node Modules), **Monitor** (Analyzer, Processes, History).
 
-- [ ] **Step 1: Update nav array with sub-groups**
+- [x] **Step 1: Update nav array with sub-groups**
 
 Replace the current single `group: "Tools"` with three distinct group values:
 
@@ -107,7 +107,7 @@ const nav: { id: Page; label: string; icon: React.ReactNode; group?: string }[] 
 ];
 ```
 
-- [ ] **Step 2: Update the nav render to show 3 groups**
+- [x] **Step 2: Update the nav render to show 3 groups**
 
 Replace the current nav render section (the `<nav>` content in Sidebar.tsx):
 
@@ -137,17 +137,17 @@ Replace the current nav render section (the `<nav>` content in Sidebar.tsx):
 </nav>
 ```
 
-- [ ] **Step 3: Add overflow-y-auto to sidebar itself**
+- [x] **Step 3: Add overflow-y-auto to sidebar itself**
 
 Add `overflow-y-auto` to the `<aside>` className so the nav can scroll if it grows tall.
 
-- [ ] **Step 4: Type-check and lint**
+- [x] **Step 4: Type-check and lint**
 
 ```bash
 cd frontend && npm run type-check && npm run lint
 ```
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add frontend/src/components/Sidebar.tsx
@@ -163,7 +163,7 @@ git commit -m "refactor: consolidate sidebar into Clean/Manage/Monitor sub-group
 
 The health ring is 88×88px and shows only a number. It should be the dashboard hero at 120×120px with a label ("Excellent/Good/Fair/Critical") and a "Last run" timestamp from localStorage.
 
-- [ ] **Step 1: Update ScoreRing component to 120×120 with label**
+- [x] **Step 1: Update ScoreRing component to 120×120 with label**
 
 Replace the `ScoreRing` function:
 
@@ -217,7 +217,7 @@ function ScoreRing({ score }: { score: number }) {
 }
 ```
 
-- [ ] **Step 2: Add last-run state persistence**
+- [x] **Step 2: Add last-run state persistence**
 
 Add to Dashboard component state:
 
@@ -260,7 +260,7 @@ function extractFreed(output: string): string {
 }
 ```
 
-- [ ] **Step 3: Show last-run below the Optimize All button**
+- [x] **Step 3: Show last-run below the Optimize All button**
 
 Just below the button group in the header `<div className="flex items-center gap-5">`:
 
@@ -273,13 +273,13 @@ Just below the button group in the header `<div className="flex items-center gap
 )}
 ```
 
-- [ ] **Step 4: Type-check and lint**
+- [x] **Step 4: Type-check and lint**
 
 ```bash
 cd frontend && npm run type-check && npm run lint
 ```
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add frontend/src/pages/Dashboard.tsx
@@ -297,7 +297,7 @@ git commit -m "feat: enlarge health ring to 120px, add score label, persist last
 
 The Cleaner, Optimizer, and Purge pages are structurally identical (run command → stream output → show result). Consolidate into one "Cleanup" page with tabs.
 
-- [ ] **Step 1: Create Cleanup.tsx combining all three**
+- [x] **Step 1: Create Cleanup.tsx combining all three**
 
 ```tsx
 import { useState, useEffect, useRef } from "react";
@@ -479,11 +479,11 @@ export default function Cleanup() {
 }
 ```
 
-- [ ] **Step 2: Wire into App.tsx**
+- [x] **Step 2: Wire into App.tsx**
 
 Add `"cleanup"` to `Page` type, add `case "cleanup": return <Cleanup />;`, import component.
 
-- [ ] **Step 3: Update Sidebar to use "cleanup" replacing "cleaner", "optimizer", "purge"**
+- [x] **Step 3: Update Sidebar to use "cleanup" replacing "cleaner", "optimizer", "purge"**
 
 Remove the separate cleaner, optimizer, purge nav entries. Add single entry:
 
@@ -495,17 +495,17 @@ Update accentMap: `cleanup: "#3b82f6"`.
 
 Import `Sparkles` from `lucide-react`.
 
-- [ ] **Step 4: Keep old pages in App.tsx** (for backwards navigation compatibility — routes still exist but not in sidebar)
+- [x] **Step 4: Keep old pages in App.tsx** (for backwards navigation compatibility — routes still exist but not in sidebar)
 
 Old pages `Cleaner`, `Optimizer`, `Purge` can remain in the codebase for now; they simply won't appear in sidebar navigation. This avoids breaking any deep-links.
 
-- [ ] **Step 5: Type-check and lint**
+- [x] **Step 5: Type-check and lint**
 
 ```bash
 cd frontend && npm run type-check && npm run lint
 ```
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add frontend/src/
@@ -520,7 +520,7 @@ git commit -m "refactor: consolidate Cleaner/Optimizer/Purge into single tabbed 
 - Modify: `frontend/src/style.css`
 - Modify: `frontend/src/App.css`
 
-- [ ] **Step 1: Verify animate-score-ring keyframe exists in style.css**
+- [x] **Step 1: Verify animate-score-ring keyframe exists in style.css**
 
 Check `frontend/src/style.css` for `@keyframes score-ring`. If missing, add:
 
@@ -534,7 +534,7 @@ Check `frontend/src/style.css` for `@keyframes score-ring`. If missing, add:
 }
 ```
 
-- [ ] **Step 2: Add fade-in-up animation**
+- [x] **Step 2: Add fade-in-up animation**
 
 Add to `style.css` if not present:
 
@@ -551,7 +551,7 @@ Add to `style.css` if not present:
 }
 ```
 
-- [ ] **Step 3: Ensure dot-loader animation is defined**
+- [x] **Step 3: Ensure dot-loader animation is defined**
 
 ```css
 @keyframes dot-bounce {
@@ -569,7 +569,7 @@ Add to `style.css` if not present:
 .dot-loader span:nth-child(3) { animation-delay: 0.30s; }
 ```
 
-- [ ] **Step 4: Build frontend**
+- [x] **Step 4: Build frontend**
 
 ```bash
 cd frontend && npm run build
@@ -577,7 +577,7 @@ cd frontend && npm run build
 
 Expected: no errors.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add frontend/src/style.css frontend/src/App.css
@@ -594,7 +594,7 @@ git commit -m "style: ensure all CSS animations (score-ring, fade-in-up, dot-loa
 
 This task is blocked on user providing the icon asset. When provided:
 
-- [ ] **Step 1: Copy user-provided icon to assets/**
+- [x] **Step 1: Copy user-provided icon to assets/**
 
 ```bash
 cp ~/Downloads/<provided-icon>.svg /Users/eksa/Projects/MacMole/assets/logo.svg
@@ -602,7 +602,7 @@ cp ~/Downloads/<provided-icon>.svg /Users/eksa/Projects/MacMole/assets/logo.svg
 cp ~/Downloads/<provided-icon>.png /Users/eksa/Projects/MacMole/assets/logo.png
 ```
 
-- [ ] **Step 2: Generate app icon variants using wails CLI or manual export**
+- [x] **Step 2: Generate app icon variants using wails CLI or manual export**
 
 For macOS `.icns` via wails:
 ```bash
@@ -618,14 +618,14 @@ sips -z 18 18 assets/logo.png --out build/trayicon.png
 sips -z 36 36 assets/logo.png --out build/trayicon@2x.png
 ```
 
-- [ ] **Step 3: Update logo reference in Sidebar.tsx**
+- [x] **Step 3: Update logo reference in Sidebar.tsx**
 
 If format changes (e.g., from SVG to PNG), update the import in `Sidebar.tsx`:
 ```tsx
 import logoSvg from "../assets/images/logo.svg"; // change path/extension as needed
 ```
 
-- [ ] **Step 4: Build and verify icons appear correctly**
+- [x] **Step 4: Build and verify icons appear correctly**
 
 ```bash
 wails build
@@ -634,7 +634,7 @@ open build/bin/MacMole.app
 
 Verify: app icon in Dock, tray icon in menu bar.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add assets/ build/

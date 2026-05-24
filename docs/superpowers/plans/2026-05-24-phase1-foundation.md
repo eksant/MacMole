@@ -1,6 +1,6 @@
 # Phase 1: Foundation — Bug Fixes + Lint Setup
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
 
 **Goal:** Fix all known bugs and enforce strict linting/formatting across the entire codebase (Go + TypeScript/React) with zero warnings, zero errors, zero `any` types, zero unused vars.
 
@@ -24,13 +24,13 @@
 - Create: `build/trayicon.png` (18×18)
 - Create: `build/trayicon@2x.png` (36×36)
 
-- [ ] **Step 1: Update .gitignore** — remove CLAUDE.md from ignore, surgical .claude/ ignores, add `desktop` binary
+- [x] **Step 1: Update .gitignore** — remove CLAUDE.md from ignore, surgical .claude/ ignores, add `desktop` binary
 
-- [ ] **Step 2: Create CLAUDE.md** at project root with build commands, architecture, and code rules
+- [x] **Step 2: Create CLAUDE.md** at project root with build commands, architecture, and code rules
 
-- [ ] **Step 3: Create .claude/commands/** project skills for dev, build, sync-mole
+- [x] **Step 3: Create .claude/commands/** project skills for dev, build, sync-mole
 
-- [ ] **Step 4: Install librsvg and generate icon PNGs**
+- [x] **Step 4: Install librsvg and generate icon PNGs**
 
 ```bash
 brew install librsvg
@@ -40,7 +40,7 @@ rsvg-convert -w 18 -h 18 -o build/trayicon.png assets/icon-concept.svg
 rsvg-convert -w 36 -h 36 -o build/trayicon@2x.png assets/icon-concept.svg
 ```
 
-- [ ] **Step 5: Verify Go build succeeds**
+- [x] **Step 5: Verify Go build succeeds**
 
 ```bash
 go build ./...
@@ -48,7 +48,7 @@ go build ./...
 
 Expected: no output.
 
-- [ ] **Step 6: Commit all setup files**
+- [x] **Step 6: Commit all setup files**
 
 ```bash
 git add .gitignore CLAUDE.md .claude/commands/ build/appicon.png build/trayicon.png build/trayicon@2x.png
@@ -64,7 +64,7 @@ git commit -m "chore: project setup — CLAUDE.md, skills, gitignore, regenerate
 
 The `prevNetSent`, `prevNetRecv`, `prevNetTime` fields are accessed from `GetMetrics()` which can be called concurrently by both the frontend polling (via Wails) and the tray goroutine. No mutex protects these fields.
 
-- [ ] **Step 1: Add mutex to MetricsService**
+- [x] **Step 1: Add mutex to MetricsService**
 
 Replace the struct definition at `metrics.go:21-25`:
 
@@ -79,7 +79,7 @@ type MetricsService struct {
 
 Add `"sync"` to the import block (it already imports other packages, just add sync).
 
-- [ ] **Step 2: Wrap net rate calculation in mutex**
+- [x] **Step 2: Wrap net rate calculation in mutex**
 
 Replace the network block at `metrics.go:130-146`:
 
@@ -107,7 +107,7 @@ if err == nil && len(netStats) > 0 {
 }
 ```
 
-- [ ] **Step 3: Build to verify no compile errors**
+- [x] **Step 3: Build to verify no compile errors**
 
 ```bash
 cd /Users/eksa/Projects/MacMole && go build ./...
@@ -115,7 +115,7 @@ cd /Users/eksa/Projects/MacMole && go build ./...
 
 Expected: no output (success).
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add metrics.go
@@ -131,7 +131,7 @@ git commit -m "fix: add mutex to MetricsService to prevent network rate race con
 
 `os.UserHomeDir()` errors are silently ignored in 3 functions: `GetDiskAnalysis`, `ScanLogs`, `ScanNodeModules`, `DeleteApps`, `DeleteLogs`. If home is empty, paths collapse to `/Library`, `/Logs`, etc. — dangerous.
 
-- [ ] **Step 1: Extract a safe helper at top of commands.go**
+- [x] **Step 1: Extract a safe helper at top of commands.go**
 
 After the `stripANSI` function (around line 22), add:
 
@@ -147,7 +147,7 @@ func safeHome() string {
 }
 ```
 
-- [ ] **Step 2: Update GetDiskAnalysis**
+- [x] **Step 2: Update GetDiskAnalysis**
 
 Replace line `home, _ := os.UserHomeDir()` in `GetDiskAnalysis` with:
 
@@ -158,7 +158,7 @@ if home == "" {
 }
 ```
 
-- [ ] **Step 3: Update ScanLogs**
+- [x] **Step 3: Update ScanLogs**
 
 Replace `home, _ := os.UserHomeDir()` in `ScanLogs` with:
 
@@ -169,7 +169,7 @@ if home == "" {
 }
 ```
 
-- [ ] **Step 4: Update ScanNodeModules**
+- [x] **Step 4: Update ScanNodeModules**
 
 Replace `home, _ := os.UserHomeDir()` in `ScanNodeModules` with:
 
@@ -180,7 +180,7 @@ if home == "" {
 }
 ```
 
-- [ ] **Step 5: Update DeleteApps**
+- [x] **Step 5: Update DeleteApps**
 
 Replace `home, _ := os.UserHomeDir()` in `DeleteApps` with:
 
@@ -191,7 +191,7 @@ if home == "" {
 }
 ```
 
-- [ ] **Step 6: Update DeleteLogs**
+- [x] **Step 6: Update DeleteLogs**
 
 Replace `home, _ := os.UserHomeDir()` in `DeleteLogs` with:
 
@@ -203,13 +203,13 @@ if home == "" {
 logsRoot := filepath.Join(home, "Library", "Logs")
 ```
 
-- [ ] **Step 7: Build**
+- [x] **Step 7: Build**
 
 ```bash
 go build ./...
 ```
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```bash
 git add commands.go
@@ -225,7 +225,7 @@ git commit -m "fix: guard against empty UserHomeDir in all path operations"
 
 The background metrics goroutine started in `initTray()` runs forever with no shutdown signal. On app quit, the goroutine leaks because the ticker is never stopped by a context.
 
-- [ ] **Step 1: Add a package-level done channel**
+- [x] **Step 1: Add a package-level done channel**
 
 At the top of `tray_darwin.go`, after the import block, add:
 
@@ -233,7 +233,7 @@ At the top of `tray_darwin.go`, after the import block, add:
 var trayDone = make(chan struct{})
 ```
 
-- [ ] **Step 2: Thread the done channel into the goroutine**
+- [x] **Step 2: Thread the done channel into the goroutine**
 
 Replace the goroutine in `initTray()` (current lines 41-54):
 
@@ -257,7 +257,7 @@ go func() {
 }()
 ```
 
-- [ ] **Step 3: Export a StopTray function so app.go can call it on shutdown**
+- [x] **Step 3: Export a StopTray function so app.go can call it on shutdown**
 
 Add at the bottom of `tray_darwin.go`:
 
@@ -272,7 +272,7 @@ func StopTray() {
 }
 ```
 
-- [ ] **Step 4: Call StopTray on app shutdown in app.go**
+- [x] **Step 4: Call StopTray on app shutdown in app.go**
 
 Add an `OnShutdown` hook in `main.go` inside `wails.Run(&options.App{...})`:
 
@@ -284,13 +284,13 @@ OnShutdown: func(ctx context.Context) {
 
 Add it after the `OnStartup` line.
 
-- [ ] **Step 5: Build**
+- [x] **Step 5: Build**
 
 ```bash
 go build ./...
 ```
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add tray_darwin.go main.go
@@ -306,7 +306,7 @@ git commit -m "fix: add shutdown channel to tray metrics goroutine to prevent le
 
 In `collectBattery()`, the index arithmetic `start := idx - 1` followed by a backward scan assumes `idx > 0` but never checks. If `%` appears at position 0, `start` becomes -1 causing an index out of bounds panic.
 
-- [ ] **Step 1: Add bounds guard before backward scan**
+- [x] **Step 1: Add bounds guard before backward scan**
 
 Replace the parsing block in `collectBattery()` at lines ~193-200:
 
@@ -327,13 +327,13 @@ if err != nil {
 
 The key change: `if idx == -1` becomes `if idx <= 0` — catches both "not found" and "at position 0".
 
-- [ ] **Step 2: Build and verify**
+- [x] **Step 2: Build and verify**
 
 ```bash
 go build ./...
 ```
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add metrics.go
@@ -353,7 +353,7 @@ git commit -m "fix: guard pmset % index against out-of-bounds when % is at start
 
 All these pages use `.catch(console.error)` with no user-facing error state. On API failure the page is silent.
 
-- [ ] **Step 1: Add error state to Uninstall.tsx**
+- [x] **Step 1: Add error state to Uninstall.tsx**
 
 Add to state declarations:
 ```tsx
@@ -389,7 +389,7 @@ Add error banner just before the app list render:
 )}
 ```
 
-- [ ] **Step 2: Apply same pattern to Logs.tsx**
+- [x] **Step 2: Apply same pattern to Logs.tsx**
 
 In `ScanLogs().catch(...)` replace `console.error` with:
 ```tsx
@@ -400,19 +400,19 @@ In `ScanLogs().catch(...)` replace `console.error` with:
 
 Add `const [error, setError] = useState<string | null>(null);` to state, render banner above log list.
 
-- [ ] **Step 3: Apply same pattern to NodeModules.tsx**
+- [x] **Step 3: Apply same pattern to NodeModules.tsx**
 
 Same pattern: `error` state, update `.catch`, render banner.
 
-- [ ] **Step 4: Apply same pattern to Analyzer.tsx**
+- [x] **Step 4: Apply same pattern to Analyzer.tsx**
 
 Same pattern.
 
-- [ ] **Step 5: Apply same pattern to Purge.tsx**
+- [x] **Step 5: Apply same pattern to Purge.tsx**
 
 Same pattern.
 
-- [ ] **Step 6: Type-check**
+- [x] **Step 6: Type-check**
 
 ```bash
 cd frontend && npx tsc --noEmit
@@ -420,7 +420,7 @@ cd frontend && npx tsc --noEmit
 
 Expected: no errors.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add frontend/src/pages/
@@ -435,7 +435,7 @@ git commit -m "fix: add error state to all pages that silently swallowed API fai
 - Create: `frontend/eslint.config.mjs`
 - Modify: `frontend/package.json`
 
-- [ ] **Step 1: Install ESLint packages**
+- [x] **Step 1: Install ESLint packages**
 
 ```bash
 cd frontend && npm install --save-dev \
@@ -445,7 +445,7 @@ cd frontend && npm install --save-dev \
   eslint-config-prettier@^9
 ```
 
-- [ ] **Step 2: Create eslint.config.mjs**
+- [x] **Step 2: Create eslint.config.mjs**
 
 Create `frontend/eslint.config.mjs`:
 
@@ -480,7 +480,7 @@ export default tseslint.config(
 );
 ```
 
-- [ ] **Step 3: Add lint scripts to package.json**
+- [x] **Step 3: Add lint scripts to package.json**
 
 Add to `"scripts"` in `frontend/package.json`:
 
@@ -490,7 +490,7 @@ Add to `"scripts"` in `frontend/package.json`:
 "type-check": "tsc --noEmit"
 ```
 
-- [ ] **Step 4: Run lint and see initial violations**
+- [x] **Step 4: Run lint and see initial violations**
 
 ```bash
 cd frontend && npm run lint 2>&1 | head -60
@@ -498,7 +498,7 @@ cd frontend && npm run lint 2>&1 | head -60
 
 Note violations — do not fix yet (next task).
 
-- [ ] **Step 5: Commit config files**
+- [x] **Step 5: Commit config files**
 
 ```bash
 git add frontend/eslint.config.mjs frontend/package.json frontend/package-lock.json
@@ -513,13 +513,13 @@ git commit -m "chore: add ESLint flat config with strict typescript-eslint rules
 - Create: `frontend/.prettierrc`
 - Create: `frontend/.prettierignore`
 
-- [ ] **Step 1: Install Prettier**
+- [x] **Step 1: Install Prettier**
 
 ```bash
 cd frontend && npm install --save-dev prettier@^3
 ```
 
-- [ ] **Step 2: Create .prettierrc**
+- [x] **Step 2: Create .prettierrc**
 
 Create `frontend/.prettierrc`:
 
@@ -535,7 +535,7 @@ Create `frontend/.prettierrc`:
 }
 ```
 
-- [ ] **Step 3: Create .prettierignore**
+- [x] **Step 3: Create .prettierignore**
 
 Create `frontend/.prettierignore`:
 
@@ -546,7 +546,7 @@ wailsjs/
 *.md
 ```
 
-- [ ] **Step 4: Add format scripts to package.json**
+- [x] **Step 4: Add format scripts to package.json**
 
 Add to `"scripts"`:
 
@@ -555,13 +555,13 @@ Add to `"scripts"`:
 "format:check": "prettier --check src/"
 ```
 
-- [ ] **Step 5: Run Prettier on all src files**
+- [x] **Step 5: Run Prettier on all src files**
 
 ```bash
 cd frontend && npm run format
 ```
 
-- [ ] **Step 6: Commit formatted files**
+- [x] **Step 6: Commit formatted files**
 
 ```bash
 git add frontend/.prettierrc frontend/.prettierignore frontend/package.json frontend/package-lock.json frontend/src/
@@ -575,19 +575,19 @@ git commit -m "chore: add Prettier config and auto-format all frontend source fi
 **Files:**
 - Modify: All files in `frontend/src/` that have violations
 
-- [ ] **Step 1: Run lint to see all violations**
+- [x] **Step 1: Run lint to see all violations**
 
 ```bash
 cd frontend && npm run lint 2>&1
 ```
 
-- [ ] **Step 2: Fix auto-fixable violations**
+- [x] **Step 2: Fix auto-fixable violations**
 
 ```bash
 cd frontend && npm run lint:fix
 ```
 
-- [ ] **Step 3: Fix remaining manual violations**
+- [x] **Step 3: Fix remaining manual violations**
 
 Common patterns to fix:
 - Replace `console.error` with proper error state (already done in Task 5)
@@ -595,7 +595,7 @@ Common patterns to fix:
 - Replace `.catch(console.error)` with typed catch handlers
 - Remove any remaining `any` types
 
-- [ ] **Step 4: Run lint until zero violations**
+- [x] **Step 4: Run lint until zero violations**
 
 ```bash
 cd frontend && npm run lint
@@ -603,7 +603,7 @@ cd frontend && npm run lint
 
 Expected: no output (exit 0).
 
-- [ ] **Step 5: Run type-check**
+- [x] **Step 5: Run type-check**
 
 ```bash
 cd frontend && npm run type-check
@@ -611,7 +611,7 @@ cd frontend && npm run type-check
 
 Expected: no errors.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add frontend/src/
@@ -625,7 +625,7 @@ git commit -m "fix: resolve all ESLint and TypeScript strict violations in front
 **Files:**
 - Create: `.golangci.yml` (root)
 
-- [ ] **Step 1: Check golangci-lint is installed**
+- [x] **Step 1: Check golangci-lint is installed**
 
 ```bash
 golangci-lint --version
@@ -633,7 +633,7 @@ golangci-lint --version
 
 If not installed: `brew install golangci-lint`
 
-- [ ] **Step 2: Create .golangci.yml at repo root**
+- [x] **Step 2: Create .golangci.yml at repo root**
 
 ```yaml
 run:
@@ -674,7 +674,7 @@ issues:
   max-same-issues: 0
 ```
 
-- [ ] **Step 3: Run golangci-lint and see violations**
+- [x] **Step 3: Run golangci-lint and see violations**
 
 ```bash
 golangci-lint run ./... 2>&1
@@ -682,14 +682,14 @@ golangci-lint run ./... 2>&1
 
 Note violations.
 
-- [ ] **Step 4: Fix violations**
+- [x] **Step 4: Fix violations**
 
 Common patterns:
 - Remove unused variables
 - Add error checks where missing
 - Fix formatting inconsistencies
 
-- [ ] **Step 5: Run until zero violations**
+- [x] **Step 5: Run until zero violations**
 
 ```bash
 golangci-lint run ./...
@@ -697,7 +697,7 @@ golangci-lint run ./...
 
 Expected: no output (exit 0).
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add .golangci.yml
@@ -711,7 +711,7 @@ git commit -m "chore: add golangci-lint config and fix all Go linting violations
 **Files:**
 - Modify: `frontend/tsconfig.json`
 
-- [ ] **Step 1: Add strict options to tsconfig.json**
+- [x] **Step 1: Add strict options to tsconfig.json**
 
 Replace `"compilerOptions"` block with:
 
@@ -744,7 +744,7 @@ Replace `"compilerOptions"` block with:
 }
 ```
 
-- [ ] **Step 2: Type-check**
+- [x] **Step 2: Type-check**
 
 ```bash
 cd frontend && npm run type-check
@@ -752,7 +752,7 @@ cd frontend && npm run type-check
 
 Fix any new violations that surface.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add frontend/tsconfig.json frontend/src/

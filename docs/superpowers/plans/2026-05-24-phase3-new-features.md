@@ -1,6 +1,6 @@
 # Phase 3: New Features — Dev Caches, Docker, Process Killer, History
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
 
 **Goal:** Add four high-value features inspired by MacSlim: (1) Dev Cache Cleaner with per-tool native commands, (2) Docker deep management, (3) Zombie/idle Process Killer, (4) SQLite Operation History log.
 
@@ -17,7 +17,7 @@
 **Files:**
 - Create: `devcaches.go`
 
-- [ ] **Step 1: Create devcaches.go with DevCacheService**
+- [x] **Step 1: Create devcaches.go with DevCacheService**
 
 ```go
 package main
@@ -165,7 +165,7 @@ func (d *DevCacheService) CleanDevCaches(ids []string) []DevCacheResult {
 }
 ```
 
-- [ ] **Step 2: Register DevCacheService in main.go**
+- [x] **Step 2: Register DevCacheService in main.go**
 
 In `main.go`, add:
 ```go
@@ -173,13 +173,13 @@ devCaches := NewDevCacheService()
 ```
 And add `devCaches` to the `Bind` slice.
 
-- [ ] **Step 3: Build**
+- [x] **Step 3: Build**
 
 ```bash
 cd /Users/eksa/Projects/MacMole && go build ./...
 ```
 
-- [ ] **Step 4: Regenerate Wails bindings**
+- [x] **Step 4: Regenerate Wails bindings**
 
 ```bash
 wails generate module
@@ -187,7 +187,7 @@ wails generate module
 
 Verify `frontend/wailsjs/go/main/DevCacheService.js` was created.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add devcaches.go main.go frontend/wailsjs/
@@ -203,7 +203,7 @@ git commit -m "feat: add DevCacheService with 7 tool caches (npm, pnpm, yarn, br
 - Modify: `frontend/src/App.tsx`
 - Modify: `frontend/src/components/Sidebar.tsx`
 
-- [ ] **Step 1: Create DevCaches.tsx**
+- [x] **Step 1: Create DevCaches.tsx**
 
 ```tsx
 import { useState, useEffect } from "react";
@@ -359,13 +359,13 @@ export default function DevCaches() {
 }
 ```
 
-- [ ] **Step 2: Add "devcaches" to App.tsx Page type and renderPage**
+- [x] **Step 2: Add "devcaches" to App.tsx Page type and renderPage**
 
 In `App.tsx`, add `"devcaches"` to the `Page` type and `case "devcaches": return <DevCaches />;` in `renderPage`.
 
 Import: `import DevCaches from "./pages/DevCaches";`
 
-- [ ] **Step 3: Add Dev Caches to Sidebar navigation**
+- [x] **Step 3: Add Dev Caches to Sidebar navigation**
 
 In `Sidebar.tsx`, add to the `nav` array (in the Tools group):
 
@@ -377,13 +377,13 @@ Add to `accentMap`: `devcaches: "#10b981"`.
 
 Import `Code2` from `lucide-react`.
 
-- [ ] **Step 4: Type-check and lint**
+- [x] **Step 4: Type-check and lint**
 
 ```bash
 cd frontend && npm run type-check && npm run lint
 ```
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add frontend/src/
@@ -397,7 +397,7 @@ git commit -m "feat: add Dev Caches page with 7 tool-native clean commands"
 **Files:**
 - Create: `processes.go`
 
-- [ ] **Step 1: Create processes.go**
+- [x] **Step 1: Create processes.go**
 
 ```go
 package main
@@ -529,7 +529,7 @@ func (p *ProcessService) KillProcesses(pids []int) []KillProcessResult {
 }
 ```
 
-- [ ] **Step 2: Register in main.go**
+- [x] **Step 2: Register in main.go**
 
 ```go
 processes := NewProcessService()
@@ -537,13 +537,13 @@ processes := NewProcessService()
 
 Add `processes` to `Bind` slice.
 
-- [ ] **Step 3: Build and regenerate bindings**
+- [x] **Step 3: Build and regenerate bindings**
 
 ```bash
 go build ./... && wails generate module
 ```
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add processes.go main.go frontend/wailsjs/
@@ -559,7 +559,7 @@ git commit -m "feat: add ProcessService with SIGTERM→SIGKILL escalation for fl
 - Modify: `frontend/src/App.tsx`
 - Modify: `frontend/src/components/Sidebar.tsx`
 
-- [ ] **Step 1: Create Processes.tsx**
+- [x] **Step 1: Create Processes.tsx**
 
 ```tsx
 import { useState, useEffect } from "react";
@@ -727,19 +727,19 @@ export default function Processes() {
 }
 ```
 
-- [ ] **Step 2: Wire into App.tsx and Sidebar.tsx**
+- [x] **Step 2: Wire into App.tsx and Sidebar.tsx**
 
 In `App.tsx`: add `"processes"` to `Page` type, add `case "processes": return <Processes />;`, import component.
 
 In `Sidebar.tsx`: add `{ id: "processes", label: "Processes", icon: <Activity size={17} />, group: "Tools" }` to nav array. Add `processes: "#f97316"` to accentMap.
 
-- [ ] **Step 3: Type-check and lint**
+- [x] **Step 3: Type-check and lint**
 
 ```bash
 cd frontend && npm run type-check && npm run lint
 ```
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add frontend/src/
@@ -754,13 +754,13 @@ git commit -m "feat: add Process Manager page with zombie and high-resource proc
 - Create: `history.go`
 - Modify: `go.mod` / `go.sum`
 
-- [ ] **Step 1: Add SQLite driver**
+- [x] **Step 1: Add SQLite driver**
 
 ```bash
 cd /Users/eksa/Projects/MacMole && go get modernc.org/sqlite
 ```
 
-- [ ] **Step 2: Create history.go**
+- [x] **Step 2: Create history.go**
 
 ```go
 package main
@@ -859,7 +859,7 @@ func (h *HistoryService) ClearHistory() bool {
 }
 ```
 
-- [ ] **Step 3: Register in main.go**
+- [x] **Step 3: Register in main.go**
 
 ```go
 history, err := NewHistoryService()
@@ -870,7 +870,7 @@ if err != nil {
 
 If `history != nil`, add to `Bind` slice. Store `history` in `App` struct so `CommandService` can call `history.Record()` after operations.
 
-- [ ] **Step 4: Record operations in CommandService**
+- [x] **Step 4: Record operations in CommandService**
 
 Modify `CommandService` to hold a `*HistoryService` reference. After each `runMo()` call in `RunClean`, `RunOptimize`, `RunPurge`, call:
 ```go
@@ -879,19 +879,19 @@ if c.history != nil {
 }
 ```
 
-- [ ] **Step 5: Build**
+- [x] **Step 5: Build**
 
 ```bash
 go build ./...
 ```
 
-- [ ] **Step 6: Regenerate bindings**
+- [x] **Step 6: Regenerate bindings**
 
 ```bash
 wails generate module
 ```
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add history.go main.go commands.go go.mod go.sum frontend/wailsjs/
@@ -906,7 +906,7 @@ git commit -m "feat: add SQLite operation history log to ~/Library/Application S
 - Create: `frontend/src/pages/History.tsx`
 - Modify: `frontend/src/App.tsx`, `frontend/src/components/Sidebar.tsx`
 
-- [ ] **Step 1: Create History.tsx**
+- [x] **Step 1: Create History.tsx**
 
 ```tsx
 import { useState, useEffect } from "react";
@@ -1026,18 +1026,18 @@ export default function History() {
 }
 ```
 
-- [ ] **Step 2: Wire into App.tsx and Sidebar.tsx**
+- [x] **Step 2: Wire into App.tsx and Sidebar.tsx**
 
 In `App.tsx`: add `"history"` to `Page`, add case, import.
 In `Sidebar.tsx`: add `{ id: "history", label: "History", icon: <Clock size={17} />, group: "Tools" }`, accentMap entry `history: "#6366f1"`.
 
-- [ ] **Step 3: Type-check and lint**
+- [x] **Step 3: Type-check and lint**
 
 ```bash
 cd frontend && npm run type-check && npm run lint
 ```
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add frontend/src/
