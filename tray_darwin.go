@@ -26,6 +26,8 @@ var trayIcon1x []byte
 //go:embed build/trayicon@2x.png
 var trayIcon2x []byte
 
+var trayDone = make(chan struct{})
+
 func initTray() {
 	p1 := C.CBytes(trayIcon1x)
 	p2 := C.CBytes(trayIcon2x)
@@ -48,8 +50,13 @@ func initTray() {
 		time.Sleep(500 * time.Millisecond)
 		pushTrayMetrics(svc)
 
-		for range ticker.C {
-			pushTrayMetrics(svc)
+		for {
+			select {
+			case <-ticker.C:
+				pushTrayMetrics(svc)
+			case <-trayDone:
+				return
+			}
 		}
 	}()
 }
@@ -67,4 +74,9 @@ func pushTrayMetrics(svc *MetricsService) {
 		C.int(m.Battery.Percent),
 		status,
 	)
+}
+
+// StopTray signals the tray goroutine to exit cleanly.
+func StopTray() {
+	close(trayDone)
 }

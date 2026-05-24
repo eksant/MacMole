@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"embed"
 
 	"github.com/wailsapp/wails/v2"
@@ -50,6 +51,7 @@ func main() {
 			Assets: assets,
 		},
 		OnStartup: app.startup,
+		OnShutdown: func(_ context.Context) { StopTray() },
 		Bind: []interface{}{
 			app,
 			metrics,
