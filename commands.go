@@ -215,7 +215,10 @@ func (c *CommandService) runMo(args ...string) CommandResult {
 // GetDiskAnalysis returns metadata for top-level Mac directories with real sizes.
 // Paths are derived from os.UserHomeDir() — no user-supplied input.
 func (c *CommandService) GetDiskAnalysis() []DiskEntry {
-	home, _ := os.UserHomeDir()
+	home := safeHome()
+	if home == "" {
+		return nil
+	}
 	roots := []string{
 		home,
 		filepath.Join(home, "Library"),
@@ -357,7 +360,10 @@ func readBundleID(appPath string) string {
 // DeleteApps removes the given .app paths and their associated user-data files.
 // Paths must be under /Applications to be accepted.
 func (c *CommandService) DeleteApps(paths []string) CommandResult {
-	home, _ := os.UserHomeDir()
+	home := safeHome()
+	if home == "" {
+		return CommandResult{Success: false, Error: "could not determine home directory"}
+	}
 	var freed int64
 	var removed []string
 
@@ -413,7 +419,10 @@ func (c *CommandService) DeleteApps(paths []string) CommandResult {
 
 // ScanLogs returns top-level entries under ~/Library/Logs with sizes.
 func (c *CommandService) ScanLogs() []LogEntry {
-	home, _ := os.UserHomeDir()
+	home := safeHome()
+	if home == "" {
+		return nil
+	}
 	logsDir := filepath.Join(home, "Library", "Logs")
 
 	entries, err := os.ReadDir(logsDir)
@@ -464,7 +473,10 @@ func (c *CommandService) ScanLogs() []LogEntry {
 
 // DeleteLogs removes the given paths, which must all be under ~/Library/Logs.
 func (c *CommandService) DeleteLogs(paths []string) CommandResult {
-	home, _ := os.UserHomeDir()
+	home := safeHome()
+	if home == "" {
+		return CommandResult{Success: false, Error: "could not determine home directory"}
+	}
 	logsRoot := filepath.Join(home, "Library", "Logs")
 	var freed int64
 	var count int
@@ -502,7 +514,10 @@ func (c *CommandService) DeleteLogs(paths []string) CommandResult {
 
 // ScanNodeModules finds node_modules directories under common development roots.
 func (c *CommandService) ScanNodeModules() []NodeModulesEntry {
-	home, _ := os.UserHomeDir()
+	home := safeHome()
+	if home == "" {
+		return nil
+	}
 	roots := []string{
 		filepath.Join(home, "Projects"),
 		filepath.Join(home, "Developer"),
@@ -628,4 +643,13 @@ func fmtBytes(b int64) string {
 	default:
 		return fmt.Sprintf("%d B", b)
 	}
+}
+
+// safeHome returns the current user's home directory, or "" if unavailable.
+func safeHome() string {
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return ""
+	}
+	return home
 }
