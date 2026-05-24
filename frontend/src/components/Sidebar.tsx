@@ -5,7 +5,6 @@ import {
   Zap,
   HardDrive,
   Flame,
-  Package,
   Settings,
   Loader2,
   CheckCircle2,
@@ -15,6 +14,8 @@ import {
   Code2,
   Activity,
   Clock,
+  Archive,
+  FolderX,
 } from "lucide-react";
 import logoSvg from "../assets/images/logo.svg";
 import { EventsOn, EventsOff } from "../../wailsjs/runtime/runtime";
@@ -31,10 +32,10 @@ const nav: { id: Page; label: string; icon: React.ReactNode; group?: string }[] 
   { id: "cleaner", label: "Cleaner", icon: <Trash2 size={17} />, group: "Tools" },
   { id: "optimizer", label: "Optimizer", icon: <Zap size={17} />, group: "Tools" },
   { id: "purge", label: "Purge", icon: <Flame size={17} />, group: "Tools" },
-  { id: "installer", label: "App Cleanup", icon: <Package size={17} />, group: "Tools" },
+  { id: "installer", label: "App Cleanup", icon: <Archive size={17} />, group: "Tools" },
   { id: "uninstall", label: "Uninstall", icon: <AppWindow size={17} />, group: "Tools" },
   { id: "logs", label: "Clean Logs", icon: <FileText size={17} />, group: "Tools" },
-  { id: "nodemodules", label: "Node Modules", icon: <Package size={17} />, group: "Tools" },
+  { id: "nodemodules", label: "Node Modules", icon: <FolderX size={17} />, group: "Tools" },
   { id: "devcaches", label: "Dev Caches", icon: <Code2 size={17} />, group: "Tools" },
   { id: "processes", label: "Processes", icon: <Activity size={17} />, group: "Tools" },
   { id: "history", label: "History", icon: <Clock size={17} />, group: "Tools" },
@@ -77,6 +78,7 @@ function NavBtn({
 
   return (
     <button
+      aria-current={active ? "page" : undefined}
       onClick={() => onNavigate(id)}
       className="no-drag flex items-center gap-3 px-3 py-2 rounded-xl text-sm transition-all duration-200 w-full text-left relative overflow-hidden"
       style={
@@ -179,7 +181,7 @@ export default function Sidebar({ current, onNavigate }: Props) {
 
         <p
           className="text-xs uppercase tracking-wider px-3 pt-4 pb-1.5"
-          style={{ color: "rgba(255,255,255,0.18)", letterSpacing: "0.08em" }}
+          style={{ color: "rgba(255,255,255,0.40)", letterSpacing: "0.08em" }}
         >
           Tools
         </p>
