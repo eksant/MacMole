@@ -1,42 +1,147 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256" role="img">
-  <title>MacMole Mark</title>
-  <desc>MacMole monochrome mark with app color accents</desc>
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img">
+  <title>MacMole - App Icon</title>
+  <desc>MacMole app icon matching dark navy-purple UI theme</desc>
+
   <defs>
-    <radialGradient id="mg" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="#6b5de0" stop-opacity="0.2"/>
+    <clipPath id="appClip">
+      <rect x="0" y="0" width="512" height="512" rx="115"/>
+    </clipPath>
+    <radialGradient id="glowBg" cx="50%" cy="45%" r="60%">
+      <stop offset="0%" stop-color="#1e1e4a"/>
+      <stop offset="100%" stop-color="#0a0a1e"/>
+    </radialGradient>
+    <radialGradient id="glowPurple" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#6b5de0" stop-opacity="0.35"/>
       <stop offset="100%" stop-color="#6b5de0" stop-opacity="0"/>
     </radialGradient>
+    <radialGradient id="noseGrad" cx="35%" cy="35%" r="65%">
+      <stop offset="0%" stop-color="#f87171"/>
+      <stop offset="100%" stop-color="#dc3545"/>
+    </radialGradient>
+    <linearGradient id="bodyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4a3f6b"/>
+      <stop offset="100%" stop-color="#2e2548"/>
+    </linearGradient>
+    <linearGradient id="bellyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#c4a882"/>
+      <stop offset="100%" stop-color="#a08868"/>
+    </linearGradient>
+    <linearGradient id="groundGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1a1545"/>
+      <stop offset="100%" stop-color="#0d0b28"/>
+    </linearGradient>
+    <linearGradient id="holeGrad" cx="50%" cy="50%" r="50%" gradientUnits="objectBoundingBox">
+      <stop offset="0%" stop-color="#06041a"/>
+      <stop offset="100%" stop-color="#030212"/>
+    </linearGradient>
   </defs>
-  <circle cx="128" cy="120" r="90" fill="url(#mg)"/>
-  <!-- Head -->
-  <ellipse cx="128" cy="112" rx="60" ry="57" fill="#3d3362"/>
-  <!-- Face patch -->
-  <ellipse cx="128" cy="121" rx="39" ry="36" fill="#554878"/>
-  <!-- Snout -->
-  <ellipse cx="128" cy="134" rx="23" ry="16" fill="#c4a882"/>
-  <!-- Nose — coral matching app -->
-  <ellipse cx="128" cy="124" rx="12" ry="9" fill="#f87171"/>
-  <ellipse cx="123" cy="121" rx="4.5" ry="3.5" fill="#fca5a5" opacity="0.65"/>
-  <!-- Eyes with glow ring -->
-  <circle cx="107" cy="105" r="13" fill="#6b5de0" opacity="0.2"/>
-  <circle cx="107" cy="105" r="11" fill="#04030f"/>
-  <circle cx="107" cy="105" r="8" fill="#08061c"/>
-  <circle cx="110" cy="101" r="4" fill="#ffffff" opacity="0.92"/>
-  <circle cx="149" cy="105" r="13" fill="#6b5de0" opacity="0.2"/>
-  <circle cx="149" cy="105" r="11" fill="#04030f"/>
-  <circle cx="149" cy="105" r="8" fill="#08061c"/>
-  <circle cx="152" cy="101" r="4" fill="#ffffff" opacity="0.92"/>
-  <!-- Ears -->
-  <ellipse cx="79" cy="73" rx="19" ry="15" fill="#3d3362"/>
-  <ellipse cx="79" cy="73" rx="11" ry="8" fill="#e85050" opacity="0.55"/>
-  <ellipse cx="177" cy="73" rx="19" ry="15" fill="#3d3362"/>
-  <ellipse cx="177" cy="73" rx="11" ry="8" fill="#e85050" opacity="0.55"/>
-  <!-- Whiskers cyan -->
-  <line x1="113" y1="130" x2="70" y2="123" stroke="#a8c8f0" stroke-width="1.5" opacity="0.6"/>
-  <line x1="113" y1="136" x2="68" y2="136" stroke="#a8c8f0" stroke-width="1.5" opacity="0.6"/>
-  <line x1="143" y1="130" x2="186" y2="123" stroke="#a8c8f0" stroke-width="1.5" opacity="0.6"/>
-  <line x1="143" y1="136" x2="188" y2="136" stroke="#a8c8f0" stroke-width="1.5" opacity="0.6"/>
-  <!-- Ground line purple -->
-  <ellipse cx="128" cy="182" rx="70" ry="14" fill="#14113a" opacity="0.5"/>
-  <rect x="58" y="180" width="140" height="8" rx="4" fill="#3d3362" opacity="0.4"/>
+
+  <!-- BG deep navy-indigo matching app -->
+  <rect x="0" y="0" width="512" height="512" rx="115" fill="url(#glowBg)"/>
+
+  <!-- Subtle radial glow center-top (purple accent) -->
+  <ellipse cx="256" cy="200" rx="220" ry="180" fill="url(#glowPurple)"/>
+
+  <!-- Ground soil — indigo/purple-navy not brown -->
+  <rect x="0" y="370" width="512" height="142" fill="url(#groundGrad)" clip-path="url(#appClip)"/>
+  <ellipse cx="256" cy="370" rx="290" ry="55" fill="#14113a" clip-path="url(#appClip)"/>
+
+  <!-- Ground texture dots (subtle purple-white) -->
+  <circle cx="85" cy="408" r="5" fill="#2a2560" opacity="0.7"/>
+  <circle cx="142" cy="435" r="3.5" fill="#2a2560" opacity="0.5"/>
+  <circle cx="390" cy="415" r="4.5" fill="#2a2560" opacity="0.65"/>
+  <circle cx="448" cy="442" r="3" fill="#2a2560" opacity="0.5"/>
+  <circle cx="310" cy="450" r="3.5" fill="#2a2560" opacity="0.45"/>
+  <circle cx="200" cy="458" r="3" fill="#2a2560" opacity="0.4"/>
+  <circle cx="60" cy="448" r="3" fill="#2a2560" opacity="0.4"/>
+  <circle cx="470" cy="398" r="2.5" fill="#3030708" opacity="0.5"/>
+
+  <!-- Tunnel hole — very dark navy-black -->
+  <ellipse cx="256" cy="368" rx="122" ry="48" fill="#04030f"/>
+  <ellipse cx="256" cy="368" rx="106" ry="36" fill="#02020a"/>
+  <!-- Hole inner purple rim subtle glow -->
+  <ellipse cx="256" cy="360" rx="90" ry="22" fill="#0e0b2a" opacity="0.6"/>
+
+  <!-- MOLE BODY — desaturated purple-brown to match UI tone -->
+  <ellipse cx="256" cy="360" rx="94" ry="120" fill="url(#bodyGrad)"/>
+  <!-- Belly -->
+  <ellipse cx="256" cy="375" rx="54" ry="74" fill="url(#bellyGrad)"/>
+
+  <!-- Left arm -->
+  <ellipse cx="168" cy="342" rx="37" ry="22" fill="#3d3362" transform="rotate(-30 168 342)"/>
+  <!-- Left claws — slight cyan hint -->
+  <ellipse cx="140" cy="322" rx="13" ry="7" fill="#332a52" transform="rotate(-45 140 322)"/>
+  <ellipse cx="129" cy="333" rx="11" ry="6" fill="#332a52" transform="rotate(-35 129 333)"/>
+
+  <!-- Right arm -->
+  <ellipse cx="344" cy="342" rx="37" ry="22" fill="#3d3362" transform="rotate(30 344 342)"/>
+  <!-- Right claws -->
+  <ellipse cx="372" cy="322" rx="13" ry="7" fill="#332a52" transform="rotate(45 372 322)"/>
+  <ellipse cx="383" cy="333" rx="11" ry="6" fill="#332a52" transform="rotate(35 383 333)"/>
+
+  <!-- HEAD — purple-dark base -->
+  <ellipse cx="256" cy="232" rx="98" ry="94" fill="#3d3362"/>
+  <!-- Face patch — slightly lighter purple-warm -->
+  <ellipse cx="256" cy="245" rx="64" ry="60" fill="#554878"/>
+  <!-- Subtle fur shadow on top of head -->
+  <ellipse cx="256" cy="175" rx="70" ry="30" fill="#2e2548" opacity="0.5"/>
+
+  <!-- SNOUT — warm sand, matches belly -->
+  <ellipse cx="256" cy="268" rx="38" ry="27" fill="#c4a882"/>
+  <!-- Nose — coral/salmon matching app health ring -->
+  <ellipse cx="256" cy="251" rx="20" ry="15" fill="url(#noseGrad)"/>
+  <!-- Nose highlight -->
+  <ellipse cx="249" cy="246" rx="7.5" ry="5.5" fill="#fca5a5" opacity="0.65"/>
+  <!-- Nose underline ridge -->
+  <path d="M240 257 Q256 251 272 257" fill="none" stroke="#b02a30" stroke-width="2" opacity="0.45"/>
+
+  <!-- EYES — dark with bright white + subtle purple ring -->
+  <!-- Left eye outer ring subtle glow -->
+  <circle cx="218" cy="219" r="22" fill="#6b5de0" opacity="0.18"/>
+  <circle cx="218" cy="219" r="19" fill="#04030f"/>
+  <circle cx="218" cy="219" r="16" fill="#08061c"/>
+  <!-- Iris subtle purple -->
+  <circle cx="218" cy="219" r="10" fill="#1a1535"/>
+  <!-- Eye shine — main -->
+  <circle cx="223" cy="213" r="7" fill="#ffffff" opacity="0.92"/>
+  <!-- Eye shine — secondary small -->
+  <circle cx="215" cy="225" r="3" fill="#ffffff" opacity="0.28"/>
+
+  <!-- Right eye -->
+  <circle cx="294" cy="219" r="22" fill="#6b5de0" opacity="0.18"/>
+  <circle cx="294" cy="219" r="19" fill="#04030f"/>
+  <circle cx="294" cy="219" r="16" fill="#08061c"/>
+  <circle cx="294" cy="219" r="10" fill="#1a1535"/>
+  <circle cx="299" cy="213" r="7" fill="#ffffff" opacity="0.92"/>
+  <circle cx="291" cy="225" r="3" fill="#ffffff" opacity="0.28"/>
+
+  <!-- Brow ridge -->
+  <path d="M198 205 Q218 196 238 205" fill="none" stroke="#2a2040" stroke-width="5.5" stroke-linecap="round"/>
+  <path d="M274 205 Q294 196 314 205" fill="none" stroke="#2a2040" stroke-width="5.5" stroke-linecap="round"/>
+
+  <!-- EARS — purple base, coral inner matching UI accent -->
+  <ellipse cx="168" cy="166" rx="31" ry="25" fill="#3d3362"/>
+  <!-- Inner ear — coral/salmon -->
+  <ellipse cx="168" cy="166" rx="18" ry="13" fill="#e85050" opacity="0.55"/>
+  <ellipse cx="342" cy="166" rx="31" ry="25" fill="#3d3362"/>
+  <ellipse cx="342" cy="166" rx="18" ry="13" fill="#e85050" opacity="0.55"/>
+
+  <!-- WHISKERS — cyan-white matching network color in app -->
+  <line x1="234" y1="264" x2="148" y2="252" stroke="#a8c8f0" stroke-width="2.2" opacity="0.6"/>
+  <line x1="234" y1="272" x2="144" y2="272" stroke="#a8c8f0" stroke-width="2.2" opacity="0.6"/>
+  <line x1="234" y1="280" x2="152" y2="292" stroke="#a8c8f0" stroke-width="2.2" opacity="0.6"/>
+  <line x1="278" y1="264" x2="364" y2="252" stroke="#a8c8f0" stroke-width="2.2" opacity="0.6"/>
+  <line x1="278" y1="272" x2="368" y2="272" stroke="#a8c8f0" stroke-width="2.2" opacity="0.6"/>
+  <line x1="278" y1="280" x2="360" y2="292" stroke="#a8c8f0" stroke-width="2.2" opacity="0.6"/>
+
+  <!-- Ground rim overlay covering mole-body junction -->
+  <ellipse cx="256" cy="368" rx="122" ry="16" fill="#14113a" opacity="0.6"/>
+
+  <!-- Subtle fur texture strokes on head -->
+  <path d="M208 180 Q220 168 234 176" fill="none" stroke="#2e2548" stroke-width="2" opacity="0.5"/>
+  <path d="M278 180 Q290 168 304 176" fill="none" stroke="#2e2548" stroke-width="2" opacity="0.5"/>
+  <path d="M238 152 Q256 140 274 152" fill="none" stroke="#2e2548" stroke-width="2" opacity="0.5"/>
+
+  <!-- Purple accent ring at bottom of icon — subtle brand touch -->
+  <rect x="0" y="490" width="512" height="22" rx="0" fill="#6b5de0" opacity="0.12" clip-path="url(#appClip)"/>
 </svg>

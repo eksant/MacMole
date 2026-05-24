@@ -139,7 +139,7 @@ export default function Sidebar({ current, onNavigate }: Props) {
 
   return (
     <aside
-      className="drag-region flex flex-col w-52 flex-shrink-0 pb-4 px-2 overflow-y-auto"
+      className="drag-region flex flex-col w-52 flex-shrink-0 pb-4 px-2"
       style={{
         background: "linear-gradient(180deg, rgba(139,92,246,0.08) 0%, rgba(99,102,241,0.04) 100%)",
         borderRight: "1px solid rgba(139,92,246,0.15)",
