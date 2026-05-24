@@ -13,6 +13,7 @@ import DevCaches from "./pages/DevCaches";
 import Processes from "./pages/Processes";
 import History from "./pages/History";
 import Settings from "./pages/Settings";
+import Cleanup from "./pages/Cleanup";
 
 export type Page =
   | "dashboard"
@@ -27,7 +28,8 @@ export type Page =
   | "devcaches"
   | "processes"
   | "history"
-  | "settings";
+  | "settings"
+  | "cleanup";
 
 export default function App() {
   const [page, setPage] = useState<Page>("dashboard");
@@ -60,6 +62,8 @@ export default function App() {
         return <History />;
       case "settings":
         return <Settings />;
+      case "cleanup":
+        return <Cleanup />;
     }
   };
 

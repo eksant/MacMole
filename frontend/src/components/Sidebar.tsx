@@ -1,10 +1,8 @@
 import { useEffect, useState } from "react";
 import {
   LayoutDashboard,
-  Trash2,
-  Zap,
   HardDrive,
-  Flame,
+  Sparkles,
   Settings,
   Loader2,
   CheckCircle2,
@@ -31,9 +29,7 @@ const nav: { id: Page; label: string; icon: React.ReactNode; group?: string }[] 
   { id: "dashboard",   label: "Dashboard",    icon: <LayoutDashboard size={17} /> },
 
   // Clean group
-  { id: "cleaner",     label: "Cleaner",      icon: <Trash2 size={17} />,        group: "Clean" },
-  { id: "optimizer",   label: "Optimizer",    icon: <Zap size={17} />,           group: "Clean" },
-  { id: "purge",       label: "Purge",        icon: <Flame size={17} />,         group: "Clean" },
+  { id: "cleanup",     label: "Cleanup",      icon: <Sparkles size={17} />,      group: "Clean" },
   { id: "devcaches",   label: "Dev Caches",   icon: <Code2 size={17} />,         group: "Clean" },
 
   // Manage group
@@ -53,9 +49,7 @@ const nav: { id: Page; label: string; icon: React.ReactNode; group?: string }[] 
 /* Accent colors per page for the active glow */
 const accentMap: Partial<Record<Page, string>> = {
   dashboard: "#8b5cf6",
-  cleaner: "#3b82f6",
-  optimizer: "#f59e0b",
-  purge: "#f97316",
+  cleanup: "#3b82f6",
   installer: "#10b981",
   uninstall: "#ef4444",
   logs: "#a78bfa",
