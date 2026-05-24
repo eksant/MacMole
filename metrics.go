@@ -193,7 +193,7 @@ func collectBattery() BatteryInfo {
 		}
 		// Extract percentage
 		idx := strings.Index(line, "%")
-		if idx == -1 {
+		if idx <= 0 {
 			continue
 		}
 		start := idx - 1
