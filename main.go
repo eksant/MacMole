@@ -35,6 +35,7 @@ func main() {
 	commands := NewCommandService()
 	metrics := NewMetricsService()
 	settings := NewSettingsService()
+	devCaches := NewDevCacheService()
 
 	app := &App{commands: commands}
 
@@ -57,6 +58,7 @@ func main() {
 			metrics,
 			commands,
 			settings,
+			devCaches,
 		},
 		Mac: &mac.Options{
 			TitleBar:             mac.TitleBarHiddenInset(),

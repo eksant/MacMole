@@ -64,6 +64,42 @@ export namespace main {
 	        this.error = source["error"];
 	    }
 	}
+	export class DevCacheResult {
+	    id: string;
+	    success: boolean;
+	    freed: string;
+	    error: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new DevCacheResult(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.id = source["id"];
+	        this.success = source["success"];
+	        this.freed = source["freed"];
+	        this.error = source["error"];
+	    }
+	}
+	export class DevCacheTool {
+	    id: string;
+	    name: string;
+	    available: boolean;
+	    size_bytes: number;
+	
+	    static createFrom(source: any = {}) {
+	        return new DevCacheTool(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.id = source["id"];
+	        this.name = source["name"];
+	        this.available = source["available"];
+	        this.size_bytes = source["size_bytes"];
+	    }
+	}
 	export class DiskEntry {
 	    name: string;
 	    path: string;
