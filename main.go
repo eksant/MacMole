@@ -38,7 +38,18 @@ func main() {
 	devCaches := NewDevCacheService()
 	processes := NewProcessService()
 
+	history, histErr := NewHistoryService()
+	if histErr != nil {
+		println("Warning: history disabled:", histErr.Error())
+	}
+	commands.history = history
+
 	app := &App{commands: commands}
+
+	bound := []interface{}{app, metrics, commands, settings, devCaches, processes}
+	if history != nil {
+		bound = append(bound, history)
+	}
 
 	err := wails.Run(&options.App{
 		Menu:             buildMenu(app),
@@ -54,14 +65,7 @@ func main() {
 		},
 		OnStartup: app.startup,
 		OnShutdown: func(_ context.Context) { StopTray() },
-		Bind: []interface{}{
-			app,
-			metrics,
-			commands,
-			settings,
-			devCaches,
-			processes,
-		},
+		Bind: bound,
 		Mac: &mac.Options{
 			TitleBar:             mac.TitleBarHiddenInset(),
 			WebviewIsTransparent: true,

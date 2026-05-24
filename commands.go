@@ -24,8 +24,9 @@ func stripANSI(s string) string {
 
 // CommandService runs Mole shell commands and streams output to the frontend.
 type CommandService struct {
-	ctx    context.Context
-	moPath string // resolved path to the `mo` binary
+	ctx     context.Context
+	moPath  string // resolved path to the `mo` binary
+	history *HistoryService
 }
 
 func NewCommandService() *CommandService {
@@ -108,7 +109,11 @@ func (c *CommandService) RunClean(dryRun bool) CommandResult {
 	if dryRun {
 		args = append(args, "--dry-run")
 	}
-	return c.runMo(args...)
+	result := c.runMo(args...)
+	if !dryRun && c.history != nil {
+		c.history.Record("clean", result.Success, result.Output, 0)
+	}
+	return result
 }
 
 // RunOptimize runs `mo optimize`, optionally with --dry-run.
@@ -117,7 +122,11 @@ func (c *CommandService) RunOptimize(dryRun bool) CommandResult {
 	if dryRun {
 		args = append(args, "--dry-run")
 	}
-	return c.runMo(args...)
+	result := c.runMo(args...)
+	if !dryRun && c.history != nil {
+		c.history.Record("optimize", result.Success, result.Output, 0)
+	}
+	return result
 }
 
 // RunAll runs `mo clean` then `mo optimize` in sequence, streaming output for both.
@@ -142,7 +151,11 @@ func (c *CommandService) RunPurge(dryRun bool) CommandResult {
 	if dryRun {
 		args = append(args, "--dry-run")
 	}
-	return c.runMo(args...)
+	result := c.runMo(args...)
+	if !dryRun && c.history != nil {
+		c.history.Record("purge", result.Success, result.Output, 0)
+	}
+	return result
 }
 
 // RunInstall runs `mo install`, cleaning up installer leftovers (pkg, dmg, zip).

@@ -138,6 +138,28 @@ export namespace main {
 	        this.used_percent = source["used_percent"];
 	    }
 	}
+	export class HistoryEntry {
+	    id: number;
+	    operation: string;
+	    success: boolean;
+	    detail: string;
+	    freed_mb: number;
+	    timestamp: number;
+	
+	    static createFrom(source: any = {}) {
+	        return new HistoryEntry(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.id = source["id"];
+	        this.operation = source["operation"];
+	        this.success = source["success"];
+	        this.detail = source["detail"];
+	        this.freed_mb = source["freed_mb"];
+	        this.timestamp = source["timestamp"];
+	    }
+	}
 	export class HostInfo {
 	    hostname: string;
 	    os: string;
