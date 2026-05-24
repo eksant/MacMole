@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Trash2, RefreshCw, AlertTriangle } from "lucide-react";
 import { ScanApps, DeleteApps } from "../../wailsjs/go/main/CommandService";
 import { notify } from "../utils/notify";
+import { Button } from "@/components/ui/button";
 
 interface AppEntry {
   name: string;
@@ -32,7 +33,7 @@ export default function Uninstall() {
     setSelected(new Set());
     ScanApps()
       .then((list) => {
-        const sorted = [...list].sort((a, b) => b.size - a.size);
+        const sorted = [...(list ?? [])].sort((a, b) => b.size - a.size);
         setApps(sorted);
       })
       .catch((err: unknown) => setError(String(err)))
@@ -125,33 +126,10 @@ export default function Uninstall() {
 
       {/* Toolbar */}
       <div className="flex items-center gap-3">
-        <button
-          onClick={scan}
-          disabled={scanning || deleting}
-          className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all"
-          style={{
-            background: scanning ? "rgba(255,255,255,0.06)" : "rgba(255,255,255,0.08)",
-            border: "1px solid rgba(255,255,255,0.12)",
-            color: scanning ? "rgba(255,255,255,0.3)" : "rgba(255,255,255,0.7)",
-          }}
-        >
-          <RefreshCw size={13} className={scanning ? "animate-spin" : ""} />
-          {scanning ? "Scanning…" : "Refresh"}
-        </button>
+        <Button variant="glass" size="sm" onClick={scan} disabled={scanning || deleting} className="gap-2"><RefreshCw size={13} className={scanning ? "animate-spin" : ""} />{scanning ? "Scanning…" : "Refresh"}</Button>
 
         {apps.length > 0 && (
-          <button
-            onClick={toggleAll}
-            disabled={scanning || deleting}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all"
-            style={{
-              background: "rgba(255,255,255,0.06)",
-              border: "1px solid rgba(255,255,255,0.10)",
-              color: "rgba(255,255,255,0.5)",
-            }}
-          >
-            {selected.size === apps.length ? "Deselect All" : "Select All"}
-          </button>
+          <Button variant="ghost" size="sm" onClick={toggleAll} disabled={scanning || deleting}>{selected.size === apps.length ? "Deselect All" : "Select All"}</Button>
         )}
 
         <div className="flex-1" />
@@ -163,27 +141,7 @@ export default function Uninstall() {
           </span>
         )}
 
-        <button
-          onClick={doDelete}
-          disabled={selected.size === 0 || deleting || scanning}
-          className="flex items-center gap-2 px-5 py-2 rounded-xl text-sm font-semibold transition-all"
-          style={
-            selected.size === 0 || deleting
-              ? {
-                  background: "rgba(239,68,68,0.15)",
-                  border: "1px solid rgba(239,68,68,0.2)",
-                  color: "rgba(239,68,68,0.3)",
-                }
-              : {
-                  background: "linear-gradient(135deg,#ef4444,#b91c1c)",
-                  color: "#fff",
-                  boxShadow: "0 4px 16px rgba(239,68,68,0.35)",
-                }
-          }
-        >
-          <Trash2 size={13} />
-          {deleting ? "Removing…" : "Remove Selected"}
-        </button>
+        <Button variant="destructive" onClick={doDelete} disabled={selected.size === 0 || deleting || scanning} className="gap-2 font-semibold"><Trash2 size={13} />{deleting ? "Removing…" : "Remove Selected"}</Button>
       </div>
 
       {/* Result banner */}

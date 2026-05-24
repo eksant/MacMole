@@ -26,8 +26,7 @@ export default function Analyzer() {
     setError(null);
     GetDiskAnalysis()
       .then((list) => {
-        // Sort by size descending
-        const sorted = [...list].sort((a, b) => b.size - a.size);
+        const sorted = [...(list ?? [])].sort((a, b) => b.size - a.size);
         setEntries(sorted);
       })
       .catch((err: unknown) => setError(String(err)))

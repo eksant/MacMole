@@ -1,5 +1,6 @@
 import { defineConfig, type Plugin } from 'vite'
 import react from '@vitejs/plugin-react'
+import { fileURLToPath, URL } from 'node:url'
 
 // Wails uses a custom wails:// scheme which doesn't support CORS.
 // The crossorigin attribute Vite adds to <script type="module"> causes WKWebView
@@ -15,4 +16,9 @@ function removeCrossorigin(): Plugin {
 
 export default defineConfig({
   plugins: [react(), removeCrossorigin()],
+  resolve: {
+    alias: {
+      "@": fileURLToPath(new URL('./src', import.meta.url)),
+    },
+  },
 })

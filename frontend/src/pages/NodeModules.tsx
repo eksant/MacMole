@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { Package, RefreshCw, ArrowUpDown, AlertTriangle } from "lucide-react";
 import { ScanNodeModules, DeleteNodeModules } from "../../wailsjs/go/main/CommandService";
 import { notify } from "../utils/notify";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 
 interface NodeModulesEntry {
   project_name: string;
@@ -54,7 +56,7 @@ export default function NodeModules() {
     setError(null);
     setSelected(new Set());
     ScanNodeModules()
-      .then(setEntries)
+      .then((e) => setEntries(e ?? []))
       .catch((err: unknown) => setError(String(err)))
       .finally(() => setScanning(false));
   };
@@ -119,14 +121,15 @@ export default function NodeModules() {
   const totalSize = entries.reduce((s, e) => s + e.size, 0);
 
   const SortBtn = ({ label, k }: { label: string; k: SortKey }) => (
-    <button
+    <Button
+      variant="ghost"
+      size="sm"
       onClick={() => cycleSort(k)}
-      className="flex items-center gap-1 text-xs transition-colors"
-      style={{ color: sortKey === k ? "rgba(34,197,94,0.9)" : "rgba(255,255,255,0.3)" }}
+      className={`gap-1 text-xs h-6 px-2 ${sortKey === k ? "text-emerald-400" : "text-white/30"}`}
     >
       {label}
       <ArrowUpDown size={10} />
-    </button>
+    </Button>
   );
 
   return (
@@ -174,33 +177,15 @@ export default function NodeModules() {
 
       {/* Toolbar */}
       <div className="flex items-center gap-3">
-        <button
-          onClick={scan}
-          disabled={scanning || deleting}
-          className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all"
-          style={{
-            background: scanning ? "rgba(255,255,255,0.06)" : "rgba(255,255,255,0.08)",
-            border: "1px solid rgba(255,255,255,0.12)",
-            color: scanning ? "rgba(255,255,255,0.3)" : "rgba(255,255,255,0.7)",
-          }}
-        >
+        <Button variant="glass" size="sm" onClick={scan} disabled={scanning || deleting} className="gap-2">
           <RefreshCw size={13} className={scanning ? "animate-spin" : ""} />
           {scanning ? "Scanning…" : "Rescan"}
-        </button>
+        </Button>
 
         {entries.length > 0 && (
-          <button
-            onClick={toggleAll}
-            disabled={scanning || deleting}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all"
-            style={{
-              background: "rgba(255,255,255,0.06)",
-              border: "1px solid rgba(255,255,255,0.10)",
-              color: "rgba(255,255,255,0.5)",
-            }}
-          >
+          <Button variant="ghost" size="sm" onClick={toggleAll} disabled={scanning || deleting}>
             {selected.size === entries.length ? "Deselect All" : "Select All"}
-          </button>
+          </Button>
         )}
 
         <div className="flex-1" />
@@ -211,27 +196,22 @@ export default function NodeModules() {
           </span>
         )}
 
-        <button
+        <Button
           onClick={doDelete}
           disabled={selected.size === 0 || deleting || scanning}
-          className="flex items-center gap-2 px-5 py-2 rounded-xl text-sm font-semibold transition-all"
-          style={
-            selected.size === 0 || deleting
-              ? {
-                  background: "rgba(34,197,94,0.10)",
-                  border: "1px solid rgba(34,197,94,0.2)",
-                  color: "rgba(34,197,94,0.3)",
-                }
-              : {
-                  background: "linear-gradient(135deg,#22c55e,#16a34a)",
-                  color: "#fff",
-                  boxShadow: "0 4px 16px rgba(34,197,94,0.35)",
-                }
-          }
+          className="gap-2 font-semibold text-white"
+          style={{
+            background: selected.size > 0 && !deleting
+              ? "linear-gradient(135deg,#22c55e,#16a34a)"
+              : "rgba(34,197,94,0.10)",
+            border: selected.size === 0 || deleting ? "1px solid rgba(34,197,94,0.2)" : "none",
+            color: selected.size === 0 || deleting ? "rgba(34,197,94,0.3)" : "#fff",
+            boxShadow: selected.size > 0 && !deleting ? "0 4px 16px rgba(34,197,94,0.22)" : "none",
+          }}
         >
           <Package size={13} />
           {deleting ? "Removing…" : "Remove Selected"}
-        </button>
+        </Button>
       </div>
 
       {/* Result banner */}
@@ -306,16 +286,7 @@ export default function NodeModules() {
                       {entry.project_name}
                     </span>
                     {isOld && (
-                      <span
-                        className="text-xs px-1.5 py-0.5 rounded-full flex-shrink-0"
-                        style={{
-                          background: "rgba(245,158,11,0.15)",
-                          color: "rgba(245,158,11,0.8)",
-                          fontSize: "10px",
-                        }}
-                      >
-                        old
-                      </span>
+                      <Badge variant="warning" className="flex-shrink-0 text-[10px]">old</Badge>
                     )}
                   </div>
                   <div className="text-xs text-white/25 truncate">{entry.project_path}</div>

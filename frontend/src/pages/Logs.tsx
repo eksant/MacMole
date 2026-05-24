@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { FileText, RefreshCw, Folder, AlertTriangle } from "lucide-react";
 import { ScanLogs, DeleteLogs } from "../../wailsjs/go/main/CommandService";
 import { notify } from "../utils/notify";
+import { Button } from "@/components/ui/button";
 
 interface LogEntry {
   name: string;
@@ -41,7 +42,7 @@ export default function Logs() {
     setSelected(new Set());
     ScanLogs()
       .then((list) => {
-        const sorted = [...list].sort((a, b) => b.size - a.size);
+        const sorted = [...(list ?? [])].sort((a, b) => b.size - a.size);
         setLogs(sorted);
       })
       .catch((err: unknown) => setError(String(err)))
@@ -141,33 +142,10 @@ export default function Logs() {
 
       {/* Toolbar */}
       <div className="flex items-center gap-3">
-        <button
-          onClick={scan}
-          disabled={scanning || deleting}
-          className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all"
-          style={{
-            background: scanning ? "rgba(255,255,255,0.06)" : "rgba(255,255,255,0.08)",
-            border: "1px solid rgba(255,255,255,0.12)",
-            color: scanning ? "rgba(255,255,255,0.3)" : "rgba(255,255,255,0.7)",
-          }}
-        >
-          <RefreshCw size={13} className={scanning ? "animate-spin" : ""} />
-          {scanning ? "Scanning…" : "Refresh"}
-        </button>
+        <Button variant="glass" size="sm" onClick={scan} disabled={scanning || deleting} className="gap-2"><RefreshCw size={13} className={scanning ? "animate-spin" : ""} />{scanning ? "Scanning…" : "Refresh"}</Button>
 
         {logs.length > 0 && (
-          <button
-            onClick={toggleAll}
-            disabled={scanning || deleting}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all"
-            style={{
-              background: "rgba(255,255,255,0.06)",
-              border: "1px solid rgba(255,255,255,0.10)",
-              color: "rgba(255,255,255,0.5)",
-            }}
-          >
-            {selected.size === logs.length ? "Deselect All" : "Select All"}
-          </button>
+          <Button variant="ghost" size="sm" onClick={toggleAll} disabled={scanning || deleting} className="gap-2">{selected.size === logs.length ? "Deselect All" : "Select All"}</Button>
         )}
 
         <div className="flex-1" />
@@ -178,27 +156,22 @@ export default function Logs() {
           </span>
         )}
 
-        <button
+        <Button
           onClick={doDelete}
           disabled={selected.size === 0 || deleting || scanning}
-          className="flex items-center gap-2 px-5 py-2 rounded-xl text-sm font-semibold transition-all"
-          style={
-            selected.size === 0 || deleting
-              ? {
-                  background: "rgba(167,139,250,0.10)",
-                  border: "1px solid rgba(167,139,250,0.2)",
-                  color: "rgba(167,139,250,0.3)",
-                }
-              : {
-                  background: "linear-gradient(135deg,#a78bfa,#7c3aed)",
-                  color: "#fff",
-                  boxShadow: "0 4px 16px rgba(167,139,250,0.35)",
-                }
-          }
+          className="gap-2 font-semibold text-white"
+          style={{
+            background: selected.size > 0 && !deleting
+              ? "linear-gradient(135deg,#a78bfa,#7c3aed)"
+              : "rgba(167,139,250,0.10)",
+            border: selected.size === 0 || deleting ? "1px solid rgba(167,139,250,0.2)" : "none",
+            color: selected.size === 0 || deleting ? "rgba(167,139,250,0.3)" : "#fff",
+            boxShadow: selected.size > 0 && !deleting ? "0 4px 16px rgba(167,139,250,0.22)" : "none",
+          }}
         >
           <FileText size={13} />
           {deleting ? "Deleting…" : "Delete Selected"}
-        </button>
+        </Button>
       </div>
 
       {/* Result banner */}

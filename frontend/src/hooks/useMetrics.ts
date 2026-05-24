@@ -46,7 +46,7 @@ export function useWatchedProcesses(intervalMs = 10000) {
   useEffect(() => {
     const fetchProcs = () => {
       GetWatchedProcesses()
-        .then(setProcs)
+        .then((p) => setProcs(p ?? []))
         .catch(() => setProcs([]));
     };
     fetchProcs();

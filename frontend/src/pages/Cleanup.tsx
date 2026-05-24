@@ -4,6 +4,9 @@ import { RunClean, RunOptimize, RunPurge } from "../../wailsjs/go/main/CommandSe
 import { EventsOn, EventsOff } from "../../wailsjs/runtime/runtime";
 import { notify } from "../utils/notify";
 import SpinnerRing from "../components/SpinnerRing";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 
 type Tab = "clean" | "optimize" | "purge";
 
@@ -31,12 +34,6 @@ const TAB_CONFIG: Record<Tab, {
     color: "#f97316",
     dangerLevel: "destructive",
   },
-};
-
-const DANGER_BADGE: Record<string, { label: string; style: React.CSSProperties }> = {
-  safe:        { label: "Safe",        style: { background: "rgba(52,211,153,0.12)", color: "#34d399" } },
-  "low-risk":  { label: "Low Risk",   style: { background: "rgba(251,191,36,0.12)", color: "#fbbf24" } },
-  destructive: { label: "Destructive", style: { background: "rgba(249,115,22,0.12)", color: "#fb923c" } },
 };
 
 export default function Cleanup() {
@@ -86,7 +83,17 @@ export default function Cleanup() {
     }
   };
 
-  const badge = DANGER_BADGE[cfg.dangerLevel];
+  const dangerVariant = cfg.dangerLevel === "safe"
+    ? "success"
+    : cfg.dangerLevel === "low-risk"
+      ? "warning"
+      : "destructive";
+
+  const dangerLabel = cfg.dangerLevel === "safe"
+    ? "Safe"
+    : cfg.dangerLevel === "low-risk"
+      ? "Low Risk"
+      : "Destructive";
 
   return (
     <div className="flex flex-col gap-5 animate-fade-in-up">
@@ -103,43 +110,41 @@ export default function Cleanup() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 p-1 rounded-xl" style={{ background: "rgba(255,255,255,0.05)" }}>
-        {(["clean", "optimize", "purge"] as Tab[]).map(t => {
-          const c = TAB_CONFIG[t];
-          return (
-            <button key={t} onClick={() => setTab(t)} disabled={running}
-              className="flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-all"
-              style={tab === t
-                ? { background: `linear-gradient(135deg,${c.color}30,${c.color}18)`,
-                    border: `1px solid ${c.color}40`, color: "#fff" }
-                : { background: "transparent", border: "1px solid transparent", color: "rgba(255,255,255,0.4)" }
-              }>
-              {c.label}
-            </button>
-          );
-        })}
-      </div>
+      <Tabs value={tab} onValueChange={(v) => { if (!running) setTab(v as Tab); }}>
+        <TabsList className="w-full">
+          {(["clean", "optimize", "purge"] as Tab[]).map(t => (
+            <TabsTrigger key={t} value={t} className="flex-1" disabled={running}>
+              {TAB_CONFIG[t].label}
+            </TabsTrigger>
+          ))}
+        </TabsList>
+      </Tabs>
 
       {/* Risk badge */}
       <div className="flex items-center gap-2">
-        <span className="text-xs px-2 py-0.5 rounded-full" style={badge.style}>{badge.label}</span>
+        <Badge variant={dangerVariant}>{dangerLabel}</Badge>
         <span className="text-xs text-white/30">{cfg.description}</span>
       </div>
 
       {/* Action buttons */}
       <div className="flex items-center gap-3">
-        <button onClick={() => { void run(true); }} disabled={running}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all"
-          style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.12)", color: "rgba(255,255,255,0.65)" }}>
+        <Button variant="glass" size="sm" onClick={() => { void run(true); }} disabled={running}>
           <Eye size={13} /> Dry Run
-        </button>
-        <button onClick={() => { void run(false); }} disabled={running}
-          className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all"
-          style={{ background: `linear-gradient(135deg,${cfg.color},${cfg.color}cc)`,
-                   color: "#fff", boxShadow: `0 4px 16px ${cfg.color}40`, opacity: running ? 0.6 : 1 }}>
+        </Button>
+        <Button
+          onClick={() => { void run(false); }}
+          disabled={running}
+          className="gap-2 font-semibold"
+          style={{
+            background: `linear-gradient(135deg,${cfg.color},${cfg.color}cc)`,
+            color: "#fff",
+            boxShadow: `0 4px 16px ${cfg.color}28`,
+            opacity: running ? 0.6 : 1,
+          }}
+        >
           {running ? <SpinnerRing /> : <PlayCircle size={14} />}
           {running ? "Running…" : `Run ${cfg.label}`}
-        </button>
+        </Button>
       </div>
 
       {error && (

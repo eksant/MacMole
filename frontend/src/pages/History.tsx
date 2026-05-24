@@ -2,19 +2,14 @@ import { useState, useEffect } from "react";
 import { Clock, Trash2, CheckCircle2, XCircle, RefreshCw } from "lucide-react";
 import { GetHistory, ClearHistory } from "../../wailsjs/go/main/HistoryService";
 import type { main } from "../../wailsjs/go/models";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 
 function fmtTime(ts: number): string {
   const d = new Date(ts * 1000);
   return d.toLocaleString("en-US", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
 }
 
-const OP_COLORS: Record<string, string> = {
-  clean:     "#3b82f6",
-  optimize:  "#f59e0b",
-  purge:     "#f97316",
-  devcache:  "#10b981",
-  uninstall: "#ef4444",
-};
 
 export default function History() {
   const [entries, setEntries] = useState<main.HistoryEntry[]>([]);
@@ -25,7 +20,7 @@ export default function History() {
     setLoading(true);
     setError(null);
     GetHistory(100)
-      .then(setEntries)
+      .then((e) => setEntries(e ?? []))
       .catch((err: unknown) => {
         setError(err instanceof Error ? err.message : "Failed to load history.");
       })
@@ -60,16 +55,12 @@ export default function History() {
           </p>
         </div>
         <div className="flex gap-2">
-          <button onClick={load} disabled={loading}
-            className="flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium transition-all"
-            style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.12)", color: "rgba(255,255,255,0.7)" }}>
+          <Button variant="ghost" size="icon" onClick={load} disabled={loading}>
             <RefreshCw size={13} className={loading ? "animate-spin" : ""} />
-          </button>
-          <button onClick={clear} disabled={entries.length === 0}
-            className="flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium transition-all"
-            style={{ background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)", color: "rgba(239,68,68,0.7)" }}>
-            <Trash2 size={13} /> Clear
-          </button>
+          </Button>
+          <Button variant="ghost" size="icon" onClick={clear} disabled={entries.length === 0} className="text-red-400/70 hover:text-red-400">
+            <Trash2 size={13} />
+          </Button>
         </div>
       </div>
 
@@ -86,7 +77,6 @@ export default function History() {
 
       <div className="flex flex-col gap-1.5">
         {entries.map(e => {
-          const color = OP_COLORS[e.operation] ?? "#94a3b8";
           return (
             <div key={e.id} className="flex items-start gap-3 px-4 py-3 rounded-xl"
               style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)" }}>
@@ -96,10 +86,16 @@ export default function History() {
               }
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <span className="text-xs px-2 py-0.5 rounded-full font-medium"
-                    style={{ background: `${color}20`, color }}>
+                  <Badge variant={
+                    e.operation === "clean" ? "success" :
+                    e.operation === "optimize" ? "warning" :
+                    e.operation === "purge" ? "destructive" :
+                    e.operation === "devcache" ? "success" :
+                    e.operation === "uninstall" ? "destructive" :
+                    "muted"
+                  }>
                     {e.operation}
-                  </span>
+                  </Badge>
                   {e.freed_mb > 0 && (
                     <span className="text-xs text-emerald-400/70">
                       {e.freed_mb.toFixed(1)} MB freed

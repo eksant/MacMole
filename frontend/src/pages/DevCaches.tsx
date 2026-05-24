@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Code2, RefreshCw, Trash2, CheckCircle2, AlertCircle } from "lucide-react";
 import { GetDevCaches, CleanDevCaches } from "../../wailsjs/go/main/DevCacheService";
 import type { main } from "../../wailsjs/go/models";
+import { Button } from "@/components/ui/button";
 
 function fmtBytes(bytes: number): string {
   if (bytes >= 1 << 30) return (bytes / (1 << 30)).toFixed(1) + " GB";
@@ -22,7 +23,7 @@ export default function DevCaches() {
     setLoading(true);
     setError(null);
     GetDevCaches()
-      .then(setTools)
+      .then((t) => setTools(t ?? []))
       .catch((err: unknown) => {
         setError(err instanceof Error ? err.message : "Failed to scan dev caches.");
       })
@@ -77,46 +78,29 @@ export default function DevCaches() {
       </div>
 
       <div className="flex items-center gap-3">
-        <button
-          onClick={load}
-          disabled={loading || cleaning}
-          className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all"
-          style={{
-            background: "rgba(255,255,255,0.08)",
-            border: "1px solid rgba(255,255,255,0.12)",
-            color: "rgba(255,255,255,0.7)",
-          }}
-        >
-          <RefreshCw size={13} className={loading ? "animate-spin" : ""} />
-          {loading ? "Scanning…" : "Refresh"}
-        </button>
+        <Button variant="glass" size="sm" onClick={load} disabled={loading || cleaning} className="gap-2"><RefreshCw size={13} className={loading ? "animate-spin" : ""} />{loading ? "Scanning…" : "Refresh"}</Button>
         <div className="flex-1" />
         {selected.size > 0 && (
           <span className="text-xs text-white/40">
             {selected.size} selected &mdash; ~{fmtBytes(totalSelected)} to free
           </span>
         )}
-        <button
+        <Button
           onClick={clean}
           disabled={selected.size === 0 || cleaning || loading}
-          className="flex items-center gap-2 px-5 py-2 rounded-xl text-sm font-semibold transition-all"
-          style={
-            selected.size === 0 || cleaning
-              ? {
-                  background: "rgba(16,185,129,0.1)",
-                  border: "1px solid rgba(16,185,129,0.2)",
-                  color: "rgba(16,185,129,0.3)",
-                }
-              : {
-                  background: "linear-gradient(135deg,#10b981,#059669)",
-                  color: "#fff",
-                  boxShadow: "0 4px 16px rgba(16,185,129,0.3)",
-                }
-          }
+          className="gap-2 font-semibold text-white"
+          style={{
+            background: selected.size > 0 && !cleaning
+              ? "linear-gradient(135deg,#10b981,#059669)"
+              : "rgba(16,185,129,0.1)",
+            border: selected.size === 0 || cleaning ? "1px solid rgba(16,185,129,0.2)" : "none",
+            color: selected.size === 0 || cleaning ? "rgba(16,185,129,0.3)" : "#fff",
+            boxShadow: selected.size > 0 && !cleaning ? "0 4px 16px rgba(16,185,129,0.22)" : "none",
+          }}
         >
           <Trash2 size={13} />
           {cleaning ? "Cleaning…" : "Clean Selected"}
-        </button>
+        </Button>
       </div>
 
       {error && (

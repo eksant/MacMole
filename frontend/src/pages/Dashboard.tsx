@@ -166,8 +166,8 @@ export default function Dashboard() {
         <div
           className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm"
           style={{
-            background: "rgba(239,68,68,0.08)",
-            border: "1px solid rgba(239,68,68,0.2)",
+            background: "rgba(239,68,68,0.05)",
+            border: "1px solid rgba(239,68,68,0.12)",
             color: "#fca5a5",
           }}
         >
@@ -201,22 +201,22 @@ export default function Dashboard() {
             style={
               optStatus === "done"
                 ? {
-                    background: "linear-gradient(135deg,#059669,#10b981)",
-                    color: "#fff",
-                    boxShadow: "0 4px 18px rgba(16,185,129,0.35)",
+                    background: "linear-gradient(135deg,#065f46,#059669)",
+                    color: "rgba(255,255,255,0.9)",
+                    boxShadow: "0 4px 16px rgba(16,185,129,0.18)",
                   }
                 : optStatus === "error"
-                  ? { background: "linear-gradient(135deg,#dc2626,#ef4444)", color: "#fff" }
+                  ? { background: "linear-gradient(135deg,#7f1d1d,#dc2626)", color: "rgba(255,255,255,0.9)" }
                   : optStatus === "running"
                     ? {
-                        background: "rgba(139,92,246,0.25)",
-                        border: "1px solid rgba(139,92,246,0.4)",
-                        color: "rgba(255,255,255,0.7)",
+                        background: "rgba(139,92,246,0.12)",
+                        border: "1px solid rgba(139,92,246,0.22)",
+                        color: "rgba(255,255,255,0.6)",
                       }
                     : {
-                        background: "linear-gradient(135deg,#8b5cf6,#6366f1)",
+                        background: "linear-gradient(135deg,rgba(139,92,246,0.85),rgba(99,102,241,0.85))",
                         color: "#fff",
-                        boxShadow: "0 4px 18px rgba(139,92,246,0.4)",
+                        boxShadow: "0 4px 16px rgba(139,92,246,0.20)",
                       }
             }
           >
@@ -270,8 +270,8 @@ export default function Dashboard() {
           ref={logRef}
           className="rounded-2xl px-4 py-3 font-mono text-xs overflow-y-auto max-h-28 flex flex-col gap-0.5 animate-fade-in"
           style={{
-            background: "rgba(0,0,0,0.35)",
-            border: "1px solid rgba(139,92,246,0.2)",
+            background: "rgba(0,0,0,0.18)",
+            border: "1px solid rgba(139,92,246,0.12)",
             color: "rgba(255,255,255,0.55)",
           }}
         >
@@ -391,7 +391,7 @@ export default function Dashboard() {
                 style={{
                   width: `${Math.min(100, (m.network.bytes_recv_per_sec / 125e6) * 100)}%`,
                   background: "linear-gradient(90deg, #10b981, #34d399)",
-                  boxShadow: "0 0 6px rgba(16,185,129,0.4)",
+                  boxShadow: "0 0 5px rgba(16,185,129,0.22)",
                   transition: "width 0.7s ease",
                 }}
               />
@@ -413,7 +413,7 @@ export default function Dashboard() {
                 style={{
                   width: `${Math.min(100, (m.network.bytes_sent_per_sec / 125e6) * 100)}%`,
                   background: "linear-gradient(90deg, #3b82f6, #60a5fa)",
-                  boxShadow: "0 0 6px rgba(59,130,246,0.4)",
+                  boxShadow: "0 0 5px rgba(59,130,246,0.22)",
                   transition: "width 0.7s ease",
                 }}
               />

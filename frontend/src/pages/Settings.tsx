@@ -13,36 +13,8 @@ import {
 import { IsLoginItem, SetLoginItem, CheckForUpdate } from "../../wailsjs/go/main/SettingsService";
 import { requestNotifyPermission } from "../utils/notify";
 import type { main } from "../../wailsjs/go/models";
-
-function Toggle({
-  checked,
-  onChange,
-  disabled,
-}: {
-  checked: boolean;
-  onChange: (v: boolean) => void;
-  disabled?: boolean;
-}) {
-  return (
-    <button
-      role="switch"
-      aria-checked={checked}
-      disabled={disabled}
-      onClick={() => onChange(!checked)}
-      className={[
-        "relative inline-flex h-5 w-9 flex-shrink-0 rounded-full transition-colors duration-200 disabled:opacity-40",
-        checked ? "bg-blue-500" : "bg-white/20",
-      ].join(" ")}
-    >
-      <span
-        className={[
-          "inline-block h-4 w-4 mt-0.5 rounded-full bg-white shadow transition-transform duration-200",
-          checked ? "translate-x-4" : "translate-x-0.5",
-        ].join(" ")}
-      />
-    </button>
-  );
-}
+import { Switch } from "@/components/ui/switch";
+import { Button } from "@/components/ui/button";
 
 function Row({
   label,
@@ -145,7 +117,7 @@ export default function Settings() {
           {loginLoading ? (
             <Loader2 size={14} className="animate-spin text-white/30" />
           ) : (
-            <Toggle checked={loginItem} onChange={toggleLoginItem} />
+            <Switch checked={loginItem} onCheckedChange={toggleLoginItem} />
           )}
         </Row>
         <Row label="Appearance" description="Dark mode is always active">
@@ -165,9 +137,9 @@ export default function Settings() {
               : "Show alert when clean, optimize, or purge finishes"
           }
         >
-          <Toggle
+          <Switch
             checked={notifications && notifPermission !== "denied"}
-            onChange={toggleNotifications}
+            onCheckedChange={toggleNotifications}
             disabled={notifPermission === "denied"}
           />
         </Row>
@@ -185,19 +157,14 @@ export default function Settings() {
           <span className="text-xs text-white/30 tabular-nums">v0.1.0</span>
         </Row>
         <Row label="Check for update">
-          <button
-            onClick={checkUpdate}
-            disabled={updateLoading}
-            className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg transition-all disabled:opacity-40"
-            style={{ background: "rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.7)" }}
-          >
+          <Button variant="ghost" size="sm" onClick={checkUpdate} disabled={updateLoading} className="gap-1.5 text-xs text-white/70">
             {updateLoading ? (
               <Loader2 size={11} className="animate-spin" />
             ) : (
               <RefreshCw size={11} />
             )}
             {updateLoading ? "Checking..." : "Check now"}
-          </button>
+          </Button>
         </Row>
         {updateInfo && (
           <div className="pb-3">
@@ -212,12 +179,10 @@ export default function Settings() {
                 <span className="text-blue-400">
                   Update available: v{updateInfo.latest_version}
                 </span>
-                <button
-                  className="flex items-center gap-1 text-blue-400 hover:text-blue-300 transition-colors"
-                  onClick={() => window.open?.(updateInfo.release_url)}
-                >
+                <Button variant="ghost" size="sm" className="gap-1 text-xs text-blue-400/70 hover:text-blue-400"
+                  onClick={() => window.open?.(updateInfo.release_url)}>
                   Download <ExternalLink size={10} />
-                </button>
+                </Button>
               </div>
             ) : (
               <div className="flex items-center gap-1.5 text-xs text-emerald-400/70">
@@ -237,20 +202,16 @@ export default function Settings() {
           <span className="text-xs text-emerald-400/70 font-mono">brew install mole</span>
         </Row>
         <Row label="Source code">
-          <button
-            className="flex items-center gap-1 text-xs text-blue-400/70 hover:text-blue-400 transition-colors"
-            onClick={() => window.open?.("https://github.com/fishwww-ww/MacMole")}
-          >
+          <Button variant="ghost" size="sm" className="gap-1 text-xs text-blue-400/70 hover:text-blue-400"
+            onClick={() => window.open?.("https://github.com/fishwww-ww/MacMole")}>
             GitHub <ExternalLink size={10} />
-          </button>
+          </Button>
         </Row>
         <Row label="Report an issue">
-          <button
-            className="flex items-center gap-1 text-xs text-blue-400/70 hover:text-blue-400 transition-colors"
-            onClick={() => window.open?.("https://github.com/fishwww-ww/MacMole/issues")}
-          >
+          <Button variant="ghost" size="sm" className="gap-1 text-xs text-blue-400/70 hover:text-blue-400"
+            onClick={() => window.open?.("https://github.com/fishwww-ww/MacMole/issues")}>
             Open issue <ExternalLink size={10} />
-          </button>
+          </Button>
         </Row>
       </Section>
 

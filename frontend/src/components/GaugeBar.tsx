@@ -10,9 +10,9 @@ function barGradient(value: number): string {
 }
 
 function barGlow(value: number): string {
-  if (value > 85) return "0 0 8px rgba(239,68,68,0.5)";
-  if (value > 65) return "0 0 8px rgba(245,158,11,0.5)";
-  return "0 0 8px rgba(139,92,246,0.4)";
+  if (value > 85) return "0 0 6px rgba(239,68,68,0.28)";
+  if (value > 65) return "0 0 6px rgba(245,158,11,0.28)";
+  return "0 0 6px rgba(139,92,246,0.22)";
 }
 
 export default function GaugeBar({ value, height = 4 }: Props) {

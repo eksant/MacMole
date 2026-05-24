@@ -85,15 +85,15 @@ function NavBtn({
       style={
         active
           ? {
-              background: `linear-gradient(135deg, ${accent}26, ${accent}14)`,
-              border: `1px solid ${accent}40`,
+              background: `linear-gradient(135deg, ${accent}12, ${accent}08)`,
+              border: `1px solid ${accent}28`,
               color: "#ffffff",
               fontWeight: 500,
             }
           : {
               background: "transparent",
               border: "1px solid transparent",
-              color: "rgba(255,255,255,0.45)",
+              color: "rgba(255,255,255,0.40)",
             }
       }
     >
@@ -141,8 +141,8 @@ export default function Sidebar({ current, onNavigate }: Props) {
     <aside
       className="drag-region flex flex-col w-52 flex-shrink-0 pb-4 px-2"
       style={{
-        background: "linear-gradient(180deg, rgba(139,92,246,0.08) 0%, rgba(99,102,241,0.04) 100%)",
-        borderRight: "1px solid rgba(139,92,246,0.15)",
+        background: "linear-gradient(180deg, rgba(139,92,246,0.05) 0%, rgba(99,102,241,0.02) 100%)",
+        borderRight: "1px solid rgba(139,92,246,0.09)",
       }}
     >
       {/* App brand */}

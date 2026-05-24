@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { Activity, RefreshCw, Zap, AlertTriangle } from "lucide-react";
 import { ListFlaggedProcesses, KillProcesses } from "../../wailsjs/go/main/ProcessService";
 import type { main } from "../../wailsjs/go/models";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 
 const STATUS_COLORS: Record<string, string> = {
   zombie: "#f87171",
@@ -27,7 +29,7 @@ export default function Processes() {
     setLoading(true);
     setError(null);
     ListFlaggedProcesses()
-      .then(setProcs)
+      .then((p) => setProcs(p ?? []))
       .catch((err: unknown) => {
         setError(err instanceof Error ? err.message : "Scan failed.");
       })
@@ -91,43 +93,25 @@ export default function Processes() {
       </div>
 
       <div className="flex items-center gap-3">
-        <button
-          onClick={load}
-          disabled={loading || killing}
-          className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all"
-          style={{
-            background: "rgba(255,255,255,0.08)",
-            border: "1px solid rgba(255,255,255,0.12)",
-            color: "rgba(255,255,255,0.7)",
-          }}
-        >
+        <Button variant="glass" size="sm" onClick={load} disabled={loading || killing} className="gap-2">
           <RefreshCw size={13} className={loading ? "animate-spin" : ""} />
           {loading ? "Scanning…" : "Refresh"}
-        </button>
+        </Button>
         <div className="flex-1" />
-        <button
+        <Button
           onClick={kill}
           disabled={selected.size === 0 || killing || loading}
-          className="flex items-center gap-2 px-5 py-2 rounded-xl text-sm font-semibold transition-all"
-          style={
-            selected.size === 0 || killing
-              ? {
-                  background: "rgba(249,115,22,0.1)",
-                  border: "1px solid rgba(249,115,22,0.2)",
-                  color: "rgba(249,115,22,0.3)",
-                }
-              : {
-                  background: "linear-gradient(135deg,#f97316,#ea580c)",
-                  color: "#fff",
-                  boxShadow: "0 4px 16px rgba(249,115,22,0.3)",
-                }
-          }
+          className="gap-2 font-semibold text-white"
+          style={{
+            background: selected.size > 0 && !killing ? "linear-gradient(135deg,#f97316,#ea580c)" : "rgba(249,115,22,0.1)",
+            border: selected.size === 0 || killing ? "1px solid rgba(249,115,22,0.2)" : "none",
+            color: selected.size === 0 || killing ? "rgba(249,115,22,0.3)" : "#fff",
+            boxShadow: selected.size > 0 && !killing ? "0 4px 16px rgba(249,115,22,0.22)" : "none",
+          }}
         >
           <Zap size={13} />
-          {killing
-            ? "Killing…"
-            : `Kill${selected.size > 0 ? ` ${selected.size}` : ""} Selected`}
-        </button>
+          {killing ? "Killing…" : `Kill${selected.size > 0 ? ` ${selected.size}` : ""} Selected`}
+        </Button>
       </div>
 
       {error && (
@@ -195,12 +179,9 @@ export default function Processes() {
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
                   <span className="text-sm text-white font-medium truncate">{proc.name}</span>
-                  <span
-                    className="text-xs px-1.5 py-0.5 rounded-full flex-shrink-0"
-                    style={{ background: `${color}20`, color }}
-                  >
+                  <Badge variant={proc.status === "zombie" ? "destructive" : proc.status === "high-cpu" ? "warning" : "default"}>
                     {STATUS_LABELS[proc.status]}
-                  </span>
+                  </Badge>
                 </div>
                 <div className="text-xs text-white/25">
                   PID {proc.pid} &middot; runtime {proc.runtime}
