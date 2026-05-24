@@ -160,6 +160,24 @@ export namespace main {
 	        this.uptime_seconds = source["uptime_seconds"];
 	    }
 	}
+	export class KillProcessResult {
+	    pid: number;
+	    name: string;
+	    success: boolean;
+	    message: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new KillProcessResult(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.pid = source["pid"];
+	        this.name = source["name"];
+	        this.success = source["success"];
+	        this.message = source["message"];
+	    }
+	}
 	export class LogEntry {
 	    name: string;
 	    path: string;
@@ -230,6 +248,28 @@ export namespace main {
 	        this.path = source["path"];
 	        this.size = source["size"];
 	        this.mod_time = source["mod_time"];
+	    }
+	}
+	export class ProcessDetail {
+	    pid: number;
+	    name: string;
+	    cpu: number;
+	    memory: number;
+	    status: string;
+	    runtime: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new ProcessDetail(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.pid = source["pid"];
+	        this.name = source["name"];
+	        this.cpu = source["cpu"];
+	        this.memory = source["memory"];
+	        this.status = source["status"];
+	        this.runtime = source["runtime"];
 	    }
 	}
 	export class ProcessInfo {
