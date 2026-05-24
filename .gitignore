@@ -1,4 +1,4 @@
-# macOS
+# ── macOS system files ────────────────────────────────────────────────────────
 .DS_Store
 .DS_Store?
 ._*
@@ -7,7 +7,7 @@
 ehthumbs.db
 Thumbs.db
 
-# Editor files
+# ── Editor / IDE ──────────────────────────────────────────────────────────────
 *~
 *.swp
 *.swo
@@ -15,63 +15,77 @@ Thumbs.db
 .vscode/*.code-workspace
 .vscode/settings.json
 
-# Logs
+# ── Logs & temp ───────────────────────────────────────────────────────────────
 *.log
 logs/
-
-# Temporary files
 tmp/
 temp/
 *.tmp
 *.temp
 *.dmg
-
-# Cache
-.cache/
 *.cache
+.cache/
 
-# Backup files
+# ── Backup files ──────────────────────────────────────────────────────────────
 *.bak
 *.backup
 
-# AI Assistant Instructions
-.claude/
+# ── AI assistant — commands/ and agents/ are TRACKED (project skills) ─────────
+.claude/settings.json
+.claude/settings.local.json
+.claude/projects/
+.claude/history/
+.claude/statsig/
+.claude/todos/
+.claude/cache/
+# Other AI tooling (fully ignored)
 .agents/
 .gemini/
 .kiro/
-CLAUDE.md
 GEMINI.md
 ANTIGRAVITY.md
 WARP.md
 AGENTS.md
 journal/
 .cursorrules
+mole_guidelines.md
 
-# Desktop app — build artifacts and dependencies
-frontend/node_modules/
-frontend/dist/
+# ── Wails desktop app — build artifacts ───────────────────────────────────────
+# Compiled output
 build/bin/
 build/darwin/
 build/windows/
+build/linux/
+# Wails dev mode binary compiled at repo root
 desktop
+MacMole
+# Frontend build output & dependencies
+frontend/node_modules/
+frontend/dist/
+# NOTE: build/appicon.png, build/trayicon.png, build/trayicon@2x.png
+#       are intentionally TRACKED — required by //go:embed in tray_darwin.go
 
-# Mole CLI — build artifacts
+# ── Go build artifacts ────────────────────────────────────────────────────────
+*.out
+coverage.out
+coverage.html
+*.exe
+*.test
+
+# ── Mole CLI — compiled binaries (source and scripts stay tracked) ─────────────
 mole/cmd/analyze/analyze
 mole/cmd/status/status
 mole/bin/analyze-go
 mole/bin/status-go
 mole/bin/analyze-darwin-*
 mole/bin/status-darwin-*
+mole/bin/mole-darwin-*
+mole/mo
+mole/mole
 mole/tests/tmp-*/
 mole/tests/*.tmp
 mole/tests/*.log
 
-# Go test coverage
-*.out
-coverage.out
-coverage.html
-
+# ── Misc project artifacts ────────────────────────────────────────────────────
 session.json
 run_tests.ps1
-mole_guidelines.md
-.claude/settings.local.json

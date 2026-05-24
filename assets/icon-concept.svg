@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <!-- Deep purple → indigo gradient (matches app theme) -->
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#7c3aed"/>
+      <stop offset="100%" stop-color="#3730a3"/>
+    </linearGradient>
+
+    <!-- Subtle inner glow on mole head -->
+    <radialGradient id="headShine" cx="38%" cy="28%" r="60%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#f0e6ff"/>
+    </radialGradient>
+
+    <!-- Ear inner tint -->
+    <radialGradient id="earInner" cx="50%" cy="60%" r="55%">
+      <stop offset="0%" stop-color="#c4b5fd"/>
+      <stop offset="100%" stop-color="#7c3aed"/>
+    </radialGradient>
+
+    <!-- Snout blush -->
+    <radialGradient id="snout" cx="50%" cy="40%" r="55%">
+      <stop offset="0%" stop-color="#ede9fe"/>
+      <stop offset="100%" stop-color="#ddd6fe"/>
+    </radialGradient>
+  </defs>
+
+  <!-- ── Background rounded square ── -->
+  <rect width="512" height="512" rx="116" fill="url(#bg)"/>
+
+  <!-- Top gloss strip (glass feel) -->
+  <ellipse cx="256" cy="82" rx="188" ry="66" fill="white" opacity="0.07"/>
+
+  <!-- ── Left ear ── -->
+  <ellipse cx="162" cy="162" rx="52" ry="64" fill="url(#headShine)"/>
+  <ellipse cx="162" cy="174" rx="30" ry="40" fill="url(#earInner)"/>
+
+  <!-- ── Right ear ── -->
+  <ellipse cx="350" cy="162" rx="52" ry="64" fill="url(#headShine)"/>
+  <ellipse cx="350" cy="174" rx="30" ry="40" fill="url(#earInner)"/>
+
+  <!-- ── Head (main circle) ── -->
+  <circle cx="256" cy="274" r="158" fill="url(#headShine)"/>
+
+  <!-- ── Left eye ── -->
+  <circle cx="200" cy="238" r="26" fill="#2e1065"/>
+  <!-- Eye shine -->
+  <circle cx="208" cy="228" r="9" fill="white" opacity="0.75"/>
+  <circle cx="214" cy="225" r="3.5" fill="white" opacity="0.45"/>
+
+  <!-- ── Right eye ── -->
+  <circle cx="312" cy="238" r="26" fill="#2e1065"/>
+  <!-- Eye shine -->
+  <circle cx="320" cy="228" r="9" fill="white" opacity="0.75"/>
+  <circle cx="326" cy="225" r="3.5" fill="white" opacity="0.45"/>
+
+  <!-- ── Snout ── -->
+  <ellipse cx="256" cy="310" rx="58" ry="44" fill="url(#snout)"/>
+
+  <!-- ── Nose (small dark oval on top of snout) ── -->
+  <ellipse cx="256" cy="293" rx="19" ry="14" fill="#3b0764"/>
+  <!-- Nose shine -->
+  <ellipse cx="250" cy="288" rx="6" ry="4" fill="white" opacity="0.35"/>
+
+  <!-- ── Sparkle — top right corner (the "clean" symbol) ── -->
+  <!-- Large 4-point star -->
+  <g transform="translate(390, 130)">
+    <path d="M0,-30 L4.5,-4.5 L30,0 L4.5,4.5 L0,30 L-4.5,4.5 L-30,0 L-4.5,-4.5 Z"
+          fill="white" opacity="0.92"/>
+    <!-- 45° rotated smaller star (cross-hatch gives star look) -->
+    <path d="M0,-18 L2.5,-2.5 L18,0 L2.5,2.5 L0,18 L-2.5,2.5 L-18,0 L-2.5,-2.5 Z"
+          fill="white" opacity="0.45" transform="rotate(45)"/>
+  </g>
+
+  <!-- Small secondary sparkle — lower left -->
+  <g transform="translate(118, 368)">
+    <path d="M0,-14 L2,-2 L14,0 L2,2 L0,14 L-2,2 L-14,0 L-2,-2 Z"
+          fill="white" opacity="0.38"/>
+  </g>
+
+  <!-- Tiny dot sparkle — upper left zone -->
+  <circle cx="148" cy="118" r="4.5" fill="white" opacity="0.3"/>
+  <circle cx="132" cy="132" r="2.5" fill="white" opacity="0.2"/>
+
+  <!-- ── Bottom shadow vignette (grounds the icon) ── -->
+  <ellipse cx="256" cy="500" rx="180" ry="24" fill="#1e1b4b" opacity="0.28"/>
+</svg>

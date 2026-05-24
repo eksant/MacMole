@@ -1,0 +1,95 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img">
+  <title>MacMole - Light/Tray Icon</title>
+  <desc>MacMole menubar or light context icon</desc>
+
+  <defs>
+    <clipPath id="appClipL">
+      <rect x="0" y="0" width="512" height="512" rx="115"/>
+    </clipPath>
+    <radialGradient id="glowBgL" cx="50%" cy="40%" r="65%">
+      <stop offset="0%" stop-color="#2a2460"/>
+      <stop offset="100%" stop-color="#12103a"/>
+    </radialGradient>
+    <linearGradient id="groundL" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1e1b50"/>
+      <stop offset="100%" stop-color="#0e0c30"/>
+    </linearGradient>
+  </defs>
+
+  <!-- BG slightly lighter navy variant for tray/menu bar use -->
+  <rect x="0" y="0" width="512" height="512" rx="115" fill="url(#glowBgL)"/>
+  <!-- Purple gradient halo -->
+  <ellipse cx="256" cy="200" rx="230" ry="190" fill="#6b5de0" opacity="0.1"/>
+
+  <!-- Ground -->
+  <rect x="0" y="370" width="512" height="142" fill="url(#groundL)" clip-path="url(#appClipL)"/>
+  <ellipse cx="256" cy="370" rx="290" ry="52" fill="#0e0c28" clip-path="url(#appClipL)"/>
+
+  <!-- Dirt dots subtle -->
+  <circle cx="85" cy="410" r="4.5" fill="#302a6a" opacity="0.6"/>
+  <circle cx="145" cy="438" r="3" fill="#302a6a" opacity="0.45"/>
+  <circle cx="398" cy="416" r="4" fill="#302a6a" opacity="0.55"/>
+  <circle cx="452" cy="443" r="2.5" fill="#302a6a" opacity="0.45"/>
+
+  <!-- Hole -->
+  <ellipse cx="256" cy="368" rx="122" ry="48" fill="#04020e"/>
+  <ellipse cx="256" cy="368" rx="106" ry="36" fill="#020109"/>
+
+  <!-- MOLE — same palette, brighter purple accents -->
+  <ellipse cx="256" cy="360" rx="94" ry="120" fill="#4a3f78"/>
+  <ellipse cx="256" cy="375" rx="54" ry="74" fill="#c4a882"/>
+
+  <!-- Arms -->
+  <ellipse cx="168" cy="342" rx="37" ry="22" fill="#3e3468" transform="rotate(-30 168 342)"/>
+  <ellipse cx="140" cy="322" rx="13" ry="7" fill="#342b58" transform="rotate(-45 140 322)"/>
+  <ellipse cx="129" cy="333" rx="11" ry="6" fill="#342b58" transform="rotate(-35 129 333)"/>
+  <ellipse cx="344" cy="342" rx="37" ry="22" fill="#3e3468" transform="rotate(30 344 342)"/>
+  <ellipse cx="372" cy="322" rx="13" ry="7" fill="#342b58" transform="rotate(45 372 322)"/>
+  <ellipse cx="383" cy="333" rx="11" ry="6" fill="#342b58" transform="rotate(35 383 333)"/>
+
+  <!-- Head -->
+  <ellipse cx="256" cy="232" rx="98" ry="94" fill="#4a3f78"/>
+  <ellipse cx="256" cy="245" rx="64" ry="60" fill="#634e8a"/>
+  <!-- Snout -->
+  <ellipse cx="256" cy="268" rx="38" ry="27" fill="#c4a882"/>
+  <!-- Nose coral -->
+  <ellipse cx="256" cy="251" rx="20" ry="15" fill="#f87171"/>
+  <ellipse cx="249" cy="246" rx="7.5" ry="5.5" fill="#fca5a5" opacity="0.65"/>
+  <path d="M240 257 Q256 251 272 257" fill="none" stroke="#c04040" stroke-width="2" opacity="0.4"/>
+
+  <!-- Eyes + glow ring (brighter here) -->
+  <circle cx="218" cy="219" r="22" fill="#7c6ff0" opacity="0.25"/>
+  <circle cx="218" cy="219" r="19" fill="#04030f"/>
+  <circle cx="218" cy="219" r="16" fill="#09071e"/>
+  <circle cx="218" cy="219" r="10" fill="#1e1848"/>
+  <circle cx="223" cy="213" r="7" fill="#ffffff" opacity="0.95"/>
+  <circle cx="215" cy="225" r="3" fill="#ffffff" opacity="0.3"/>
+
+  <circle cx="294" cy="219" r="22" fill="#7c6ff0" opacity="0.25"/>
+  <circle cx="294" cy="219" r="19" fill="#04030f"/>
+  <circle cx="294" cy="219" r="16" fill="#09071e"/>
+  <circle cx="294" cy="219" r="10" fill="#1e1848"/>
+  <circle cx="299" cy="213" r="7" fill="#ffffff" opacity="0.95"/>
+  <circle cx="291" cy="225" r="3" fill="#ffffff" opacity="0.3"/>
+
+  <!-- Brow -->
+  <path d="M198 205 Q218 196 238 205" fill="none" stroke="#2a2058" stroke-width="5.5" stroke-linecap="round"/>
+  <path d="M274 205 Q294 196 314 205" fill="none" stroke="#2a2058" stroke-width="5.5" stroke-linecap="round"/>
+
+  <!-- Ears -->
+  <ellipse cx="168" cy="166" rx="31" ry="25" fill="#4a3f78"/>
+  <ellipse cx="168" cy="166" rx="18" ry="13" fill="#e85050" opacity="0.6"/>
+  <ellipse cx="342" cy="166" rx="31" ry="25" fill="#4a3f78"/>
+  <ellipse cx="342" cy="166" rx="18" ry="13" fill="#e85050" opacity="0.6"/>
+
+  <!-- Whiskers cyan -->
+  <line x1="234" y1="264" x2="148" y2="252" stroke="#90c0f8" stroke-width="2.2" opacity="0.65"/>
+  <line x1="234" y1="272" x2="144" y2="272" stroke="#90c0f8" stroke-width="2.2" opacity="0.65"/>
+  <line x1="234" y1="280" x2="152" y2="292" stroke="#90c0f8" stroke-width="2.2" opacity="0.65"/>
+  <line x1="278" y1="264" x2="364" y2="252" stroke="#90c0f8" stroke-width="2.2" opacity="0.65"/>
+  <line x1="278" y1="272" x2="368" y2="272" stroke="#90c0f8" stroke-width="2.2" opacity="0.65"/>
+  <line x1="278" y1="280" x2="360" y2="292" stroke="#90c0f8" stroke-width="2.2" opacity="0.65"/>
+
+  <!-- Ground rim -->
+  <ellipse cx="256" cy="368" rx="122" ry="16" fill="#1e1b50" opacity="0.6"/>
+</svg>

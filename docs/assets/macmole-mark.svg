@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256" role="img">
+  <title>MacMole Mark</title>
+  <desc>MacMole monochrome mark with app color accents</desc>
+  <defs>
+    <radialGradient id="mg" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#6b5de0" stop-opacity="0.2"/>
+      <stop offset="100%" stop-color="#6b5de0" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <circle cx="128" cy="120" r="90" fill="url(#mg)"/>
+  <!-- Head -->
+  <ellipse cx="128" cy="112" rx="60" ry="57" fill="#3d3362"/>
+  <!-- Face patch -->
+  <ellipse cx="128" cy="121" rx="39" ry="36" fill="#554878"/>
+  <!-- Snout -->
+  <ellipse cx="128" cy="134" rx="23" ry="16" fill="#c4a882"/>
+  <!-- Nose — coral matching app -->
+  <ellipse cx="128" cy="124" rx="12" ry="9" fill="#f87171"/>
+  <ellipse cx="123" cy="121" rx="4.5" ry="3.5" fill="#fca5a5" opacity="0.65"/>
+  <!-- Eyes with glow ring -->
+  <circle cx="107" cy="105" r="13" fill="#6b5de0" opacity="0.2"/>
+  <circle cx="107" cy="105" r="11" fill="#04030f"/>
+  <circle cx="107" cy="105" r="8" fill="#08061c"/>
+  <circle cx="110" cy="101" r="4" fill="#ffffff" opacity="0.92"/>
+  <circle cx="149" cy="105" r="13" fill="#6b5de0" opacity="0.2"/>
+  <circle cx="149" cy="105" r="11" fill="#04030f"/>
+  <circle cx="149" cy="105" r="8" fill="#08061c"/>
+  <circle cx="152" cy="101" r="4" fill="#ffffff" opacity="0.92"/>
+  <!-- Ears -->
+  <ellipse cx="79" cy="73" rx="19" ry="15" fill="#3d3362"/>
+  <ellipse cx="79" cy="73" rx="11" ry="8" fill="#e85050" opacity="0.55"/>
+  <ellipse cx="177" cy="73" rx="19" ry="15" fill="#3d3362"/>
+  <ellipse cx="177" cy="73" rx="11" ry="8" fill="#e85050" opacity="0.55"/>
+  <!-- Whiskers cyan -->
+  <line x1="113" y1="130" x2="70" y2="123" stroke="#a8c8f0" stroke-width="1.5" opacity="0.6"/>
+  <line x1="113" y1="136" x2="68" y2="136" stroke="#a8c8f0" stroke-width="1.5" opacity="0.6"/>
+  <line x1="143" y1="130" x2="186" y2="123" stroke="#a8c8f0" stroke-width="1.5" opacity="0.6"/>
+  <line x1="143" y1="136" x2="188" y2="136" stroke="#a8c8f0" stroke-width="1.5" opacity="0.6"/>
+  <!-- Ground line purple -->
+  <ellipse cx="128" cy="182" rx="70" ry="14" fill="#14113a" opacity="0.5"/>
+  <rect x="58" y="180" width="140" height="8" rx="4" fill="#3d3362" opacity="0.4"/>
+</svg>
