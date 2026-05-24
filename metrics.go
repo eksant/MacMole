@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/shirou/gopsutil/v4/cpu"
@@ -18,6 +19,7 @@ import (
 
 // MetricsService exposes system metrics to the frontend.
 type MetricsService struct {
+	mu          sync.RWMutex
 	prevNetSent uint64
 	prevNetRecv uint64
 	prevNetTime time.Time
@@ -133,6 +135,7 @@ func (m *MetricsService) GetMetrics() SystemMetrics {
 		sent := netStats[0].BytesSent
 		recv := netStats[0].BytesRecv
 
+		m.mu.Lock()
 		if !m.prevNetTime.IsZero() {
 			elapsed := now.Sub(m.prevNetTime).Seconds()
 			if elapsed > 0 {
@@ -143,6 +146,7 @@ func (m *MetricsService) GetMetrics() SystemMetrics {
 		m.prevNetSent = sent
 		m.prevNetRecv = recv
 		m.prevNetTime = now
+		m.mu.Unlock()
 	}
 
 	// Host info
