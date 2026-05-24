@@ -28,19 +28,26 @@ interface Props {
 }
 
 const nav: { id: Page; label: string; icon: React.ReactNode; group?: string }[] = [
-  { id: "dashboard", label: "Dashboard", icon: <LayoutDashboard size={17} /> },
-  { id: "cleaner", label: "Cleaner", icon: <Trash2 size={17} />, group: "Tools" },
-  { id: "optimizer", label: "Optimizer", icon: <Zap size={17} />, group: "Tools" },
-  { id: "purge", label: "Purge", icon: <Flame size={17} />, group: "Tools" },
-  { id: "installer", label: "App Cleanup", icon: <Archive size={17} />, group: "Tools" },
-  { id: "uninstall", label: "Uninstall", icon: <AppWindow size={17} />, group: "Tools" },
-  { id: "logs", label: "Clean Logs", icon: <FileText size={17} />, group: "Tools" },
-  { id: "nodemodules", label: "Node Modules", icon: <FolderX size={17} />, group: "Tools" },
-  { id: "devcaches", label: "Dev Caches", icon: <Code2 size={17} />, group: "Tools" },
-  { id: "processes", label: "Processes", icon: <Activity size={17} />, group: "Tools" },
-  { id: "history", label: "History", icon: <Clock size={17} />, group: "Tools" },
-  { id: "analyzer", label: "Analyzer", icon: <HardDrive size={17} />, group: "Tools" },
-  { id: "settings", label: "Settings", icon: <Settings size={17} /> },
+  { id: "dashboard",   label: "Dashboard",    icon: <LayoutDashboard size={17} /> },
+
+  // Clean group
+  { id: "cleaner",     label: "Cleaner",      icon: <Trash2 size={17} />,        group: "Clean" },
+  { id: "optimizer",   label: "Optimizer",    icon: <Zap size={17} />,           group: "Clean" },
+  { id: "purge",       label: "Purge",        icon: <Flame size={17} />,         group: "Clean" },
+  { id: "devcaches",   label: "Dev Caches",   icon: <Code2 size={17} />,         group: "Clean" },
+
+  // Manage group
+  { id: "uninstall",   label: "Uninstall",    icon: <AppWindow size={17} />,     group: "Manage" },
+  { id: "installer",   label: "App Cleanup",  icon: <Archive size={17} />,       group: "Manage" },
+  { id: "logs",        label: "Clean Logs",   icon: <FileText size={17} />,      group: "Manage" },
+  { id: "nodemodules", label: "Node Modules", icon: <FolderX size={17} />,       group: "Manage" },
+
+  // Monitor group
+  { id: "analyzer",    label: "Disk Analyzer",icon: <HardDrive size={17} />,     group: "Monitor" },
+  { id: "processes",   label: "Processes",    icon: <Activity size={17} />,      group: "Monitor" },
+  { id: "history",     label: "History",      icon: <Clock size={17} />,         group: "Monitor" },
+
+  { id: "settings",    label: "Settings",     icon: <Settings size={17} /> },
 ];
 
 /* Accent colors per page for the active glow */
@@ -138,7 +145,7 @@ export default function Sidebar({ current, onNavigate }: Props) {
 
   return (
     <aside
-      className="drag-region flex flex-col w-52 flex-shrink-0 pb-4 px-2"
+      className="drag-region flex flex-col w-52 flex-shrink-0 pb-4 px-2 overflow-y-auto"
       style={{
         background: "linear-gradient(180deg, rgba(139,92,246,0.08) 0%, rgba(99,102,241,0.04) 100%)",
         borderRight: "1px solid rgba(139,92,246,0.15)",
@@ -165,52 +172,28 @@ export default function Sidebar({ current, onNavigate }: Props) {
       </div>
 
       {/* Navigation */}
-      <nav className="flex flex-col gap-0.5 flex-1">
-        {nav
-          .filter((n) => !n.group && n.id !== "settings")
-          .map(({ id, label, icon }) => (
-            <NavBtn
-              key={id}
-              id={id}
-              label={label}
-              icon={icon}
-              current={current}
-              onNavigate={onNavigate}
-            />
-          ))}
+      <nav className="flex flex-col gap-0.5 flex-1 overflow-y-auto">
+        {/* Top-level: Dashboard only */}
+        {nav.filter(n => !n.group && n.id !== "settings").map(({ id, label, icon }) => (
+          <NavBtn key={id} id={id} label={label} icon={icon} current={current} onNavigate={onNavigate} />
+        ))}
 
-        <p
-          className="text-xs uppercase tracking-wider px-3 pt-4 pb-1.5"
-          style={{ color: "rgba(255,255,255,0.40)", letterSpacing: "0.08em" }}
-        >
-          Tools
-        </p>
-        {nav
-          .filter((n) => n.group === "Tools")
-          .map(({ id, label, icon }) => (
-            <NavBtn
-              key={id}
-              id={id}
-              label={label}
-              icon={icon}
-              current={current}
-              onNavigate={onNavigate}
-            />
-          ))}
+        {(["Clean", "Manage", "Monitor"] as const).map(groupName => (
+          <div key={groupName}>
+            <p className="text-xs uppercase tracking-wider px-3 pt-4 pb-1.5"
+               style={{ color: "rgba(255,255,255,0.40)", letterSpacing: "0.08em" }}>
+              {groupName}
+            </p>
+            {nav.filter(n => n.group === groupName).map(({ id, label, icon }) => (
+              <NavBtn key={id} id={id} label={label} icon={icon} current={current} onNavigate={onNavigate} />
+            ))}
+          </div>
+        ))}
 
         <div className="flex-1" />
-        {nav
-          .filter((n) => n.id === "settings")
-          .map(({ id, label, icon }) => (
-            <NavBtn
-              key={id}
-              id={id}
-              label={label}
-              icon={icon}
-              current={current}
-              onNavigate={onNavigate}
-            />
-          ))}
+        {nav.filter(n => n.id === "settings").map(({ id, label, icon }) => (
+          <NavBtn key={id} id={id} label={label} icon={icon} current={current} onNavigate={onNavigate} />
+        ))}
       </nav>
 
       {/* CLI status */}
