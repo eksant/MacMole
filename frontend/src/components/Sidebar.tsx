@@ -1,5 +1,18 @@
 import { useEffect, useState } from "react";
-import { LayoutDashboard, Trash2, Zap, HardDrive, Flame, Package, Settings, Loader2, CheckCircle2, AlertCircle, AppWindow, FileText } from "lucide-react";
+import {
+  LayoutDashboard,
+  Trash2,
+  Zap,
+  HardDrive,
+  Flame,
+  Package,
+  Settings,
+  Loader2,
+  CheckCircle2,
+  AlertCircle,
+  AppWindow,
+  FileText,
+} from "lucide-react";
 import logoSvg from "../assets/images/logo.svg";
 import { EventsOn, EventsOff } from "../../wailsjs/runtime/runtime";
 import { IsMoInstalled } from "../../wailsjs/go/main/CommandService";
@@ -11,35 +24,44 @@ interface Props {
 }
 
 const nav: { id: Page; label: string; icon: React.ReactNode; group?: string }[] = [
-  { id: "dashboard",    label: "Dashboard",       icon: <LayoutDashboard size={17} /> },
-  { id: "cleaner",      label: "Cleaner",          icon: <Trash2 size={17} />,     group: "Tools" },
-  { id: "optimizer",    label: "Optimizer",        icon: <Zap size={17} />,        group: "Tools" },
-  { id: "purge",        label: "Purge",            icon: <Flame size={17} />,      group: "Tools" },
-  { id: "installer",    label: "App Cleanup",      icon: <Package size={17} />,    group: "Tools" },
-  { id: "uninstall",    label: "Uninstall",        icon: <AppWindow size={17} />,  group: "Tools" },
-  { id: "logs",         label: "Clean Logs",       icon: <FileText size={17} />,   group: "Tools" },
-  { id: "nodemodules",  label: "Node Modules",     icon: <Package size={17} />,    group: "Tools" },
-  { id: "analyzer",     label: "Analyzer",         icon: <HardDrive size={17} />,  group: "Tools" },
-  { id: "settings",     label: "Settings",         icon: <Settings size={17} /> },
+  { id: "dashboard", label: "Dashboard", icon: <LayoutDashboard size={17} /> },
+  { id: "cleaner", label: "Cleaner", icon: <Trash2 size={17} />, group: "Tools" },
+  { id: "optimizer", label: "Optimizer", icon: <Zap size={17} />, group: "Tools" },
+  { id: "purge", label: "Purge", icon: <Flame size={17} />, group: "Tools" },
+  { id: "installer", label: "App Cleanup", icon: <Package size={17} />, group: "Tools" },
+  { id: "uninstall", label: "Uninstall", icon: <AppWindow size={17} />, group: "Tools" },
+  { id: "logs", label: "Clean Logs", icon: <FileText size={17} />, group: "Tools" },
+  { id: "nodemodules", label: "Node Modules", icon: <Package size={17} />, group: "Tools" },
+  { id: "analyzer", label: "Analyzer", icon: <HardDrive size={17} />, group: "Tools" },
+  { id: "settings", label: "Settings", icon: <Settings size={17} /> },
 ];
 
 /* Accent colors per page for the active glow */
 const accentMap: Partial<Record<Page, string>> = {
-  dashboard:   "#8b5cf6",
-  cleaner:     "#3b82f6",
-  optimizer:   "#f59e0b",
-  purge:       "#f97316",
-  installer:   "#10b981",
-  uninstall:   "#ef4444",
-  logs:        "#a78bfa",
+  dashboard: "#8b5cf6",
+  cleaner: "#3b82f6",
+  optimizer: "#f59e0b",
+  purge: "#f97316",
+  installer: "#10b981",
+  uninstall: "#ef4444",
+  logs: "#a78bfa",
   nodemodules: "#22c55e",
-  analyzer:    "#06b6d4",
-  settings:    "#94a3b8",
+  analyzer: "#06b6d4",
+  settings: "#94a3b8",
 };
 
-function NavBtn({ id, label, icon, current, onNavigate }: {
-  id: Page; label: string; icon: React.ReactNode;
-  current: Page; onNavigate: (p: Page) => void;
+function NavBtn({
+  id,
+  label,
+  icon,
+  current,
+  onNavigate,
+}: {
+  id: Page;
+  label: string;
+  icon: React.ReactNode;
+  current: Page;
+  onNavigate: (p: Page) => void;
 }) {
   const active = current === id;
   const accent = accentMap[id] ?? "#8b5cf6";
@@ -48,16 +70,20 @@ function NavBtn({ id, label, icon, current, onNavigate }: {
     <button
       onClick={() => onNavigate(id)}
       className="no-drag flex items-center gap-3 px-3 py-2 rounded-xl text-sm transition-all duration-200 w-full text-left relative overflow-hidden"
-      style={active ? {
-        background: `linear-gradient(135deg, ${accent}26, ${accent}14)`,
-        border: `1px solid ${accent}40`,
-        color: "#ffffff",
-        fontWeight: 500,
-      } : {
-        background: "transparent",
-        border: "1px solid transparent",
-        color: "rgba(255,255,255,0.45)",
-      }}
+      style={
+        active
+          ? {
+              background: `linear-gradient(135deg, ${accent}26, ${accent}14)`,
+              border: `1px solid ${accent}40`,
+              color: "#ffffff",
+              fontWeight: 500,
+            }
+          : {
+              background: "transparent",
+              border: "1px solid transparent",
+              color: "rgba(255,255,255,0.45)",
+            }
+      }
     >
       {/* Active left accent bar */}
       {active && (
@@ -81,12 +107,12 @@ export default function Sidebar({ current, onNavigate }: Props) {
   const [failMsg, setFailMsg] = useState("");
 
   useEffect(() => {
-    IsMoInstalled().then(ok => {
+    IsMoInstalled().then((ok) => {
       setCliStatus(ok ? "ready" : "installing");
     });
 
-    EventsOn("mo:installing",     () => setCliStatus("installing"));
-    EventsOn("mo:ready",          () => setCliStatus("ready"));
+    EventsOn("mo:installing", () => setCliStatus("installing"));
+    EventsOn("mo:ready", () => setCliStatus("ready"));
     EventsOn("mo:install_failed", (msg: string) => {
       setCliStatus("failed");
       setFailMsg(msg);
@@ -117,53 +143,98 @@ export default function Sidebar({ current, onNavigate }: Props) {
             style={{ imageRendering: "auto" }}
           />
           <div>
-            <h1 className="text-sm font-semibold tracking-tight text-white leading-none">Mac Mole</h1>
-            <p className="text-xs mt-0.5" style={{ color: "rgba(139,92,246,0.7)" }}>Mac Cleaner</p>
+            <h1 className="text-sm font-semibold tracking-tight text-white leading-none">
+              Mac Mole
+            </h1>
+            <p className="text-xs mt-0.5" style={{ color: "rgba(139,92,246,0.7)" }}>
+              Mac Cleaner
+            </p>
           </div>
         </div>
       </div>
 
       {/* Navigation */}
       <nav className="flex flex-col gap-0.5 flex-1">
-        {nav.filter(n => !n.group && n.id !== "settings").map(({ id, label, icon }) => (
-          <NavBtn key={id} id={id} label={label} icon={icon} current={current} onNavigate={onNavigate} />
-        ))}
+        {nav
+          .filter((n) => !n.group && n.id !== "settings")
+          .map(({ id, label, icon }) => (
+            <NavBtn
+              key={id}
+              id={id}
+              label={label}
+              icon={icon}
+              current={current}
+              onNavigate={onNavigate}
+            />
+          ))}
 
-        <p className="text-xs uppercase tracking-wider px-3 pt-4 pb-1.5"
-           style={{ color: "rgba(255,255,255,0.18)", letterSpacing: "0.08em" }}>
+        <p
+          className="text-xs uppercase tracking-wider px-3 pt-4 pb-1.5"
+          style={{ color: "rgba(255,255,255,0.18)", letterSpacing: "0.08em" }}
+        >
           Tools
         </p>
-        {nav.filter(n => n.group === "Tools").map(({ id, label, icon }) => (
-          <NavBtn key={id} id={id} label={label} icon={icon} current={current} onNavigate={onNavigate} />
-        ))}
+        {nav
+          .filter((n) => n.group === "Tools")
+          .map(({ id, label, icon }) => (
+            <NavBtn
+              key={id}
+              id={id}
+              label={label}
+              icon={icon}
+              current={current}
+              onNavigate={onNavigate}
+            />
+          ))}
 
         <div className="flex-1" />
-        {nav.filter(n => n.id === "settings").map(({ id, label, icon }) => (
-          <NavBtn key={id} id={id} label={label} icon={icon} current={current} onNavigate={onNavigate} />
-        ))}
+        {nav
+          .filter((n) => n.id === "settings")
+          .map(({ id, label, icon }) => (
+            <NavBtn
+              key={id}
+              id={id}
+              label={label}
+              icon={icon}
+              current={current}
+              onNavigate={onNavigate}
+            />
+          ))}
       </nav>
 
       {/* CLI status */}
       <div className="no-drag px-3 pt-2 flex flex-col gap-1.5">
         {cliStatus === "installing" && (
-          <div className="flex items-center gap-1.5 text-xs" style={{ color: "rgba(251,191,36,0.8)" }}>
+          <div
+            className="flex items-center gap-1.5 text-xs"
+            style={{ color: "rgba(251,191,36,0.8)" }}
+          >
             <Loader2 size={11} className="animate-spin" />
             Installing CLI...
           </div>
         )}
         {cliStatus === "ready" && (
-          <div className="flex items-center gap-1.5 text-xs" style={{ color: "rgba(52,211,153,0.65)" }}>
+          <div
+            className="flex items-center gap-1.5 text-xs"
+            style={{ color: "rgba(52,211,153,0.65)" }}
+          >
             <CheckCircle2 size={11} />
             Mole CLI ready
           </div>
         )}
         {cliStatus === "failed" && (
-          <div className="flex items-center gap-1.5 text-xs" style={{ color: "rgba(248,113,113,0.8)" }} title={failMsg}>
+          <div
+            className="flex items-center gap-1.5 text-xs"
+            style={{ color: "rgba(248,113,113,0.8)" }}
+            title={failMsg}
+          >
             <AlertCircle size={11} />
             CLI not available
           </div>
         )}
-        <span className="text-xs" style={{ color: "rgba(255,255,255,0.18)" }}>v0.1.0</span>
+        <span className="text-xs" style={{ color: "rgba(255,255,255,0.18)" }}>
+          v0.1.0
+        </span>
       </div>
     </aside>
   );

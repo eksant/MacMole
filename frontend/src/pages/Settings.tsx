@@ -1,10 +1,28 @@
 import { useState, useEffect } from "react";
-import { Settings as SettingsIcon, Bell, Moon, Info, ExternalLink, RefreshCw, CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
+import {
+  Settings as SettingsIcon,
+  Bell,
+  Moon,
+  Info,
+  ExternalLink,
+  RefreshCw,
+  CheckCircle2,
+  AlertCircle,
+  Loader2,
+} from "lucide-react";
 import { IsLoginItem, SetLoginItem, CheckForUpdate } from "../../wailsjs/go/main/SettingsService";
 import { requestNotifyPermission } from "../utils/notify";
 import type { main } from "../../wailsjs/go/models";
 
-function Toggle({ checked, onChange, disabled }: { checked: boolean; onChange: (v: boolean) => void; disabled?: boolean }) {
+function Toggle({
+  checked,
+  onChange,
+  disabled,
+}: {
+  checked: boolean;
+  onChange: (v: boolean) => void;
+  disabled?: boolean;
+}) {
   return (
     <button
       role="switch"
@@ -26,7 +44,15 @@ function Toggle({ checked, onChange, disabled }: { checked: boolean; onChange: (
   );
 }
 
-function Row({ label, description, children }: { label: string; description?: string; children: React.ReactNode }) {
+function Row({
+  label,
+  description,
+  children,
+}: {
+  label: string;
+  description?: string;
+  children: React.ReactNode;
+}) {
   return (
     <div className="flex items-center justify-between py-3.5 border-b border-white/5 last:border-0">
       <div className="flex flex-col gap-0.5">
@@ -38,7 +64,15 @@ function Row({ label, description, children }: { label: string; description?: st
   );
 }
 
-function Section({ title, icon, children }: { title: string; icon?: React.ReactNode; children: React.ReactNode }) {
+function Section({
+  title,
+  icon,
+  children,
+}: {
+  title: string;
+  icon?: React.ReactNode;
+  children: React.ReactNode;
+}) {
   return (
     <div
       className="rounded-xl px-4 flex flex-col"
@@ -64,7 +98,10 @@ export default function Settings() {
   const [notifPermission, setNotifPermission] = useState(Notification.permission);
 
   useEffect(() => {
-    IsLoginItem().then(v => { setLoginItem(v); setLoginLoading(false); });
+    IsLoginItem().then((v) => {
+      setLoginItem(v);
+      setLoginLoading(false);
+    });
   }, []);
 
   const toggleLoginItem = async (val: boolean) => {
@@ -105,10 +142,11 @@ export default function Settings() {
           label="Launch at Login"
           description="Start Mole automatically when you log in to macOS"
         >
-          {loginLoading
-            ? <Loader2 size={14} className="animate-spin text-white/30" />
-            : <Toggle checked={loginItem} onChange={toggleLoginItem} />
-          }
+          {loginLoading ? (
+            <Loader2 size={14} className="animate-spin text-white/30" />
+          ) : (
+            <Toggle checked={loginItem} onChange={toggleLoginItem} />
+          )}
         </Row>
         <Row label="Appearance" description="Dark mode is always active">
           <div className="flex items-center gap-1.5 text-xs text-white/30">
@@ -153,19 +191,27 @@ export default function Settings() {
             className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg transition-all disabled:opacity-40"
             style={{ background: "rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.7)" }}
           >
-            {updateLoading
-              ? <Loader2 size={11} className="animate-spin" />
-              : <RefreshCw size={11} />
-            }
+            {updateLoading ? (
+              <Loader2 size={11} className="animate-spin" />
+            ) : (
+              <RefreshCw size={11} />
+            )}
             {updateLoading ? "Checking..." : "Check now"}
           </button>
         </Row>
         {updateInfo && (
           <div className="pb-3">
             {updateInfo.has_update ? (
-              <div className="flex items-center justify-between rounded-lg px-3 py-2 text-xs"
-                style={{ background: "rgba(59,130,246,0.12)", border: "1px solid rgba(59,130,246,0.2)" }}>
-                <span className="text-blue-400">Update available: v{updateInfo.latest_version}</span>
+              <div
+                className="flex items-center justify-between rounded-lg px-3 py-2 text-xs"
+                style={{
+                  background: "rgba(59,130,246,0.12)",
+                  border: "1px solid rgba(59,130,246,0.2)",
+                }}
+              >
+                <span className="text-blue-400">
+                  Update available: v{updateInfo.latest_version}
+                </span>
                 <button
                   className="flex items-center gap-1 text-blue-400 hover:text-blue-300 transition-colors"
                   onClick={() => window.open?.(updateInfo.release_url)}
@@ -210,7 +256,10 @@ export default function Settings() {
 
       <div className="flex items-start gap-2 text-xs text-white/20 mt-1">
         <Info size={11} className="mt-0.5 flex-shrink-0" />
-        <span>Mole runs silently in the menu bar. Close the window to hide it; use the menu-bar icon to show it or quit.</span>
+        <span>
+          Mole runs silently in the menu bar. Close the window to hide it; use the menu-bar icon to
+          show it or quit.
+        </span>
       </div>
     </div>
   );

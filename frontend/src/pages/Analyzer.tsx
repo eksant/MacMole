@@ -34,7 +34,9 @@ export default function Analyzer() {
       .finally(() => setLoading(false));
   };
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    load();
+  }, []);
 
   const totalSize = entries.reduce((s, e) => s + e.size, 0);
 
@@ -43,7 +45,11 @@ export default function Analyzer() {
       {error && (
         <div
           className="rounded-xl px-4 py-3 flex items-center gap-2.5 text-sm"
-          style={{ background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.25)", color: "#f87171" }}
+          style={{
+            background: "rgba(239,68,68,0.08)",
+            border: "1px solid rgba(239,68,68,0.25)",
+            color: "#f87171",
+          }}
         >
           <AlertTriangle size={14} className="flex-shrink-0" />
           {error}
@@ -55,7 +61,9 @@ export default function Analyzer() {
             <HardDrive size={20} className="text-cyan-400" /> Disk Analyzer
           </h2>
           <p className="text-sm text-white/40 mt-1">
-            Disk usage overview for major directories. Run <code className="font-mono text-cyan-400/70">mo analyze</code> in terminal for full interactive explorer.
+            Disk usage overview for major directories. Run{" "}
+            <code className="font-mono text-cyan-400/70">mo analyze</code> in terminal for full
+            interactive explorer.
           </p>
         </div>
         <button
@@ -88,7 +96,9 @@ export default function Analyzer() {
             className="flex items-center justify-between px-4 py-3 rounded-xl text-sm"
             style={{ background: "rgba(6,182,212,0.07)", border: "1px solid rgba(6,182,212,0.18)" }}
           >
-            <span style={{ color: "rgba(6,182,212,0.9)" }}>Total across {entries.length} directories</span>
+            <span style={{ color: "rgba(6,182,212,0.9)" }}>
+              Total across {entries.length} directories
+            </span>
             <span className="font-semibold tabular-nums text-white">{fmtBytes(totalSize)}</span>
           </div>
 
@@ -99,14 +109,20 @@ export default function Analyzer() {
                 <div
                   key={entry.path}
                   className="flex items-center gap-3 px-4 py-3 rounded-xl"
-                  style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)" }}
+                  style={{
+                    background: "rgba(255,255,255,0.04)",
+                    border: "1px solid rgba(255,255,255,0.07)",
+                  }}
                 >
                   <FolderOpen size={16} className="text-white/30 flex-shrink-0" />
                   <div className="flex-1 min-w-0">
                     <div className="text-sm text-white font-medium">{entry.name}</div>
                     <div className="text-xs text-white/25 truncate">{entry.path}</div>
                     {/* Size bar */}
-                    <div className="mt-1.5 w-full rounded-full" style={{ height: 2, background: "rgba(255,255,255,0.07)" }}>
+                    <div
+                      className="mt-1.5 w-full rounded-full"
+                      style={{ height: 2, background: "rgba(255,255,255,0.07)" }}
+                    >
                       <div
                         className="h-full rounded-full"
                         style={{

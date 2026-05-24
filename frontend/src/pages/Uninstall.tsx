@@ -39,7 +39,9 @@ export default function Uninstall() {
       .finally(() => setScanning(false));
   };
 
-  useEffect(() => { scan(); }, []);
+  useEffect(() => {
+    scan();
+  }, []);
 
   const toggle = (path: string) => {
     setSelected((prev) => {
@@ -82,7 +84,11 @@ export default function Uninstall() {
       {error && (
         <div
           className="rounded-xl px-4 py-3 flex items-center gap-2.5 text-sm"
-          style={{ background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.25)", color: "#f87171" }}
+          style={{
+            background: "rgba(239,68,68,0.08)",
+            border: "1px solid rgba(239,68,68,0.25)",
+            color: "#f87171",
+          }}
         >
           <AlertTriangle size={14} className="flex-shrink-0" />
           {error}
@@ -107,7 +113,11 @@ export default function Uninstall() {
       {/* Warning */}
       <div
         className="flex items-start gap-3 px-4 py-3 rounded-xl text-sm"
-        style={{ background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.25)", color: "rgba(239,68,68,0.85)" }}
+        style={{
+          background: "rgba(239,68,68,0.08)",
+          border: "1px solid rgba(239,68,68,0.25)",
+          color: "rgba(239,68,68,0.85)",
+        }}
       >
         <AlertTriangle size={15} className="flex-shrink-0 mt-0.5" />
         <span>Deletion is permanent. Preview which files will be removed before confirming.</span>
@@ -148,7 +158,8 @@ export default function Uninstall() {
 
         {selected.size > 0 && (
           <span className="text-xs text-white/40">
-            {selected.size} app{selected.size !== 1 ? "s" : ""} selected — {fmtBytes(totalSelected)} to reclaim
+            {selected.size} app{selected.size !== 1 ? "s" : ""} selected — {fmtBytes(totalSelected)}{" "}
+            to reclaim
           </span>
         )}
 
@@ -158,8 +169,16 @@ export default function Uninstall() {
           className="flex items-center gap-2 px-5 py-2 rounded-xl text-sm font-semibold transition-all"
           style={
             selected.size === 0 || deleting
-              ? { background: "rgba(239,68,68,0.15)", border: "1px solid rgba(239,68,68,0.2)", color: "rgba(239,68,68,0.3)" }
-              : { background: "linear-gradient(135deg,#ef4444,#b91c1c)", color: "#fff", boxShadow: "0 4px 16px rgba(239,68,68,0.35)" }
+              ? {
+                  background: "rgba(239,68,68,0.15)",
+                  border: "1px solid rgba(239,68,68,0.2)",
+                  color: "rgba(239,68,68,0.3)",
+                }
+              : {
+                  background: "linear-gradient(135deg,#ef4444,#b91c1c)",
+                  color: "#fff",
+                  boxShadow: "0 4px 16px rgba(239,68,68,0.35)",
+                }
           }
         >
           <Trash2 size={13} />

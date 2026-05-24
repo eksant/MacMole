@@ -1,5 +1,5 @@
 interface Props {
-  value: number;   // 0–100
+  value: number; // 0–100
   height?: number;
 }
 

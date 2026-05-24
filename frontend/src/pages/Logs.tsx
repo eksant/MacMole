@@ -19,7 +19,11 @@ function fmtBytes(bytes: number): string {
 }
 
 function fmtDate(unix: number): string {
-  return new Date(unix * 1000).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
+  return new Date(unix * 1000).toLocaleDateString(undefined, {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
 }
 
 export default function Logs() {
@@ -44,7 +48,9 @@ export default function Logs() {
       .finally(() => setScanning(false));
   };
 
-  useEffect(() => { scan(); }, []);
+  useEffect(() => {
+    scan();
+  }, []);
 
   const toggle = (path: string) => {
     setSelected((prev) => {
@@ -89,7 +95,11 @@ export default function Logs() {
       {error && (
         <div
           className="rounded-xl px-4 py-3 flex items-center gap-2.5 text-sm"
-          style={{ background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.25)", color: "#f87171" }}
+          style={{
+            background: "rgba(239,68,68,0.08)",
+            border: "1px solid rgba(239,68,68,0.25)",
+            color: "#f87171",
+          }}
         >
           <AlertTriangle size={14} className="flex-shrink-0" />
           {error}
@@ -107,7 +117,8 @@ export default function Logs() {
           Log Cleaner
         </h2>
         <p className="text-sm mt-1.5 ml-10" style={{ color: "rgba(255,255,255,0.4)" }}>
-          Remove application log files from ~/Library/Logs. Safe to clean — apps recreate logs as needed.
+          Remove application log files from ~/Library/Logs. Safe to clean — apps recreate logs as
+          needed.
         </p>
       </div>
 
@@ -115,7 +126,10 @@ export default function Logs() {
       {logs.length > 0 && (
         <div
           className="flex items-center gap-6 px-4 py-3 rounded-xl text-sm"
-          style={{ background: "rgba(167,139,250,0.07)", border: "1px solid rgba(167,139,250,0.18)" }}
+          style={{
+            background: "rgba(167,139,250,0.07)",
+            border: "1px solid rgba(167,139,250,0.18)",
+          }}
         >
           <span style={{ color: "rgba(167,139,250,0.9)" }}>
             {logs.length} item{logs.length !== 1 ? "s" : ""}
@@ -170,8 +184,16 @@ export default function Logs() {
           className="flex items-center gap-2 px-5 py-2 rounded-xl text-sm font-semibold transition-all"
           style={
             selected.size === 0 || deleting
-              ? { background: "rgba(167,139,250,0.10)", border: "1px solid rgba(167,139,250,0.2)", color: "rgba(167,139,250,0.3)" }
-              : { background: "linear-gradient(135deg,#a78bfa,#7c3aed)", color: "#fff", boxShadow: "0 4px 16px rgba(167,139,250,0.35)" }
+              ? {
+                  background: "rgba(167,139,250,0.10)",
+                  border: "1px solid rgba(167,139,250,0.2)",
+                  color: "rgba(167,139,250,0.3)",
+                }
+              : {
+                  background: "linear-gradient(135deg,#a78bfa,#7c3aed)",
+                  color: "#fff",
+                  boxShadow: "0 4px 16px rgba(167,139,250,0.35)",
+                }
           }
         >
           <FileText size={13} />
@@ -229,10 +251,19 @@ export default function Logs() {
                 </span>
 
                 {/* Icon */}
-                {log.is_dir
-                  ? <Folder size={14} className="flex-shrink-0" style={{ color: "rgba(167,139,250,0.5)" }} />
-                  : <FileText size={14} className="flex-shrink-0" style={{ color: "rgba(255,255,255,0.2)" }} />
-                }
+                {log.is_dir ? (
+                  <Folder
+                    size={14}
+                    className="flex-shrink-0"
+                    style={{ color: "rgba(167,139,250,0.5)" }}
+                  />
+                ) : (
+                  <FileText
+                    size={14}
+                    className="flex-shrink-0"
+                    style={{ color: "rgba(255,255,255,0.2)" }}
+                  />
+                )}
 
                 {/* Name + date */}
                 <div className="flex-1 min-w-0">

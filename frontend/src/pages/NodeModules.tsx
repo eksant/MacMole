@@ -21,7 +21,11 @@ function fmtBytes(bytes: number): string {
 }
 
 function fmtDate(unix: number): string {
-  return new Date(unix * 1000).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
+  return new Date(unix * 1000).toLocaleDateString(undefined, {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
 }
 
 function fmtRelativeDate(unix: number): string {
@@ -55,7 +59,9 @@ export default function NodeModules() {
       .finally(() => setScanning(false));
   };
 
-  useEffect(() => { scan(); }, []);
+  useEffect(() => {
+    scan();
+  }, []);
 
   const sorted = [...entries].sort((a, b) => {
     let diff = 0;
@@ -128,7 +134,11 @@ export default function NodeModules() {
       {error && (
         <div
           className="rounded-xl px-4 py-3 flex items-center gap-2.5 text-sm"
-          style={{ background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.25)", color: "#f87171" }}
+          style={{
+            background: "rgba(239,68,68,0.08)",
+            border: "1px solid rgba(239,68,68,0.25)",
+            color: "#f87171",
+          }}
         >
           <AlertTriangle size={14} className="flex-shrink-0" />
           {error}
@@ -156,9 +166,7 @@ export default function NodeModules() {
           className="flex items-center gap-6 px-4 py-3 rounded-xl text-sm"
           style={{ background: "rgba(34,197,94,0.07)", border: "1px solid rgba(34,197,94,0.18)" }}
         >
-          <span style={{ color: "rgba(34,197,94,0.9)" }}>
-            {entries.length} found
-          </span>
+          <span style={{ color: "rgba(34,197,94,0.9)" }}>{entries.length} found</span>
           <span className="text-white/30">·</span>
           <span className="text-white/50">Total reclaimable: {fmtBytes(totalSize)}</span>
         </div>
@@ -209,8 +217,16 @@ export default function NodeModules() {
           className="flex items-center gap-2 px-5 py-2 rounded-xl text-sm font-semibold transition-all"
           style={
             selected.size === 0 || deleting
-              ? { background: "rgba(34,197,94,0.10)", border: "1px solid rgba(34,197,94,0.2)", color: "rgba(34,197,94,0.3)" }
-              : { background: "linear-gradient(135deg,#22c55e,#16a34a)", color: "#fff", boxShadow: "0 4px 16px rgba(34,197,94,0.35)" }
+              ? {
+                  background: "rgba(34,197,94,0.10)",
+                  border: "1px solid rgba(34,197,94,0.2)",
+                  color: "rgba(34,197,94,0.3)",
+                }
+              : {
+                  background: "linear-gradient(135deg,#22c55e,#16a34a)",
+                  color: "#fff",
+                  boxShadow: "0 4px 16px rgba(34,197,94,0.35)",
+                }
           }
         >
           <Package size={13} />
@@ -249,14 +265,16 @@ export default function NodeModules() {
         <p className="text-white/30 text-sm">Scanning for node_modules… this may take a moment.</p>
       )}
       {!scanning && entries.length === 0 && (
-        <p className="text-white/30 text-sm">No node_modules found. Run a scan to search your development directories.</p>
+        <p className="text-white/30 text-sm">
+          No node_modules found. Run a scan to search your development directories.
+        </p>
       )}
 
       {sorted.length > 0 && (
         <div className="flex flex-col gap-1.5">
           {sorted.map((entry) => {
             const isSelected = selected.has(entry.path);
-            const isOld = (Date.now() / 1000 - entry.mod_time) > 86400 * 30; // older than 30 days
+            const isOld = Date.now() / 1000 - entry.mod_time > 86400 * 30; // older than 30 days
 
             return (
               <button
@@ -284,11 +302,17 @@ export default function NodeModules() {
                 {/* Project info */}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <span className="text-sm text-white font-medium truncate">{entry.project_name}</span>
+                    <span className="text-sm text-white font-medium truncate">
+                      {entry.project_name}
+                    </span>
                     {isOld && (
                       <span
                         className="text-xs px-1.5 py-0.5 rounded-full flex-shrink-0"
-                        style={{ background: "rgba(245,158,11,0.15)", color: "rgba(245,158,11,0.8)", fontSize: "10px" }}
+                        style={{
+                          background: "rgba(245,158,11,0.15)",
+                          color: "rgba(245,158,11,0.8)",
+                          fontSize: "10px",
+                        }}
                       >
                         old
                       </span>

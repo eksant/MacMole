@@ -24,11 +24,11 @@ export default function MetricCard({ title, icon, children, accentColor = "#8b5c
         style={{ background: `linear-gradient(90deg, transparent, ${accentColor}60, transparent)` }}
       />
 
-      <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider"
-           style={{ color: "rgba(255,255,255,0.45)" }}>
-        {icon && (
-          <span style={{ color: accentColor }}>{icon}</span>
-        )}
+      <div
+        className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider"
+        style={{ color: "rgba(255,255,255,0.45)" }}
+      >
+        {icon && <span style={{ color: accentColor }}>{icon}</span>}
         {title}
       </div>
       {children}

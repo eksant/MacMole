@@ -15,17 +15,19 @@ const TASKS = [
 
 export default function Purge() {
   const [running, setRunning] = useState(false);
-  const [lines, setLines]     = useState<string[]>([]);
-  const [done, setDone]       = useState(false);
+  const [lines, setLines] = useState<string[]>([]);
+  const [done, setDone] = useState(false);
   const [success, setSuccess] = useState(false);
   const logRef = useRef<HTMLDivElement>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     EventsOn("command:output", (line: string) => {
-      setLines(prev => [...prev, line]);
+      setLines((prev) => [...prev, line]);
     });
-    return () => { EventsOff("command:output"); };
+    return () => {
+      EventsOff("command:output");
+    };
   }, []);
 
   useEffect(() => {
@@ -40,8 +42,12 @@ export default function Purge() {
     try {
       const result = await RunPurge(dryRun);
       setSuccess(result.success);
-      if (result.error) setLines(prev => [...prev, "Error: " + result.error]);
-      if (!dryRun) notify("Mole — Purge", result.success ? "Purge completed successfully." : "Purge finished with errors.");
+      if (result.error) setLines((prev) => [...prev, "Error: " + result.error]);
+      if (!dryRun)
+        notify(
+          "Mole — Purge",
+          result.success ? "Purge completed successfully." : "Purge finished with errors."
+        );
     } catch (err: unknown) {
       setError(String(err));
     } finally {
@@ -55,7 +61,11 @@ export default function Purge() {
       {error && (
         <div
           className="rounded-xl px-4 py-3 flex items-center gap-2.5 text-sm"
-          style={{ background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.25)", color: "#f87171" }}
+          style={{
+            background: "rgba(239,68,68,0.08)",
+            border: "1px solid rgba(239,68,68,0.25)",
+            color: "#f87171",
+          }}
         >
           <AlertCircle size={14} className="flex-shrink-0" />
           {error}
@@ -83,10 +93,18 @@ export default function Purge() {
         style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}
       >
         {TASKS.map((t, i) => (
-          <div key={i} className="flex items-center gap-3 text-sm" style={{ color: "rgba(255,255,255,0.6)" }}>
+          <div
+            key={i}
+            className="flex items-center gap-3 text-sm"
+            style={{ color: "rgba(255,255,255,0.6)" }}
+          >
             <span
               className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 text-xs"
-              style={{ background: "rgba(249,115,22,0.15)", border: "1px solid rgba(249,115,22,0.3)", color: "#f97316" }}
+              style={{
+                background: "rgba(249,115,22,0.15)",
+                border: "1px solid rgba(249,115,22,0.3)",
+                color: "#f97316",
+              }}
             >
               {i + 1}
             </span>
@@ -105,7 +123,10 @@ export default function Purge() {
         }}
       >
         <TriangleAlert size={13} className="flex-shrink-0 mt-0.5" />
-        <span>Use <strong>Preview</strong> first to inspect what will be removed. Purge is more aggressive than Clean.</span>
+        <span>
+          Use <strong>Preview</strong> first to inspect what will be removed. Purge is more
+          aggressive than Clean.
+        </span>
       </div>
 
       {/* Buttons */}
@@ -127,7 +148,9 @@ export default function Purge() {
           onClick={() => run(false)}
           className="flex items-center gap-2 px-5 py-2 rounded-xl text-sm font-semibold transition-all duration-200 disabled:opacity-40 no-drag"
           style={{
-            background: running ? "rgba(249,115,22,0.2)" : "linear-gradient(135deg,#f97316,#ef4444)",
+            background: running
+              ? "rgba(249,115,22,0.2)"
+              : "linear-gradient(135deg,#f97316,#ef4444)",
             border: running ? "1px solid rgba(249,115,22,0.4)" : "none",
             color: "#fff",
             boxShadow: running ? "none" : "0 4px 16px rgba(249,115,22,0.4)",
@@ -136,13 +159,28 @@ export default function Purge() {
           {running ? (
             <>
               <svg width="13" height="13" viewBox="0 0 13 13" className="animate-spin-ring">
-                <circle cx="6.5" cy="6.5" r="5" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="1.5"/>
-                <path d="M6.5 1.5 A5 5 0 0 1 11.5 6.5" fill="none" stroke="white" strokeWidth="1.5" strokeLinecap="round"/>
+                <circle
+                  cx="6.5"
+                  cy="6.5"
+                  r="5"
+                  fill="none"
+                  stroke="rgba(255,255,255,0.3)"
+                  strokeWidth="1.5"
+                />
+                <path
+                  d="M6.5 1.5 A5 5 0 0 1 11.5 6.5"
+                  fill="none"
+                  stroke="white"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                />
               </svg>
               Purging…
             </>
           ) : (
-            <><PlayCircle size={14} /> Run Purge</>
+            <>
+              <PlayCircle size={14} /> Run Purge
+            </>
           )}
         </button>
       </div>
@@ -164,23 +202,37 @@ export default function Purge() {
           }}
         >
           {lines.map((l, i) => (
-            <div key={i} className="leading-5"
-                 style={{ color: l.toLowerCase().startsWith("error") ? "#f87171" : undefined }}>
+            <div
+              key={i}
+              className="leading-5"
+              style={{ color: l.toLowerCase().startsWith("error") ? "#f87171" : undefined }}
+            >
               {l || "\u00A0"}
             </div>
           ))}
           {running && (
             <div className="flex items-center gap-2 mt-1" style={{ color: "#fb923c" }}>
-              <div className="dot-loader flex gap-1"><span /><span /><span /></div>
+              <div className="dot-loader flex gap-1">
+                <span />
+                <span />
+                <span />
+              </div>
               Purging…
             </div>
           )}
           {done && (
             <div className="flex items-center gap-2 mt-2 font-semibold animate-fade-in">
-              {success
-                ? <><CheckCircle2 size={14} style={{ color: "#34d399" }} /><span style={{ color: "#34d399" }}>Purge complete!</span></>
-                : <><AlertCircle size={14} style={{ color: "#f87171" }} /><span style={{ color: "#f87171" }}>Finished with errors.</span></>
-              }
+              {success ? (
+                <>
+                  <CheckCircle2 size={14} style={{ color: "#34d399" }} />
+                  <span style={{ color: "#34d399" }}>Purge complete!</span>
+                </>
+              ) : (
+                <>
+                  <AlertCircle size={14} style={{ color: "#f87171" }} />
+                  <span style={{ color: "#f87171" }}>Finished with errors.</span>
+                </>
+              )}
             </div>
           )}
         </div>
