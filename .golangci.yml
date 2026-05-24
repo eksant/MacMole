@@ -1,0 +1,21 @@
+run:
+  build-tags:
+    - darwin
+
+linters:
+  enable:
+    - errcheck
+    - staticcheck
+    - revive
+    - govet
+    - ineffassign
+    - unused
+
+issues:
+  exclude:
+    # Ignore embed typecheck error — frontend/dist doesn't exist outside wails build
+    - "pattern all:frontend/dist"
+  exclude-rules:
+    # Ignore CGo-related typecheck issues in tray files
+    - linters: [typecheck]
+      source: "tray_darwin"

@@ -257,12 +257,12 @@ func collectTopProcesses() []ProcessInfo {
 func (m *MetricsService) FormatUptime(seconds uint64) string {
 	d := seconds / 86400
 	h := (seconds % 86400) / 3600
-	min := (seconds % 3600) / 60
+	mins := (seconds % 3600) / 60
 	if d > 0 {
-		return fmt.Sprintf("%dd %dh %dm", d, h, min)
+		return fmt.Sprintf("%dd %dh %dm", d, h, mins)
 	}
 	if h > 0 {
-		return fmt.Sprintf("%dh %dm", h, min)
+		return fmt.Sprintf("%dh %dm", h, mins)
 	}
-	return fmt.Sprintf("%dm", min)
+	return fmt.Sprintf("%dm", mins)
 }
