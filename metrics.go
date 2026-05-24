@@ -212,7 +212,8 @@ func (m *MetricsService) GetWatchedProcesses() []WatchedProcess {
 			continue
 		}
 		stat := fields[3]
-		name := filepath.Base(fields[4])
+		command := strings.Join(fields[4:], " ")
+		name := filepath.Base(command)
 		if len(name) > 28 {
 			name = name[:28]
 		}
@@ -235,7 +236,7 @@ func (m *MetricsService) GetWatchedProcesses() []WatchedProcess {
 			CPU:     cpuVal,
 			Memory:  memVal,
 			Status:  status,
-			Command: fields[4],
+			Command: command,
 		})
 		if len(result) >= 20 {
 			break
