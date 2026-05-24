@@ -5,7 +5,7 @@ import type { main } from "../../wailsjs/go/models";
 
 function fmtTime(ts: number): string {
   const d = new Date(ts * 1000);
-  return d.toLocaleDateString("en-US", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
+  return d.toLocaleString("en-US", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
 }
 
 const OP_COLORS: Record<string, string> = {
@@ -33,7 +33,12 @@ export default function History() {
   };
 
   const clear = async () => {
-    await ClearHistory();
+    try {
+      await ClearHistory();
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Failed to clear history.");
+      return;
+    }
     load();
   };
 
