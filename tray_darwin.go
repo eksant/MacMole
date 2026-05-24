@@ -16,6 +16,7 @@ void MacMoleUpdateTrayMetrics(double cpu, double mem, double disk,
 import "C"
 import (
 	_ "embed"
+	"sync"
 	"time"
 	"unsafe"
 )
@@ -26,7 +27,10 @@ var trayIcon1x []byte
 //go:embed build/trayicon@2x.png
 var trayIcon2x []byte
 
-var trayDone = make(chan struct{})
+var (
+	trayDone     = make(chan struct{})
+	trayStopOnce sync.Once
+)
 
 func initTray() {
 	p1 := C.CBytes(trayIcon1x)
@@ -76,7 +80,7 @@ func pushTrayMetrics(svc *MetricsService) {
 	)
 }
 
-// StopTray signals the tray goroutine to exit cleanly.
+// StopTray signals the tray goroutine to exit cleanly. Safe to call multiple times.
 func StopTray() {
-	close(trayDone)
+	trayStopOnce.Do(func() { close(trayDone) })
 }
