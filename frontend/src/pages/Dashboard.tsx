@@ -40,10 +40,11 @@ function healthScore(cpu: number, mem: number, disk: number): number {
 
 /** Animated SVG ring for the health score */
 function ScoreRing({ score }: { score: number }) {
-  const radius = 36;
+  const radius = 48;
   const circumference = 2 * Math.PI * radius;
   const offset = circumference - (score / 100) * circumference;
-  const color = score >= 80 ? "#34d399" : score >= 60 ? "#fbbf24" : "#f87171";
+  const color = score >= 80 ? "#34d399" : score >= 60 ? "#fbbf24" : score >= 40 ? "#fb923c" : "#f87171";
+  const label = score >= 80 ? "Excellent" : score >= 60 ? "Good" : score >= 40 ? "Fair" : "Critical";
   const scoreRef = useRef<SVGCircleElement>(null);
 
   useEffect(() => {
@@ -55,57 +56,43 @@ function ScoreRing({ score }: { score: number }) {
 
   return (
     <div className="flex flex-col items-center gap-1">
-      <svg width="88" height="88" viewBox="0 0 88 88">
-        {/* Track */}
-        <circle
-          cx="44"
-          cy="44"
-          r={radius}
-          fill="none"
-          stroke="rgba(255,255,255,0.07)"
-          strokeWidth="6"
-        />
-        {/* Progress */}
+      <svg width="120" height="120" viewBox="0 0 120 120">
+        <circle cx="60" cy="60" r={radius} fill="none" stroke="rgba(255,255,255,0.07)" strokeWidth="8" />
         <circle
           ref={scoreRef}
-          cx="44"
-          cy="44"
-          r={radius}
+          cx="60" cy="60" r={radius}
           fill="none"
           stroke={color}
-          strokeWidth="6"
+          strokeWidth="8"
           strokeLinecap="round"
           strokeDasharray={circumference}
           strokeDashoffset={circumference}
-          transform="rotate(-90 44 44)"
+          transform="rotate(-90 60 60)"
           className="animate-score-ring"
-          style={{
-            filter: `drop-shadow(0 0 6px ${color}90)`,
-            transition: "stroke 0.5s ease",
-          }}
+          style={{ filter: `drop-shadow(0 0 8px ${color}90)`, transition: "stroke 0.5s ease" }}
         />
-        {/* Score text */}
-        <text
-          x="44"
-          y="44"
-          textAnchor="middle"
-          dominantBaseline="central"
-          fontSize="18"
-          fontWeight="700"
-          fill={color}
-          fontFamily="-apple-system, BlinkMacSystemFont, SF Pro Display, sans-serif"
-        >
+        <text x="60" y="57" textAnchor="middle" dominantBaseline="middle"
+          fontSize="22" fontWeight="700" fill={color}
+          fontFamily="-apple-system, BlinkMacSystemFont, SF Pro Display, sans-serif">
           {score}
         </text>
+        <text x="60" y="73" textAnchor="middle" dominantBaseline="middle"
+          fontSize="10" fill="rgba(255,255,255,0.35)"
+          fontFamily="-apple-system, BlinkMacSystemFont, SF Pro Display, sans-serif">
+          {label}
+        </text>
       </svg>
-      <span className="text-xs" style={{ color: "rgba(255,255,255,0.35)" }}>
-        Health
-      </span>
+      <span className="text-xs" style={{ color: "rgba(255,255,255,0.3)" }}>Health</span>
     </div>
   );
 }
 
 type OptStatus = "idle" | "running" | "done" | "error";
+
+function extractFreed(output: string): string {
+  const match = /freed\s+([\d.]+\s+[KMGT]?B)/i.exec(output);
+  return match ? match[1] : "";
+}
 
 export default function Dashboard() {
   const m = useMetrics(2000);
@@ -114,6 +101,12 @@ export default function Dashboard() {
   const [optStatus, setOptStatus] = useState<OptStatus>("idle");
   const [optLines, setOptLines] = useState<string[]>([]);
   const logRef = useRef<HTMLDivElement>(null);
+  const [lastRun, setLastRun] = useState<{ time: string; freed: string } | null>(() => {
+    const raw = localStorage.getItem("macmole_last_run");
+    if (!raw) return null;
+    try { return JSON.parse(raw) as { time: string; freed: string }; }
+    catch { return null; }
+  });
 
   useEffect(() => {
     EventsOn("command:output", (line: string) => {
@@ -140,6 +133,11 @@ export default function Dashboard() {
       const result = await RunAll(false);
       setOptStatus(result.success ? "done" : "error");
       if (result.error) setOptLines((prev) => [...prev, "Error: " + result.error]);
+      if (result.success) {
+        const entry = { time: new Date().toLocaleString(), freed: extractFreed(result.output) };
+        localStorage.setItem("macmole_last_run", JSON.stringify(entry));
+        setLastRun(entry);
+      }
     } catch {
       setOptStatus("error");
     }
@@ -259,6 +257,12 @@ export default function Dashboard() {
           </button>
         </div>
       </div>
+      {lastRun && optStatus === "idle" && (
+        <div className="text-xs text-center" style={{ color: "rgba(255,255,255,0.25)" }}>
+          Last run: {lastRun.time}
+          {lastRun.freed && <span className="text-emerald-400/50 ml-1">· {lastRun.freed} freed</span>}
+        </div>
+      )}
 
       {/* Live log output */}
       {(optStatus === "running" || optLines.length > 0) && (
