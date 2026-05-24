@@ -272,6 +272,28 @@ export namespace main {
 	        this.release_url = source["release_url"];
 	    }
 	}
+	export class WatchedProcess {
+	    pid: number;
+	    name: string;
+	    cpu: number;
+	    memory: number;
+	    status: string;
+	    command: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new WatchedProcess(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.pid = source["pid"];
+	        this.name = source["name"];
+	        this.cpu = source["cpu"];
+	        this.memory = source["memory"];
+	        this.status = source["status"];
+	        this.command = source["command"];
+	    }
+	}
 
 }
 

@@ -75,6 +75,16 @@ type ProcessInfo struct {
 	Memory float64 `json:"memory"`
 }
 
+// WatchedProcess represents a process flagged as high-resource or zombie.
+type WatchedProcess struct {
+	PID     int32   `json:"pid"`
+	Name    string  `json:"name"`
+	CPU     float64 `json:"cpu"`
+	Memory  float64 `json:"memory"`
+	Status  string  `json:"status"` // "zombie" | "high-cpu" | "high-mem"
+	Command string  `json:"command"`
+}
+
 type SystemMetrics struct {
 	CPU          CPUMetrics    `json:"cpu"`
 	Memory       MemoryMetrics `json:"memory"`
@@ -176,6 +186,62 @@ func (m *MetricsService) GetMetrics() SystemMetrics {
 		Battery:      collectBattery(),
 		TopProcesses: collectTopProcesses(),
 	}
+}
+
+// GetWatchedProcesses returns processes that are zombie or consuming excessive resources.
+func (m *MetricsService) GetWatchedProcesses() []WatchedProcess {
+	out, err := exec.Command("ps", "-Aceo", "pid,pcpu,pmem,stat,comm").Output()
+	if err != nil {
+		return nil
+	}
+	lines := strings.Split(strings.TrimSpace(string(out)), "\n")
+	var result []WatchedProcess
+	for _, line := range lines {
+		line = strings.TrimSpace(line)
+		if strings.HasPrefix(line, "PID") || line == "" {
+			continue
+		}
+		fields := strings.Fields(line)
+		if len(fields) < 5 {
+			continue
+		}
+		pid, err1 := strconv.ParseInt(fields[0], 10, 32)
+		cpuVal, err2 := strconv.ParseFloat(fields[1], 64)
+		memVal, err3 := strconv.ParseFloat(fields[2], 64)
+		if err1 != nil || err2 != nil || err3 != nil {
+			continue
+		}
+		stat := fields[3]
+		name := filepath.Base(fields[4])
+		if len(name) > 28 {
+			name = name[:28]
+		}
+
+		var status string
+		switch {
+		case strings.Contains(stat, "Z"):
+			status = "zombie"
+		case cpuVal > 80:
+			status = "high-cpu"
+		case memVal > 15:
+			status = "high-mem"
+		default:
+			continue
+		}
+
+		result = append(result, WatchedProcess{
+			PID:     int32(pid),
+			Name:    name,
+			CPU:     cpuVal,
+			Memory:  memVal,
+			Status:  status,
+			Command: fields[4],
+		})
+		if len(result) >= 20 {
+			break
+		}
+	}
+	return result
 }
 
 // collectBattery parses `pmset -g batt` to get current battery status.

@@ -9,3 +9,7 @@ export function FormatUptime(arg1) {
 export function GetMetrics() {
   return window['go']['main']['MetricsService']['GetMetrics']();
 }
+
+export function GetWatchedProcesses() {
+  return window['go']['main']['MetricsService']['GetWatchedProcesses']();
+}

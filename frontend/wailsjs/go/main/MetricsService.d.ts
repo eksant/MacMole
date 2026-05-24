@@ -5,3 +5,5 @@ import {main} from '../models';
 export function FormatUptime(arg1:number):Promise<string>;
 
 export function GetMetrics():Promise<main.SystemMetrics>;
+
+export function GetWatchedProcesses():Promise<Array<main.WatchedProcess>>;
