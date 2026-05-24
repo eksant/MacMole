@@ -13,15 +13,26 @@ export LANG=C
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/../lib/core/common.sh"
 
-# Set up cleanup trap for temporary files
-trap cleanup_temp_files EXIT INT TERM
+# Restores cursor and clears temp files even when set -e aborts (#915).
+cleanup() {
+    show_cursor 2> /dev/null || true
+    cleanup_temp_files
+}
+trap cleanup EXIT
+trap 'trap - EXIT; cleanup; exit 130' INT TERM
 source "$SCRIPT_DIR/../lib/core/log.sh"
 source "$SCRIPT_DIR/../lib/clean/project.sh"
 
 # Configuration
 CURRENT_SECTION=""
 
-# Section management
+# IMPORTANT: This file overrides start_section / end_section / note_activity
+# from lib/core/base.sh by virtue of being sourced after it. The purge variant
+# uses a blue ━━━ box header, has no fallback "Nothing to ..." message, and
+# writes every note_activity call straight to EXPORT_LIST_FILE (purge always
+# wants the export list, not just under DRY_RUN). See the cross-reference in
+# lib/core/base.sh and the clean variant in bin/clean.sh before changing any
+# of these three.
 start_section() {
     local section_name="$1"
     CURRENT_SECTION="$section_name"
@@ -33,7 +44,6 @@ end_section() {
     CURRENT_SECTION=""
 }
 
-# Note activity for export list
 note_activity() {
     if [[ -n "$CURRENT_SECTION" ]]; then
         printf '%s\n' "$CURRENT_SECTION" >> "$EXPORT_LIST_FILE"
@@ -174,7 +184,12 @@ perform_purge() {
             # Set up trap to exit cleanly (erase the spinner line via /dev/tty)
             trap 'printf "\r\033[2K" >/dev/tty 2>/dev/null; exit 0' INT TERM
 
+            local _parent_pid=$$
             while [[ -f "$stats_dir/purge_scanning" ]]; do
+                # Exit if parent process died (prevents orphaned spinner)
+                if ! kill -0 "$_parent_pid" 2> /dev/null; then
+                    break
+                fi
                 local current_path
                 current_path=$(cat "$stats_dir/purge_scanning" 2> /dev/null || echo "")
 
@@ -277,6 +292,7 @@ show_help() {
     echo -e "${YELLOW}Options:${NC}"
     echo "  --paths         Edit custom scan directories"
     echo "  --dry-run       Preview purge actions without making changes"
+    echo "  --include-empty Show zero-size project artifact directories"
     echo "  --debug         Enable debug logging"
     echo "  --help          Show this help message"
     echo ""
@@ -288,9 +304,6 @@ show_help() {
 
 # Main entry point
 main() {
-    # Set up signal handling
-    trap 'show_cursor; exit 130' INT TERM
-
     # Parse arguments
     for arg in "$@"; do
         case "$arg" in
@@ -309,6 +322,9 @@ main() {
             "--dry-run" | "-n")
                 export MOLE_DRY_RUN=1
                 ;;
+            "--include-empty")
+                export MOLE_PURGE_INCLUDE_EMPTY=1
+                ;;
             *)
                 echo "Unknown option: $arg"
                 echo "Use 'mo purge --help' for usage information"
@@ -324,7 +340,6 @@ main() {
     fi
     hide_cursor
     perform_purge
-    show_cursor
 }
 
 if [[ "${MOLE_SKIP_MAIN:-0}" == "1" ]]; then

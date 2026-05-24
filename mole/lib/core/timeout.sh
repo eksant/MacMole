@@ -34,9 +34,9 @@ if [[ -z "${MO_TIMEOUT_INITIALIZED:-}" ]]; then
     MO_TIMEOUT_PERL_BIN=""
     for candidate in gtimeout timeout; do
         if command -v "$candidate" > /dev/null 2>&1; then
-            MO_TIMEOUT_BIN="$candidate"
+            MO_TIMEOUT_BIN="$(command -v "$candidate")"
             if [[ "${MO_DEBUG:-0}" == "1" ]]; then
-                echo "[TIMEOUT] Using command: $candidate" >&2
+                echo "[TIMEOUT] Using command: $MO_TIMEOUT_BIN" >&2
             fi
             break
         fi
@@ -106,10 +106,19 @@ run_with_timeout() {
 
     # Use timeout command if available (preferred path)
     if [[ -n "${MO_TIMEOUT_BIN:-}" ]]; then
+        local timeout_bin="$MO_TIMEOUT_BIN"
+        if [[ "$timeout_bin" != */* ]]; then
+            timeout_bin=$(command -v "$timeout_bin" 2> /dev/null || true)
+        fi
+        if [[ -z "$timeout_bin" || ! -x "$timeout_bin" ]]; then
+            timeout_bin=""
+        fi
+    fi
+    if [[ -n "${timeout_bin:-}" ]]; then
         if [[ "${MO_DEBUG:-0}" == "1" ]]; then
             echo "[TIMEOUT] Running with ${duration}s timeout: $*" >&2
         fi
-        "$MO_TIMEOUT_BIN" "$duration" "$@"
+        "$timeout_bin" "$duration" "$@"
         return $?
     fi
 
@@ -211,6 +220,13 @@ run_with_timeout() {
     ) < /dev/null > /dev/null 2>&1 &
     local killer_pid=$!
 
+    local interrupted=0
+    local previous_int_trap
+    previous_int_trap=$(trap -p INT || true)
+
+    # Forward SIGINT to the command while preserving the caller's trap.
+    trap 'interrupted=1; kill -INT "$cmd_pid" 2>/dev/null || true; kill "$killer_pid" 2>/dev/null || true' INT
+
     # Wait for command to complete
     local exit_code=0
     set +e
@@ -218,10 +234,21 @@ run_with_timeout() {
     exit_code=$?
     set -e
 
+    if [[ -n "$previous_int_trap" ]]; then
+        # eval: restore previous trap captured by $(trap -p INT)
+        eval "$previous_int_trap"
+    else
+        trap - INT
+    fi
+
     # Clean up killer process
     if kill -0 "$killer_pid" 2> /dev/null; then
         kill "$killer_pid" 2> /dev/null || true
         wait "$killer_pid" 2> /dev/null || true
+    fi
+
+    if [[ $interrupted -eq 1 ]]; then
+        return 130
     fi
 
     # Check if command was killed by timeout (exit codes 143=SIGTERM, 137=SIGKILL)

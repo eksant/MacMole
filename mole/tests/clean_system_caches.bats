@@ -17,13 +17,20 @@ setup_file() {
 }
 
 teardown_file() {
-    rm -rf "$HOME"
+    if [[ "$HOME" == "${BATS_TEST_DIRNAME}/tmp-"* ]]; then
+        rm -rf "$HOME"
+    fi
     if [[ -n "${ORIGINAL_HOME:-}" ]]; then
         export HOME="$ORIGINAL_HOME"
     fi
 }
 
 setup() {
+    # Safety: refuse to operate on a real home directory.
+    if [[ "$HOME" != "${BATS_TEST_DIRNAME}/tmp-"* ]]; then
+        printf 'FATAL: HOME is not a test temp dir: %s\n' "$HOME" >&2
+        return 1
+    fi
     source "$PROJECT_ROOT/lib/core/common.sh"
     source "$PROJECT_ROOT/lib/clean/caches.sh"
 
@@ -71,7 +78,7 @@ setup() {
     local test_cache="$HOME/test_sw_cache"
     mkdir -p "$test_cache"
 
-    run bash -c "
+    run /bin/bash --noprofile --norc -c "
         source '$PROJECT_ROOT/lib/core/common.sh'
         source '$PROJECT_ROOT/lib/clean/caches.sh'
         run_with_timeout() { shift; \"\$@\"; }
@@ -118,6 +125,87 @@ setup() {
     rm -rf "$test_cache"
 }
 
+# Regression for #724: MV3 extension SW caches are keyed by origin hash,
+# so the PROTECTED_SW_DOMAINS domain-match never fires for them. The
+# whitelist is the only escape hatch users have — respect it here.
+@test "clean_service_worker_cache honors is_path_whitelisted (#724)" {
+    local test_cache="$HOME/test_sw_cache_wl"
+    mkdir -p "$test_cache/abc123hash_extension"
+    mkdir -p "$test_cache/def456hash_other"
+
+    run bash -c "
+        export DRY_RUN=false
+        export PROTECTED_SW_DOMAINS=(nomatch.invalid)
+        source '$PROJECT_ROOT/lib/core/common.sh'
+        source '$PROJECT_ROOT/lib/clean/caches.sh'
+        WHITELIST_PATTERNS=('$test_cache/abc123hash_extension')
+        safe_remove() { echo \"REMOVE:\$1\"; return 0; }
+        export -f safe_remove
+        note_activity() { :; }
+        export -f note_activity
+        run_with_timeout() {
+            local timeout=\"\$1\"
+            shift
+            if [[ \"\$1\" == \"sh\" ]]; then
+                printf '%s\n' '$test_cache/abc123hash_extension' '$test_cache/def456hash_other'
+                return 0
+            fi
+            if [[ \"\$1\" == \"du\" ]]; then
+                printf '2048\t%s\n' \"\$3\"
+                return 0
+            fi
+            \"\$@\"
+        }
+        export -f run_with_timeout
+        clean_service_worker_cache 'TestBrowser' '$test_cache'
+    "
+
+    [ "$status" -eq 0 ]
+    # Whitelisted dir must never be passed to safe_remove
+    [[ "$output" != *"REMOVE:$test_cache/abc123hash_extension"* ]]
+    # Non-whitelisted dir must be removed
+    [[ "$output" == *"REMOVE:$test_cache/def456hash_other"* ]]
+    # UI reports the protection count
+    [[ "$output" == *"1 protected"* ]]
+
+    rm -rf "$test_cache"
+}
+
+@test "clean_service_worker_cache colors cleaned size with success color" {
+    local test_cache="$HOME/test_sw_cache_colored"
+    mkdir -p "$test_cache/abc123_https_example.com_0"
+
+    run env HOME="$HOME" PROJECT_ROOT="$PROJECT_ROOT" bash --noprofile --norc <<EOF
+set -euo pipefail
+source "$PROJECT_ROOT/lib/core/common.sh"
+source "$PROJECT_ROOT/lib/clean/caches.sh"
+DRY_RUN=false
+declare -a PROTECTED_SW_DOMAINS=("capcut.com")
+safe_remove() { return 0; }
+note_activity() { :; }
+run_with_timeout() {
+    local timeout="\$1"
+    shift
+    if [[ "\$1" == "sh" ]]; then
+        printf '%s\n' "$test_cache/abc123_https_example.com_0"
+        return 0
+    fi
+    if [[ "\$1" == "du" ]]; then
+        printf '1024\t%s\n' "$test_cache/abc123_https_example.com_0"
+        return 0
+    fi
+    "\$@"
+}
+clean_service_worker_cache 'TestBrowser' '$test_cache'
+EOF
+
+    [ "$status" -eq 0 ]
+    [[ "$output" == *"TestBrowser Service Worker"* ]]
+    [[ "$output" == *$'\033[0;32m1MB\033[0m'* ]]
+
+    rm -rf "$test_cache"
+}
+
 @test "clean_project_caches completes without errors" {
     mkdir -p "$HOME/Projects/test-app/.next/cache"
     mkdir -p "$HOME/Projects/python-app/__pycache__"
@@ -138,23 +226,126 @@ setup() {
     rm -rf "$HOME/Projects"
 }
 
-@test "clean_project_caches removes pycache directories as single targets" {
-    mkdir -p "$HOME/Projects/python-app/__pycache__"
+@test "clean_project_caches groups pycache directories by project root" {
+    mkdir -p "$HOME/Projects/python-app/pkg/__pycache__"
+    mkdir -p "$HOME/Projects/python-app/subpkg/__pycache__"
     touch "$HOME/Projects/python-app/pyproject.toml"
-    touch "$HOME/Projects/python-app/__pycache__/module.pyc"
+    touch "$HOME/Projects/python-app/pkg/__pycache__/module.pyc"
+    touch "$HOME/Projects/python-app/subpkg/__pycache__/other.pyc"
 
     run env HOME="$HOME" PROJECT_ROOT="$PROJECT_ROOT" bash --noprofile --norc <<'EOF'
 set -euo pipefail
 source "$PROJECT_ROOT/lib/core/common.sh"
 source "$PROJECT_ROOT/lib/clean/caches.sh"
-safe_clean() { echo "$2|$1"; }
+DRY_RUN=true
 clean_project_caches
 EOF
     [ "$status" -eq 0 ]
-    [[ "$output" == *"Python bytecode cache|$HOME/Projects/python-app/__pycache__"* ]]
+    [[ "$output" == *"Python bytecode cache"* ]]
+    [[ "$output" == *"~/Projects/python-app"* ]]
+    [[ "$output" == *"2 dirs"* ]]
     [[ "$output" != *"module.pyc"* ]]
 
     rm -rf "$HOME/Projects"
+}
+
+@test "clean_project_caches skips empty pycache directories" {
+    mkdir -p "$HOME/Projects/python-app/pkg/__pycache__"
+    mkdir -p "$HOME/Projects/python-app/empty/__pycache__"
+    touch "$HOME/Projects/python-app/pyproject.toml"
+    touch "$HOME/Projects/python-app/pkg/__pycache__/module.pyc"
+    # empty/__pycache__ has no .pyc files
+
+    run env HOME="$HOME" PROJECT_ROOT="$PROJECT_ROOT" bash --noprofile --norc <<'EOF'
+set -euo pipefail
+source "$PROJECT_ROOT/lib/core/common.sh"
+source "$PROJECT_ROOT/lib/clean/caches.sh"
+DRY_RUN=true
+clean_project_caches
+EOF
+    [ "$status" -eq 0 ]
+    [[ "$output" == *"Python bytecode cache"* ]]
+    [[ "$output" == *"1 dirs"* ]]
+
+    rm -rf "$HOME/Projects"
+}
+
+@test "pycache_has_bytecode checks direct bytecode files without spawning find" {
+    mkdir -p "$HOME/Projects/python-app/pkg/__pycache__"
+
+    run bash -c "
+source '$PROJECT_ROOT/lib/clean/caches.sh'
+if pycache_has_bytecode '$HOME/Projects/python-app/pkg/__pycache__'; then
+    echo has-bytecode
+else
+    echo empty
+fi
+touch '$HOME/Projects/python-app/pkg/__pycache__/module.pyc'
+if pycache_has_bytecode '$HOME/Projects/python-app/pkg/__pycache__'; then
+    echo has-bytecode
+else
+    echo empty
+fi
+"
+
+    [ "$status" -eq 0 ]
+    [[ "$output" == $'empty\nhas-bytecode' ]]
+}
+
+@test "pycache_has_bytecode tolerates empty matches when nullglob is enabled" {
+    mkdir -p "$HOME/Projects/nullglob-app/pkg/__pycache__"
+
+    run bash -c "
+set -euo pipefail
+source '$PROJECT_ROOT/lib/clean/caches.sh'
+shopt -s nullglob
+if pycache_has_bytecode '$HOME/Projects/nullglob-app/pkg/__pycache__'; then
+    echo has-bytecode
+else
+    echo empty
+fi
+if shopt -q nullglob; then
+    echo nullglob-restored
+else
+    echo nullglob-lost
+fi
+"
+
+    [ "$status" -eq 0 ]
+    [[ "$output" == $'empty\nnullglob-restored' ]]
+}
+
+@test "clean_project_caches pycache dry-run exports grouped targets and counts skips" {
+    mkdir -p "$HOME/Projects/python-app/pkg/__pycache__"
+    mkdir -p "$HOME/Projects/python-app/protected/__pycache__"
+    touch "$HOME/Projects/python-app/pyproject.toml"
+    touch "$HOME/Projects/python-app/pkg/__pycache__/module.pyc"
+    touch "$HOME/Projects/python-app/protected/__pycache__/blocked.pyc"
+
+    run env HOME="$HOME" PROJECT_ROOT="$PROJECT_ROOT" bash --noprofile --norc <<'EOF'
+set -euo pipefail
+source "$PROJECT_ROOT/lib/core/common.sh"
+source "$PROJECT_ROOT/lib/clean/caches.sh"
+DRY_RUN=true
+EXPORT_LIST_FILE="$HOME/export.txt"
+whitelist_skipped_count=0
+should_protect_path() {
+    [[ "$1" == *"/protected/__pycache__" ]]
+}
+clean_project_caches
+printf '\nEXPORT\n'
+cat "$EXPORT_LIST_FILE"
+printf '\nSKIPPED=%s\n' "$whitelist_skipped_count"
+EOF
+    [ "$status" -eq 0 ]
+    [[ "$output" == *"1 dirs"* ]]
+    [[ "$output" == *"1 skipped"* ]]
+    [[ "$output" == *"EXPORT"* ]]
+    [[ "$output" == *"$HOME/Projects/python-app/pkg/__pycache__"* ]]
+    [[ "$output" != *"$HOME/Projects/python-app/protected/__pycache__"* ]]
+    [[ "$output" == *"SKIPPED=1"* ]]
+
+    rm -rf "$HOME/Projects" "$HOME/export.txt"
 }
 
 @test "clean_project_caches scans configured roots instead of HOME" {
@@ -278,14 +469,14 @@ for arg in "\$@"; do
 done
 if [[ "\$root" == "$HOME/SlowProjects" ]]; then
     trap "" TERM
-    sleep 30
+    sleep 5
     exit 0
 fi
 exit 0
 EOF
     chmod +x "$fake_bin/find"
 
-    run /usr/bin/perl -e 'alarm 8; exec @ARGV' env -i HOME="$HOME" PROJECT_ROOT="$PROJECT_ROOT" PATH="$fake_bin:$PATH:/usr/bin:/bin:/usr/sbin:/sbin" TERM="${TERM:-xterm-256color}" bash --noprofile --norc <<'EOF'
+    run /usr/bin/perl -e 'alarm 5; exec @ARGV' env -i HOME="$HOME" PROJECT_ROOT="$PROJECT_ROOT" PATH="$fake_bin:$PATH:/usr/bin:/bin:/usr/sbin:/sbin" TERM="${TERM:-xterm-256color}" bash --noprofile --norc <<'EOF'
 set -euo pipefail
 source "$PROJECT_ROOT/lib/core/common.sh"
 source "$PROJECT_ROOT/lib/clean/caches.sh"
@@ -304,6 +495,34 @@ EOF
     (( elapsed < 5 ))
 
     rm -rf "$HOME/.config/mole" "$HOME/SlowProjects" "$fake_bin"
+}
+
+@test "scan_project_cache_root prunes conda and site-packages" {
+    mkdir -p "$HOME/Projects/miniconda3/lib/python3.11/site-packages/pkg1/__pycache__"
+    mkdir -p "$HOME/Projects/miniconda3/lib/python3.11/site-packages/pkg2/__pycache__"
+    mkdir -p "$HOME/Projects/app/__pycache__"
+    touch "$HOME/Projects/miniconda3/lib/python3.11/site-packages/pkg1/__pycache__/mod.pyc"
+    touch "$HOME/Projects/miniconda3/lib/python3.11/site-packages/pkg2/__pycache__/mod.pyc"
+    touch "$HOME/Projects/app/pyproject.toml"
+    touch "$HOME/Projects/app/__pycache__/mod.pyc"
+
+    local output_file
+    output_file=$(mktemp)
+
+    run env HOME="$HOME" PROJECT_ROOT="$PROJECT_ROOT" bash --noprofile --norc <<EOF
+set -euo pipefail
+source "\$PROJECT_ROOT/lib/core/common.sh"
+source "\$PROJECT_ROOT/lib/clean/caches.sh"
+run_with_timeout() { shift; "\$@"; }
+scan_project_cache_root "$HOME/Projects" "$output_file"
+cat "$output_file"
+EOF
+    [ "$status" -eq 0 ]
+    [[ "$output" == *"app/__pycache__"* ]]
+    [[ "$output" != *"miniconda3"* ]]
+    [[ "$output" != *"site-packages"* ]]
+
+    rm -rf "$HOME/Projects" "$output_file"
 }
 
 @test "clean_project_caches excludes Library and Trash directories" {

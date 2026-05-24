@@ -4,6 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io/fs"
+	"os"
+	"path/filepath"
 	"runtime"
 	"sort"
 	"strconv"
@@ -155,6 +158,15 @@ var (
 	finderDiskCachedAt time.Time
 	finderDiskFree     uint64
 	finderDiskTotal    uint64
+
+	// Trash size cache. ~/.Trash can contain deep trees, and status refreshes
+	// every second; a short cache prevents repeated WalkDir work without
+	// hiding changes for long.
+	trashSizeCacheMu      sync.Mutex
+	trashSizeCachedAt     time.Time
+	trashSizeCachedValue  uint64
+	trashSizeCachedApprox bool
+	trashSizeCacheTTL     = 5 * time.Second
 )
 
 func annotateDiskTypes(disks []DiskStatus) {
@@ -332,6 +344,9 @@ func getFinderStartupDiskFreeBytes() (free, total uint64, err error) {
 	out, err := runCmd(ctx, "osascript", "-e",
 		`tell application "Finder" to return {free space of startup disk, capacity of startup disk}`)
 	if err != nil {
+		// Cache the failure timestamp so repeated calls within diskCacheTTL
+		// return immediately instead of each waiting the full 5s timeout.
+		finderDiskCachedAt = time.Now()
 		return 0, 0, err
 	}
 
@@ -411,8 +426,8 @@ func (c *Collector) collectDiskIO(now time.Time) DiskIOStatus {
 		elapsed = 1
 	}
 
-	readRate := float64(total.ReadBytes-c.prevDiskIO.ReadBytes) / 1024 / 1024 / elapsed
-	writeRate := float64(total.WriteBytes-c.prevDiskIO.WriteBytes) / 1024 / 1024 / elapsed
+	readRate := float64(counterDelta(total.ReadBytes, c.prevDiskIO.ReadBytes)) / 1024 / 1024 / elapsed
+	writeRate := float64(counterDelta(total.WriteBytes, c.prevDiskIO.WriteBytes)) / 1024 / 1024 / elapsed
 
 	c.prevDiskIO = total
 	c.lastDiskAt = now
@@ -425,4 +440,63 @@ func (c *Collector) collectDiskIO(now time.Time) DiskIOStatus {
 	}
 
 	return DiskIOStatus{ReadRate: readRate, WriteRate: writeRate}
+}
+
+func counterDelta(current, previous uint64) uint64 {
+	if current < previous {
+		return 0
+	}
+	return current - previous
+}
+
+// collectTrashSize returns the total size in bytes of ~/.Trash and whether
+// the result is approximate (true when the 2s timeout was reached).
+func collectTrashSize() (uint64, bool) {
+	trashSizeCacheMu.Lock()
+	if !trashSizeCachedAt.IsZero() && time.Since(trashSizeCachedAt) < trashSizeCacheTTL {
+		value := trashSizeCachedValue
+		approx := trashSizeCachedApprox
+		trashSizeCacheMu.Unlock()
+		return value, approx
+	}
+	trashSizeCacheMu.Unlock()
+
+	total, approx := scanTrashSize()
+
+	trashSizeCacheMu.Lock()
+	trashSizeCachedValue = total
+	trashSizeCachedApprox = approx
+	trashSizeCachedAt = time.Now()
+	trashSizeCacheMu.Unlock()
+
+	return total, approx
+}
+
+func scanTrashSize() (uint64, bool) {
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return 0, false
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+	var total uint64
+	trashPath := filepath.Join(home, ".Trash")
+	_ = filepath.WalkDir(trashPath, func(_ string, d fs.DirEntry, err error) error {
+		if ctx.Err() != nil {
+			return fs.SkipAll
+		}
+		if err != nil {
+			return nil
+		}
+		if d.Type()&fs.ModeSymlink != 0 {
+			return nil
+		}
+		if !d.IsDir() {
+			if info, err := d.Info(); err == nil {
+				total += uint64(info.Size())
+			}
+		}
+		return nil
+	})
+	return total, ctx.Err() != nil
 }

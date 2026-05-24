@@ -14,13 +14,20 @@ setup_file() {
 }
 
 teardown_file() {
-    rm -rf "$HOME"
+    if [[ "$HOME" == "${BATS_TEST_DIRNAME}/tmp-"* ]]; then
+        rm -rf "$HOME"
+    fi
     if [[ -n "${ORIGINAL_HOME:-}" ]]; then
         export HOME="$ORIGINAL_HOME"
     fi
 }
 
 setup() {
+    # Safety: refuse to operate on a real home directory.
+    if [[ "$HOME" != "${BATS_TEST_DIRNAME}/tmp-"* ]]; then
+        printf 'FATAL: HOME is not a test temp dir: %s\n' "$HOME" >&2
+        return 1
+    fi
     rm -rf "$HOME/.config"
     mkdir -p "$HOME"
 }
@@ -42,6 +49,102 @@ setup() {
 @test "get_free_space returns a non-empty value" {
     result="$(HOME="$HOME" bash --noprofile --norc -c "source '$PROJECT_ROOT/lib/core/common.sh'; get_free_space")"
     [[ -n "$result" ]]
+}
+
+@test "cleanup_result_color_kb always returns green" {
+    run env HOME="$HOME" PROJECT_ROOT="$PROJECT_ROOT" bash --noprofile --norc <<'EOF'
+set -euo pipefail
+source "$PROJECT_ROOT/lib/core/common.sh"
+
+small_kb=1
+large_kb=$(((MOLE_ONE_GB_BYTES * 2) / 1024))
+
+if [[ "$(cleanup_result_color_kb "$small_kb")" == "$GREEN" ]] &&
+    [[ "$(cleanup_result_color_kb "$large_kb")" == "$GREEN" ]]; then
+    echo "ok"
+fi
+EOF
+
+    [ "$status" -eq 0 ]
+    [ "$output" = "ok" ]
+}
+
+@test "mole_is_reverse_dns_bundle_id rejects defaults domains and glob-like ids" {
+    run env HOME="$HOME" PROJECT_ROOT="$PROJECT_ROOT" bash --noprofile --norc <<'EOF'
+set -euo pipefail
+source "$PROJECT_ROOT/lib/core/common.sh"
+
+for valid in "com.example.App" "andriiliakh.Artpaper" "dev.zed.Zed-Nightly" "org.keepassxc.KeePassXC"; do
+    mole_is_reverse_dns_bundle_id "$valid" || {
+        echo "valid rejected: $valid"
+        exit 1
+    }
+done
+
+for invalid in "-g" "NSGlobalDomain" "com-example" "com.foo.*" "com.foo.[abc]" "unknown" ""; do
+    if mole_is_reverse_dns_bundle_id "$invalid"; then
+        echo "invalid accepted: $invalid"
+        exit 1
+    fi
+done
+EOF
+
+    [ "$status" -eq 0 ]
+}
+
+@test "mole_name_has_bundle_id_boundary rejects sibling bundle prefixes" {
+    run env HOME="$HOME" PROJECT_ROOT="$PROJECT_ROOT" bash --noprofile --norc <<'EOF'
+set -euo pipefail
+source "$PROJECT_ROOT/lib/core/common.sh"
+
+bundle_id="com.example.TestApp"
+
+for valid in \
+    "com.example.TestApp.plist" \
+    "com.example.TestApp.helper.plist" \
+    "/tmp/com.example.TestApp.pkg.bom"; do
+    mole_name_starts_with_bundle_id_boundary "$valid" "$bundle_id" || {
+        echo "valid start boundary rejected: $valid"
+        exit 1
+    }
+done
+
+for invalid in \
+    "group.com.example.TestApp" \
+    "TEAM.com.example.TestApp.FileProvider" \
+    "com.example.TestApplication.plist"; do
+    if mole_name_starts_with_bundle_id_boundary "$invalid" "$bundle_id"; then
+        echo "sibling start boundary accepted: $invalid"
+        exit 1
+    fi
+done
+
+for valid in \
+    "com.example.TestApp.plist" \
+    "com.example.TestApp.helper.plist" \
+    "group.com.example.TestApp" \
+    "TEAM.com.example.TestApp.FileProvider" \
+    "/tmp/com.example.TestApp.pkg.bom"; do
+    mole_name_has_bundle_id_boundary "$valid" "$bundle_id" || {
+        echo "valid boundary rejected: $valid"
+        exit 1
+    }
+done
+
+for invalid in \
+    "com.example.TestApplication.plist" \
+    "group.com.example.TestApplication" \
+    "xcom.example.TestApp" \
+    "com.example.TestAppHelper.plist" \
+    "com-example-TestApp.plist"; do
+    if mole_name_has_bundle_id_boundary "$invalid" "$bundle_id"; then
+        echo "sibling boundary accepted: $invalid"
+        exit 1
+    fi
+done
+EOF
+
+    [ "$status" -eq 0 ]
 }
 
 @test "log_info prints message and appends to log file" {
@@ -84,14 +187,21 @@ EOF
 }
 
 @test "should_protect_path protects Mole runtime logs" {
-    result="$(HOME="$HOME" bash --noprofile --norc -c "source '$PROJECT_ROOT/lib/core/common.sh'; should_protect_path '$HOME/Library/Logs/mole/operations.log' && echo protected || echo not-protected")"
+    result="$(
+        HOME="$HOME" PROJECT_ROOT="$PROJECT_ROOT" bash --noprofile --norc -c \
+            'source "$PROJECT_ROOT/lib/core/common.sh"; should_protect_path "$HOME/Library/Logs/mole/operations.log" && echo protected || echo not-protected'
+    )"
     [ "$result" = "protected" ]
 }
 
 @test "rotate_log_once only checks log size once per session" {
     local log_file="$HOME/Library/Logs/mole/mole.log"
     mkdir -p "$(dirname "$log_file")"
-    dd if=/dev/zero of="$log_file" bs=1024 count=1100 2> /dev/null
+    if command -v mkfile > /dev/null 2>&1; then
+        mkfile -n 1100k "$log_file"
+    else
+        truncate -s 1100k "$log_file"
+    fi
 
     HOME="$HOME" bash --noprofile --norc -c "source '$PROJECT_ROOT/lib/core/common.sh'"
     [[ -f "${log_file}.old" ]]
@@ -138,6 +248,32 @@ EOF
     [ "${bytes_lines[3]}" = "3.00GB" ]
 }
 
+@test "colorize_human_size colors dry-run size units by suffix" {
+    output="$(
+        HOME="$HOME" bash --noprofile --norc << 'EOF'
+source "$PROJECT_ROOT/lib/core/common.sh"
+colorize_human_size "1.00GB"
+printf '\n'
+colorize_human_size "5.0MB"
+printf '\n'
+colorize_human_size "180KB"
+printf '\n'
+colorize_human_size "0B"
+printf '\n'
+EOF
+    )"
+
+    color_lines=()
+    while IFS= read -r line; do
+        color_lines+=("$line")
+    done <<< "$output"
+
+    [ "${color_lines[0]}" = $'\033[0;31m1.00GB\033[0m' ]
+    [ "${color_lines[1]}" = $'\033[0;33m5.0MB\033[0m' ]
+    [ "${color_lines[2]}" = $'\033[0;32m180KB\033[0m' ]
+    [ "${color_lines[3]}" = $'\033[0;90m0B\033[0m' ]
+}
+
 @test "create_temp_file and create_temp_dir are tracked and cleaned" {
     HOME="$HOME" bash --noprofile --norc << 'EOF'
 source "$PROJECT_ROOT/lib/core/common.sh"
@@ -164,8 +300,49 @@ EOF
     result=$(HOME="$HOME" bash --noprofile --norc -c "source '$PROJECT_ROOT/lib/core/common.sh'; should_protect_data 'io.github.clash-verge-rev.clash-verge-rev' && echo 'protected' || echo 'not-protected'")
     [ "$result" = "protected" ]
 
+    result=$(HOME="$HOME" bash --noprofile --norc -c "source '$PROJECT_ROOT/lib/core/common.sh'; should_protect_data 'org.amnezia.awg' && echo 'protected' || echo 'not-protected'")
+    [ "$result" = "protected" ]
+
+    result=$(HOME="$HOME" bash --noprofile --norc -c "source '$PROJECT_ROOT/lib/core/common.sh'; should_protect_data 'com.wireguard.macos' && echo 'protected' || echo 'not-protected'")
+    [ "$result" = "protected" ]
+
     result=$(HOME="$HOME" bash --noprofile --norc -c "source '$PROJECT_ROOT/lib/core/common.sh'; should_protect_data 'com.example.RegularApp' && echo 'protected' || echo 'not-protected'")
     [ "$result" = "not-protected" ]
+}
+
+# Regression: CUPS prefs have a bundle-ID-style name but no parent .app,
+# so the orphan sweep deleted them and users lost their default printer
+# and recent-printer list. See #731.
+@test "should_protect_data protects CUPS printing prefs (#731)" {
+    result=$(HOME="$HOME" bash --noprofile --norc -c "source '$PROJECT_ROOT/lib/core/common.sh'; should_protect_data 'org.cups.PrintingPrefs' && echo 'protected' || echo 'not-protected'")
+    [ "$result" = "protected" ]
+
+    result=$(HOME="$HOME" bash --noprofile --norc -c "source '$PROJECT_ROOT/lib/core/common.sh'; should_protect_data 'org.cups.printers' && echo 'protected' || echo 'not-protected'")
+    [ "$result" = "protected" ]
+}
+
+@test "should_protect_data protects Codex runtime identifiers" {
+    result=$(HOME="$HOME" bash --noprofile --norc -c "source '$PROJECT_ROOT/lib/core/common.sh'; should_protect_data 'Codex' && echo 'protected' || echo 'not-protected'")
+    [ "$result" = "protected" ]
+
+    result=$(HOME="$HOME" bash --noprofile --norc -c "source '$PROJECT_ROOT/lib/core/common.sh'; should_protect_data 'com.openai.codex' && echo 'protected' || echo 'not-protected'")
+    [ "$result" = "protected" ]
+
+    result=$(HOME="$HOME" bash --noprofile --norc -c "source '$PROJECT_ROOT/lib/core/common.sh'; should_protect_data 'codex-runtimes' && echo 'protected' || echo 'not-protected'")
+    [ "$result" = "protected" ]
+
+    local codex_runtimes_path="$HOME/.cache/codex-runtimes"
+    result=$(HOME="$HOME" TARGET_PATH="$codex_runtimes_path" bash --noprofile --norc -c 'source "$PROJECT_ROOT/lib/core/common.sh"; should_protect_path "$TARGET_PATH" && echo "protected" || echo "not-protected"')
+    [ "$result" = "protected" ]
+}
+
+@test "should_protect_path protects NetworkExtension VPN preferences" {
+    result=$(HOME="$HOME" bash --noprofile --norc -c "source '$PROJECT_ROOT/lib/core/common.sh'; should_protect_path '/Volumes/Data/Library/Preferences/com.apple.networkextension.plist' && echo 'protected' || echo 'not-protected'")
+    [ "$result" = "protected" ]
+
+    local user_network_ext_pref="$HOME/Library/Preferences/com.apple.networkextension.necp.plist"
+    result=$(HOME="$HOME" TARGET_PATH="$user_network_ext_pref" bash --noprofile --norc -c 'source "$PROJECT_ROOT/lib/core/common.sh"; should_protect_path "$TARGET_PATH" && echo "protected" || echo "not-protected"')
+    [ "$result" = "protected" ]
 }
 
 @test "input methods are protected during cleanup but allowed for uninstall" {
@@ -228,6 +405,10 @@ EOF
 }
 
 @test "start_inline_spinner ignores PATH-provided sleep in TTY mode" {
+    if ! /usr/bin/script -q /dev/null /bin/true > /dev/null 2>&1; then
+        skip "script cannot allocate a TTY in this environment"
+    fi
+
     local fake_bin="$HOME/fake-bin"
     local marker="$HOME/fake-sleep.marker"
 
@@ -241,7 +422,7 @@ EOF
 
     PATH="$fake_bin:$PATH" PROJECT_ROOT="$PROJECT_ROOT" HOME="$HOME" \
         /usr/bin/script -q /dev/null /bin/bash --noprofile --norc -c \
-        'source "$PROJECT_ROOT/lib/core/common.sh"; start_inline_spinner "Testing..."; /bin/sleep 0.15; stop_inline_spinner' \
+        "source \"\$PROJECT_ROOT/lib/core/common.sh\"; start_inline_spinner \"Testing...\"; /bin/sleep 0.15; stop_inline_spinner" \
         > /dev/null 2>&1
 
     [ ! -f "$marker" ]
@@ -272,4 +453,61 @@ EOF
 @test "read_key respects MOLE_READ_KEY_FORCE_CHAR" {
     run bash -c "export MOLE_BASE_LOADED=1; export MOLE_READ_KEY_FORCE_CHAR=1; source '$PROJECT_ROOT/lib/core/ui.sh'; echo -n 'j' | read_key"
     [ "$output" = "CHAR:j" ]
+}
+
+@test "ensure_sudo_session returns 1 and sets MOLE_SUDO_ESTABLISHED=false in test mode" {
+    run env HOME="$HOME" PROJECT_ROOT="$PROJECT_ROOT" MOLE_TEST_NO_AUTH=1 bash --noprofile --norc <<'SCRIPT'
+source "$PROJECT_ROOT/lib/core/base.sh"
+source "$PROJECT_ROOT/lib/core/sudo.sh"
+MOLE_SUDO_ESTABLISHED=""
+ensure_sudo_session "Test prompt" && rc=0 || rc=$?
+echo "EXIT=$rc"
+echo "FLAG=$MOLE_SUDO_ESTABLISHED"
+SCRIPT
+
+    [ "$status" -eq 0 ]
+    [[ "$output" == *"EXIT=1"* ]]
+    [[ "$output" == *"FLAG=false"* ]]
+}
+
+@test "sudo helpers do not invoke sudo in no-auth test mode" {
+    run env HOME="$HOME" PROJECT_ROOT="$PROJECT_ROOT" MOLE_TEST_NO_AUTH=1 bash --noprofile --norc <<'SCRIPT'
+source "$PROJECT_ROOT/lib/core/base.sh"
+source "$PROJECT_ROOT/lib/core/sudo.sh"
+sudo() {
+    echo "SUDO_CALLED:$*" >&2
+    exit 99
+}
+export -f sudo
+
+has_sudo_session && has_rc=0 || has_rc=$?
+request_sudo_access "Test prompt" && request_rc=0 || request_rc=$?
+ensure_sudo_session "Test prompt" && ensure_rc=0 || ensure_rc=$?
+
+echo "HAS=$has_rc"
+echo "REQUEST=$request_rc"
+echo "ENSURE=$ensure_rc"
+SCRIPT
+
+    [ "$status" -eq 0 ]
+    [[ "$output" == *"HAS=1"* ]]
+    [[ "$output" == *"REQUEST=1"* ]]
+    [[ "$output" == *"ENSURE=1"* ]]
+    [[ "$output" != *"SUDO_CALLED"* ]]
+}
+
+@test "ensure_sudo_session short-circuits to 0 when session already established" {
+    run env HOME="$HOME" PROJECT_ROOT="$PROJECT_ROOT" bash --noprofile --norc <<'SCRIPT'
+set -euo pipefail
+source "$PROJECT_ROOT/lib/core/base.sh"
+source "$PROJECT_ROOT/lib/core/sudo.sh"
+has_sudo_session() { return 0; }
+export -f has_sudo_session
+MOLE_SUDO_ESTABLISHED="true"
+ensure_sudo_session "Test prompt"
+echo "EXIT=$?"
+SCRIPT
+
+    [ "$status" -eq 0 ]
+    [[ "$output" == *"EXIT=0"* ]]
 }

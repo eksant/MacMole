@@ -1,6 +1,6 @@
 # Mole Security Audit
 
-This document describes the security-relevant behavior of the current `main` branch. It is intended as a public description of Mole's safety boundaries, destructive-operation controls, release integrity signals, and known limitations.
+This document describes the security-relevant behavior of the current `main` branch, updated for V1.39.1 on 2026-05-23. It is intended as a public description of Mole's safety boundaries, destructive-operation controls, release integrity signals, and known limitations.
 
 ## Executive Summary
 
@@ -52,6 +52,8 @@ Core controls include:
 - paths containing control characters are rejected
 - raw `find ... -delete` is avoided for security-sensitive cleanup logic
 - removal flows use guarded helpers such as `safe_remove()`, `safe_sudo_remove()`, `safe_find_delete()`, and `safe_sudo_find_delete()`
+- uninstall removal flows that move items to Trash use `mole_delete`, which validates the path again and records the operation result
+- incomplete download cleanup skips files currently open (lsof check) and uses quoted glob patterns to prevent word-splitting on filenames that contain spaces
 
 Blocked paths remain protected even with sudo. Examples include:
 
@@ -114,9 +116,11 @@ Some subpaths under protected roots are explicitly allowlisted:
 In addition to path blocking, these categories are protected:
 
 - Keychains, password managers, credentials
-- VPN/proxy tools (Shadowsocks, V2Ray, Clash, Tailscale)
+- VPN/proxy tools (Shadowsocks, V2Ray, Clash, Tailscale, AmneziaWG, WireGuard, NetworkExtension preferences)
 - AI tools (Cursor, Claude, ChatGPT, Ollama)
+- Codex Desktop runtime state and active VM/runtime caches
 - Browser history and cookies
+- Apple-owned app group containers, including `group.com.apple.notes`
 - Time Machine data (during active backup)
 - `com.apple.*` LaunchAgents/LaunchDaemons
 - user-owned `~/Library/LaunchAgents/*.plist` automation/configuration
@@ -130,7 +134,7 @@ All deletion routes pass through `lib/core/file_ops.sh`:
 - `should_protect_path()` - Prefix and pattern matching
 - `safe_remove()`, `safe_find_delete()`, `safe_sudo_remove()` - Guarded operations
 
-See [`journal/2026-03-11-safe-remove-design.md`](journal/2026-03-11-safe-remove-design.md) for design rationale.
+The current design rationale is kept in this audit document so the safety model stays next to the implementation notes.
 
 ## Protected Directories and Categories
 
@@ -140,9 +144,11 @@ Protected or conservatively handled categories include:
 
 - system components such as Control Center, System Settings, TCC, Spotlight, Finder, and Dock-related state
 - keychains, password-manager data, tokens, credentials, and similar sensitive material
-- VPN and proxy tools such as Shadowsocks, V2Ray, Clash, and Tailscale
+- VPN and proxy tools such as Shadowsocks, V2Ray, Clash, Tailscale, AmneziaWG, WireGuard, and NetworkExtension preferences
 - AI tools in generic protected-data logic, including Cursor, Claude, ChatGPT, and Ollama
+- Codex Desktop runtime state and active VM/runtime caches
 - `~/Library/Messages/Attachments`
+- Apple Notes and other Apple-owned app group containers, including `~/Library/Group Containers/group.com.apple.notes`
 - browser history and cookies
 - Time Machine data while backup state is active or ambiguous
 - `com.apple.*` LaunchAgents and LaunchDaemons
@@ -180,6 +186,7 @@ Path traversal handling is also explicit:
 - non-absolute paths are rejected for destructive helpers
 - `..` is rejected when it appears as a path component
 - legitimate names containing `..` inside a single path element remain allowed to avoid false positives for real application data
+- `mo analyze` delete validates the raw user-supplied path before `filepath.Abs` resolves it, then validates the resolved absolute path a second time, closing a window where traversal segments could survive `Abs` normalization
 
 ## Privilege Escalation and Sudo Boundaries
 
@@ -192,7 +199,11 @@ Key properties:
 - protected roots remain blocked even when sudo is available
 - sudo deletion uses the same path validation gate as non-sudo deletion
 - sudo cleanup skips or reports denied operations instead of widening scope
+- sudo-required uninstall paths are routed to the invoking user's Trash where possible instead of root-owned Trash or direct deletion
+- sudo Trash routing refuses unsafe Trash locations, including symlinked Trash directories
 - authentication, SIP/MDM, and read-only filesystem failures are classified separately in file-operation results
+- sudo credential prompting passes through the system's native PAM prompt rather than a hardcoded string, ensuring correct behavior across locales and PAM configurations
+- Touch ID PAM configuration (`mo touchid`) uses `sudo install -m 444 -o root -g wheel` for atomic file writes, preventing temporary permission windows where PAM files could be user-writable (fixed in V1.39.0; prior versions used `sudo mv` which preserved temp-file ownership)
 
 When sudo is denied or unavailable, Mole prefers skipping privileged cleanup to forcing execution through unsafe fallback behavior.
 
@@ -206,7 +217,8 @@ Examples of conservative handling include:
 - orphaned app data waits for inactivity windows before cleanup
 - Claude VM orphan cleanup uses a separate stricter rule
 - uninstall file lists are decoded and revalidated before removal
-- reverse-DNS bundle ID validation is required before LaunchAgent and LaunchDaemon pattern matching
+- reverse-DNS bundle ID validation is required before LaunchAgent and LaunchDaemon pattern matching; bundle ID matching uses boundary-aware comparisons (`mole_name_starts_with_bundle_id_boundary`, `mole_name_has_bundle_id_boundary`) to prevent cross-app false matches (e.g. `com.example` not matching `com.example123`), and `defaults delete` is guarded by `mole_is_reverse_dns_bundle_id()` to reject malformed or adversarial domain strings
+- LaunchAgents that only declare `MachServices` are unload-only and are not treated as safe deletion targets without a backing executable or bundle match
 
 Installed-app detection is broader than a single `/Applications` scan and includes:
 
@@ -223,10 +235,13 @@ This reduces the risk of incorrectly classifying active software as orphaned dat
 Mole exposes multiple safety controls before and during destructive actions:
 
 - `--dry-run` previews are available for major destructive commands
+- dry-run output deduplicates targets by filesystem identity (device+inode), so aliased paths and symlinks do not appear as separate items
 - interactive high-risk flows require explicit confirmation before deletion
 - purge marks recent projects conservatively and leaves them unselected by default
+- purge configuration is written atomically (mktemp then rename) to prevent partial writes if the process is interrupted
 - analyzer delete uses Finder Trash rather than direct permanent removal
 - operation logs are written to `~/Library/Logs/mole/operations.log` unless disabled with `MO_NO_OPLOG=1`
+- `mole_delete` Trash and permanent deletion attempts are also recorded by the file-operation layer with result status, target path, and error context where available
 - timeouts bound external commands so stalled discovery or uninstall operations do not silently hang the entire flow
 
 Relevant timeout behavior includes:
@@ -243,10 +258,12 @@ Mole treats release trust as part of its security posture, not just a packaging 
 Repository-level signals include:
 
 - weekly Dependabot updates for Go modules and GitHub Actions
+- pre-commit hook that mirrors GitHub CI checks locally (shell syntax, shfmt, shellcheck, Go vet)
 - CI checks for unsafe `rm -rf` usage patterns and core protection behavior
 - targeted tests for path validation, purge boundaries, symlink behavior, dry-run flows, and destructive helpers
-- CodeQL scanning for Go and GitHub Actions workflows
-- curated changelog-driven release notes with a dedicated `Safety-related changes` section
+- macOS 14 and macOS 15 compatibility coverage for core Bats suites
+- CodeQL scanning for Go and GitHub Actions workflows, with workflow permission hardening
+- curated changelog-driven release notes for user-visible changes
 - published SHA-256 checksums for release assets
 - GitHub artifact attestations for release assets
 
@@ -262,28 +279,39 @@ There is no single `tests/security.bats` file. Instead, security-relevant behavi
 - `tests/clean_dev_caches.bats`
 - `tests/clean_system_maintenance.bats`
 - `tests/clean_apps.bats`
+- `tests/file_ops_mole_delete.bats`
 - `tests/purge.bats`
 - `tests/installer.bats`
 - `tests/optimize.bats`
+- `cmd/analyze/*_test.go`
 
 Key coverage areas include:
 
 - path validation rejects empty, relative, traversal, and system paths
 - symlinked directories are rejected for destructive scans
 - purge protects shallow or ambiguous paths and filters nested artifacts
-- dry-run flows preview actions without applying them
+- dry-run flows preview actions without applying them and do not emit duplicate targets
 - confirmation flows exist for high-risk interactive operations
+- LaunchAgent unload-only handling, Homebrew Cask paths, and sudo-required Trash routing
+- Apple Notes group containers and other Apple-owned group containers remain protected
+- sudo credential prompting and session management (`tests/manage_sudo.bats`)
+- purge config path discovery and write behavior (`tests/purge_config_paths.bats`)
+- hint and cleanup-hint flows (`tests/clean_hints.bats`)
+- Touch ID PAM file permission enforcement (`tests/cli.bats`)
+- bundle ID boundary matching and malformed-ID rejection (`tests/uninstall_safety.bats`)
+- bash 3.2 empty-array nounset compatibility (`tests/uninstall_scan_bash32.bats`)
 
 ## Known Limitations and Future Work
 
-- Cleanup is destructive. Most cleanup and uninstall flows do not provide undo.
+- Cleanup is destructive. Most cleanup flows do not provide undo.
 - `mo analyze` delete is safer because it uses Trash, but other cleanup flows are permanent once confirmed.
+- `mo uninstall` now routes more removals through Trash, but Trash availability, permissions, and volume behavior still depend on the local macOS environment.
 - Generic orphan data waits 30 days before cleanup; this is conservative but heuristic.
 - Claude VM orphan cleanup waits 7 days before cleanup; this is also heuristic.
 - Time Machine safety windows are hour-based and intentionally conservative.
 - Localized app names may still be missed in some heuristic paths, though bundle IDs are preferred where available.
 - Users who want immediate removal of app data should use explicit uninstall flows rather than waiting for orphan cleanup.
-- Release signing and provenance signals are improving, but downstream package-manager trust also depends on external distribution infrastructure.
+- Release artifacts include checksums and attestations, but downstream package-manager trust also depends on external distribution infrastructure.
 - Planned follow-up work includes stronger destructive-command threat modeling, more regression coverage for high-risk paths, and continued hardening of release integrity and disclosure workflow.
 
 For reporting procedures and supported versions, see [SECURITY.md](SECURITY.md).

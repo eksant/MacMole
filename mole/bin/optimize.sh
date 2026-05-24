@@ -1,6 +1,6 @@
 #!/bin/bash
 # Mole - Optimize command.
-# Runs system maintenance checks and fixes.
+# Runs system maintenance tasks.
 # Supports dry-run where applicable.
 
 set -euo pipefail
@@ -15,17 +15,15 @@ source "$SCRIPT_DIR/lib/core/common.sh"
 # Clean temp files on exit.
 trap cleanup_temp_files EXIT INT TERM
 source "$SCRIPT_DIR/lib/core/sudo.sh"
-source "$SCRIPT_DIR/lib/manage/update.sh"
-source "$SCRIPT_DIR/lib/manage/autofix.sh"
+source "$SCRIPT_DIR/lib/optimize/diagnostics.sh"
 source "$SCRIPT_DIR/lib/optimize/maintenance.sh"
 source "$SCRIPT_DIR/lib/optimize/tasks.sh"
 source "$SCRIPT_DIR/lib/check/health_json.sh"
-source "$SCRIPT_DIR/lib/check/all.sh"
 source "$SCRIPT_DIR/lib/manage/whitelist.sh"
 
 print_header() {
     printf '\n'
-    echo -e "${PURPLE_BOLD}Optimize and Check${NC}"
+    echo -e "${PURPLE_BOLD}Optimize${NC}"
 }
 
 # Bash-native JSON parsing helpers (no jq dependency).
@@ -49,106 +47,55 @@ json_validate() {
 
 # Parse optimization items from JSON array.
 # Outputs pipe-delimited records: action|name|description|safe
+# Single awk pass instead of per-item grep+sed to avoid subprocess overhead.
 parse_optimization_items() {
     local json="$1"
-    # Extract the optimizations array content
-    local in_array=false
-    local brace_count=0
-    local current_item=""
-
-    while IFS= read -r line; do
-        # Detect start of optimizations array
-        if [[ "$line" == *'"optimizations"'*'['* ]]; then
-            in_array=true
-            continue
-        fi
-
-        [[ "$in_array" != "true" ]] && continue
-
-        # Count braces to track object boundaries
-        if [[ "$line" == *'{'* ]]; then
-            ((brace_count++))
-        fi
-
-        if ((brace_count > 0)); then
-            current_item+="$line"
-        fi
-
-        if [[ "$line" == *'}'* ]]; then
-            ((brace_count--))
-            if ((brace_count == 0)) && [[ -n "$current_item" ]]; then
-                # Extract fields from the collected item
-                local action name desc safe
-                action=$(echo "$current_item" | grep -o '"action"[[:space:]]*:[[:space:]]*"[^"]*"' | sed 's/.*"action"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/')
-                name=$(echo "$current_item" | grep -o '"name"[[:space:]]*:[[:space:]]*"[^"]*"' | sed 's/.*"name"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/')
-                desc=$(echo "$current_item" | grep -o '"description"[[:space:]]*:[[:space:]]*"[^"]*"' | sed 's/.*"description"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/')
-                safe=$(echo "$current_item" | grep -o '"safe"[[:space:]]*:[[:space:]]*[a-z]*' | sed 's/.*:[[:space:]]*//')
-
-                [[ -n "$action" ]] && echo "${action}|${name}|${desc}|${safe}"
-                current_item=""
-            fi
-        fi
-
-        # End of array
-        [[ "$line" == *']'* ]] && ((brace_count == 0)) && break
-    done <<< "$json"
-}
-
-run_system_checks() {
-    # Skip checks in dry-run mode.
-    if [[ "${MOLE_DRY_RUN:-0}" == "1" ]]; then
-        return 0
-    fi
-
-    unset AUTO_FIX_SUMMARY AUTO_FIX_DETAILS
-    unset MOLE_SECURITY_FIXES_SHOWN
-    unset MOLE_SECURITY_FIXES_SKIPPED
-    echo ""
-
-    check_all_updates
-    echo ""
-
-    check_system_health
-    echo ""
-
-    check_all_security
-    if ask_for_security_fixes; then
-        perform_security_fixes
-    fi
-    if [[ "${MOLE_SECURITY_FIXES_SKIPPED:-}" != "true" ]]; then
-        echo ""
-    fi
-
-    check_all_config
-    echo ""
-
-    show_suggestions
-
-    if ask_for_updates; then
-        perform_updates
-    fi
-    if ask_for_auto_fix; then
-        perform_auto_fix
-    fi
+    awk '
+    function extract(line, key,    pat, val, start, end) {
+        pat = "\"" key "\"[ \t]*:[ \t]*\""
+        if (match(line, pat)) {
+            start = RSTART + RLENGTH
+            val = substr(line, start)
+            # Find closing quote (skip escaped quotes)
+            end = 1
+            while (end <= length(val)) {
+                if (substr(val, end, 1) == "\"" && substr(val, end-1, 1) != "\\") break
+                end++
+            }
+            return substr(val, 1, end - 1)
+        }
+        return ""
+    }
+    /"optimizations".*\[/ { in_arr=1; next }
+    !in_arr { next }
+    /\]/ && !in_obj { exit }
+    /{/ { in_obj=1; action=""; name=""; desc=""; safe="" }
+    in_obj && /"action"/ { action = extract($0, "action") }
+    in_obj && /"name"/ { name = extract($0, "name") }
+    in_obj && /"description"/ { desc = extract($0, "description") }
+    in_obj && /"safe"/ {
+        val = $0; sub(/.*"safe"[[:space:]]*:[[:space:]]*/, "", val); sub(/[^a-z].*/, "", val); safe = val
+    }
+    /}/ { if (in_obj && action != "") print action "|" name "|" desc "|" safe; in_obj=0 }
+    ' <<< "$json"
 }
 
 show_optimization_summary() {
     local safe_count="${OPTIMIZE_SAFE_COUNT:-0}"
-    local confirm_count="${OPTIMIZE_CONFIRM_COUNT:-0}"
-    if ((safe_count == 0 && confirm_count == 0)) && [[ -z "${AUTO_FIX_SUMMARY:-}" ]]; then
+    if ((safe_count == 0)); then
         return
     fi
 
     local summary_title
     local -a summary_details=()
-    local total_applied=$((safe_count + confirm_count))
+    local total_applied=$safe_count
 
     if [[ "${MOLE_DRY_RUN:-0}" == "1" ]]; then
         summary_title="Dry Run Complete, No Changes Made"
         summary_details+=("Would apply ${YELLOW}${total_applied:-0}${NC} optimizations")
         summary_details+=("Run without ${YELLOW}--dry-run${NC} to apply these changes")
     else
-        summary_title="Optimization and Check Complete"
+        summary_title="Optimization Complete"
 
         # Build statistics summary
         local -a stats=()
@@ -186,16 +133,6 @@ show_optimization_summary() {
             summary_details+=("Applied ${GREEN}${total_applied:-0}${NC} optimizations, all services tuned")
         fi
 
-        local summary_line3=""
-        if [[ -n "${AUTO_FIX_SUMMARY:-}" ]]; then
-            summary_line3="${AUTO_FIX_SUMMARY}"
-            if [[ -n "${AUTO_FIX_DETAILS:-}" ]]; then
-                local detail_join
-                detail_join=$(echo "${AUTO_FIX_DETAILS}" | paste -sd ", " -)
-                [[ -n "$detail_join" ]] && summary_line3+=": ${detail_join}"
-            fi
-            summary_details+=("$summary_line3")
-        fi
         summary_details+=("System fully optimized")
     fi
 
@@ -236,185 +173,6 @@ announce_action() {
     echo -e "${BLUE}${ICON_ARROW} ${name}${NC}"
 }
 
-touchid_configured() {
-    local pam_file="/etc/pam.d/sudo"
-    [[ -f "$pam_file" ]] && grep -q "pam_tid.so" "$pam_file" 2> /dev/null
-}
-
-touchid_supported() {
-    if command -v bioutil > /dev/null 2>&1; then
-        if bioutil -r 2> /dev/null | grep -qi "Touch ID"; then
-            return 0
-        fi
-    fi
-
-    # Fallback: Apple Silicon Macs usually have Touch ID.
-    if [[ "$(uname -m)" == "arm64" ]]; then
-        return 0
-    fi
-    return 1
-}
-
-cleanup_path() {
-    local raw_path="$1"
-    local label="$2"
-
-    local expanded_path="${raw_path/#\~/$HOME}"
-    if [[ ! -e "$expanded_path" ]]; then
-        echo -e "${GREEN}${ICON_SUCCESS}${NC} $label"
-        return
-    fi
-    if should_protect_path "$expanded_path"; then
-        echo -e "${GRAY}${ICON_WARNING}${NC} Protected $label"
-        return
-    fi
-
-    local size_kb
-    size_kb=$(get_path_size_kb "$expanded_path")
-    local size_display=""
-    if [[ "$size_kb" =~ ^[0-9]+$ && "$size_kb" -gt 0 ]]; then
-        size_display=$(bytes_to_human "$((size_kb * 1024))")
-    fi
-
-    local removed=false
-    if safe_remove "$expanded_path" true; then
-        removed=true
-    elif request_sudo_access "Removing $label requires admin access"; then
-        if safe_sudo_remove "$expanded_path"; then
-            removed=true
-        fi
-    fi
-
-    if [[ "$removed" == "true" ]]; then
-        if [[ -n "$size_display" ]]; then
-            echo -e "${GREEN}${ICON_SUCCESS}${NC} $label${NC}, ${GREEN}${size_display}${NC}"
-        else
-            echo -e "${GREEN}${ICON_SUCCESS}${NC} $label"
-        fi
-    else
-        echo -e "${GRAY}${ICON_WARNING}${NC} Skipped $label${NC}"
-        echo -e "${GRAY}${ICON_REVIEW}${NC} ${GRAY}Grant Full Disk Access to your terminal, then retry${NC}"
-    fi
-}
-
-ensure_directory() {
-    local raw_path="$1"
-    local expanded_path="${raw_path/#\~/$HOME}"
-    ensure_user_dir "$expanded_path"
-}
-
-declare -a SECURITY_FIXES=()
-
-collect_security_fix_actions() {
-    SECURITY_FIXES=()
-    if [[ "${FIREWALL_DISABLED:-}" == "true" ]]; then
-        if ! is_whitelisted "firewall"; then
-            SECURITY_FIXES+=("firewall|Enable macOS firewall")
-        fi
-    fi
-    if [[ "${GATEKEEPER_DISABLED:-}" == "true" ]]; then
-        if ! is_whitelisted "gatekeeper"; then
-            SECURITY_FIXES+=("gatekeeper|Enable Gatekeeper, app download protection")
-        fi
-    fi
-    if touchid_supported && ! touchid_configured; then
-        if ! is_whitelisted "check_touchid"; then
-            SECURITY_FIXES+=("touchid|Enable Touch ID for sudo")
-        fi
-    fi
-
-    ((${#SECURITY_FIXES[@]} > 0))
-}
-
-ask_for_security_fixes() {
-    if ! collect_security_fix_actions; then
-        return 1
-    fi
-
-    echo ""
-    echo -e "${BLUE}SECURITY FIXES${NC}"
-    for entry in "${SECURITY_FIXES[@]}"; do
-        IFS='|' read -r _ label <<< "$entry"
-        echo -e "  ${ICON_LIST} $label"
-    done
-    echo ""
-    export MOLE_SECURITY_FIXES_SHOWN=true
-    echo -ne "${GRAY}${ICON_REVIEW}${NC} ${YELLOW}Apply now?${NC} ${GRAY}Enter confirm / Space cancel${NC}: "
-
-    local key
-    if ! key=$(read_key); then
-        export MOLE_SECURITY_FIXES_SKIPPED=true
-        echo -e "\n  ${GRAY}${ICON_WARNING}${NC} Security fixes skipped"
-        echo ""
-        return 1
-    fi
-
-    if [[ "$key" == "ENTER" ]]; then
-        echo ""
-        return 0
-    else
-        export MOLE_SECURITY_FIXES_SKIPPED=true
-        echo -e "\n  ${GRAY}${ICON_WARNING}${NC} Security fixes skipped"
-        echo ""
-        return 1
-    fi
-}
-
-apply_firewall_fix() {
-    if sudo /usr/libexec/ApplicationFirewall/socketfilterfw --setglobalstate on > /dev/null 2>&1; then
-        echo -e "  ${GREEN}${ICON_SUCCESS}${NC} Firewall enabled"
-        FIREWALL_DISABLED=false
-        return 0
-    fi
-    echo -e "  ${GRAY}${ICON_WARNING}${NC} Failed to enable firewall, check permissions"
-    return 1
-}
-
-apply_gatekeeper_fix() {
-    if sudo spctl --master-enable 2> /dev/null; then
-        echo -e "  ${GREEN}${ICON_SUCCESS}${NC} Gatekeeper enabled"
-        GATEKEEPER_DISABLED=false
-        return 0
-    fi
-    echo -e "  ${GRAY}${ICON_WARNING}${NC} Failed to enable Gatekeeper"
-    return 1
-}
-
-apply_touchid_fix() {
-    if "$SCRIPT_DIR/bin/touchid.sh" enable; then
-        return 0
-    fi
-    return 1
-}
-
-perform_security_fixes() {
-    if ! ensure_sudo_session "Security changes require admin access"; then
-        echo -e "${GRAY}${ICON_WARNING}${NC} Skipped security fixes, sudo denied"
-        return 1
-    fi
-
-    local applied=0
-    for entry in "${SECURITY_FIXES[@]}"; do
-        IFS='|' read -r action _ <<< "$entry"
-        case "$action" in
-            firewall)
-                apply_firewall_fix && ((applied++))
-                ;;
-            gatekeeper)
-                apply_gatekeeper_fix && ((applied++))
-                ;;
-            touchid)
-                apply_touchid_fix && ((applied++))
-                ;;
-        esac
-    done
-
-    if ((applied > 0)); then
-        log_success "Security settings updated"
-    fi
-    SECURITY_FIXES=()
-}
-
 cleanup_all() {
     stop_inline_spinner 2> /dev/null || true
     stop_sudo_session
@@ -448,6 +206,11 @@ main() {
             "--whitelist")
                 manage_whitelist "optimize"
                 exit 0
+                ;;
+            *)
+                echo "Unknown optimize option: $arg"
+                echo "Use 'mo optimize --help' for supported options."
+                exit 1
                 ;;
         esac
     done
@@ -500,8 +263,6 @@ main() {
         stop_inline_spinner
     fi
 
-    show_system_health "$health_json"
-
     load_whitelist "optimize"
     if [[ ${#CURRENT_WHITELIST_PATTERNS[@]} -gt 0 ]]; then
         local count=${#CURRENT_WHITELIST_PATTERNS[@]}
@@ -514,54 +275,49 @@ main() {
         fi
     fi
 
-    local -a safe_items=()
-    local -a confirm_items=()
+    show_system_health "$health_json"
+
+    run_optimize_diagnostics
+
+    local -a items=()
     local opts_file
     opts_file=$(mktemp_file)
     parse_optimization_items "$health_json" > "$opts_file"
 
     while IFS='|' read -r action name desc safe; do
         [[ -z "$action" ]] && continue
-
-        local path=""
-        local item="${name}|${desc}|${action}|${path}"
-
-        if [[ "$safe" == "true" ]]; then
-            safe_items+=("$item")
-        else
-            confirm_items+=("$item")
-        fi
+        items+=("${name}|${desc}|${action}|")
     done < "$opts_file"
 
     echo ""
-    if [[ "${MOLE_DRY_RUN:-0}" != "1" ]]; then
-        ensure_sudo_session "System optimization requires admin access" || true
+    # Track sudo availability so individual tasks can skip cleanly when admin
+    # access was denied. Without this, every sudo task re-prompts for the
+    # password and half-runs after a refusal. Default true in dry-run so the
+    # task list still expands fully for inspection.
+    export MOLE_OPTIMIZE_SUDO_AVAILABLE="false"
+    if [[ "${MOLE_DRY_RUN:-0}" == "1" ]]; then
+        MOLE_OPTIMIZE_SUDO_AVAILABLE="true"
+    elif ensure_sudo_session "System optimization requires admin access"; then
+        MOLE_OPTIMIZE_SUDO_AVAILABLE="true"
+    else
+        opt_msg "Skipping sudo-required optimizations: admin access not granted"
     fi
 
     export FIRST_ACTION=true
-    if [[ ${#safe_items[@]} -gt 0 ]]; then
-        for item in "${safe_items[@]}"; do
-            IFS='|' read -r name desc action path <<< "$item"
-            announce_action "$name" "$desc" "safe"
-            execute_optimization "$action" "$path"
-        done
-    fi
+    for item in "${items[@]}"; do
+        IFS='|' read -r name desc action path <<< "$item"
+        if command -v is_whitelisted > /dev/null && is_whitelisted "$action"; then
+            opt_msg "Skipped (whitelisted): $name"
+            continue
+        fi
+        announce_action "$name" "$desc" "safe"
+        execute_optimization "$action" "$path"
+    done
 
-    if [[ ${#confirm_items[@]} -gt 0 ]]; then
-        for item in "${confirm_items[@]}"; do
-            IFS='|' read -r name desc action path <<< "$item"
-            announce_action "$name" "$desc" "confirm"
-            execute_optimization "$action" "$path"
-        done
-    fi
-
-    local safe_count=${#safe_items[@]}
-    local confirm_count=${#confirm_items[@]}
-
-    run_system_checks
+    local safe_count=${#items[@]}
 
     export OPTIMIZE_SAFE_COUNT=$safe_count
-    export OPTIMIZE_CONFIRM_COUNT=$confirm_count
+    export OPTIMIZE_CONFIRM_COUNT=0
 
     show_optimization_summary
 

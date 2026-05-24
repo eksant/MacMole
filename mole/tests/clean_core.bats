@@ -18,13 +18,20 @@ setup_file() {
 }
 
 teardown_file() {
-    rm -rf "$HOME"
+    if [[ "$HOME" == "${BATS_TEST_DIRNAME}/tmp-"* ]]; then
+        rm -rf "$HOME"
+    fi
     if [[ -n "${ORIGINAL_HOME:-}" ]]; then
         export HOME="$ORIGINAL_HOME"
     fi
 }
 
 setup() {
+    # Safety: refuse to operate on a real home directory.
+    if [[ "$HOME" != "${BATS_TEST_DIRNAME}/tmp-"* ]]; then
+        printf 'FATAL: HOME is not a test temp dir: %s\n' "$HOME" >&2
+        return 1
+    fi
     export TERM="xterm-256color"
     rm -rf "${HOME:?}"/*
     rm -rf "$HOME/Library" "$HOME/.config"
@@ -76,11 +83,29 @@ run_clean_dry_run() {
     [[ "$output" != *"system preview included"* ]]
 }
 
-@test "mo clean --dry-run includes system preview when sudo is cached" {
+@test "mo clean --dry-run does not probe sudo in test mode" {
     set_mock_sudo_cached
+    cat > "$TEST_MOCK_BIN/sudo" << 'MOCK'
+#!/bin/bash
+echo "sudo should not be called" >&2
+exit 99
+MOCK
+    chmod +x "$TEST_MOCK_BIN/sudo"
+
     run_clean_dry_run
     [ "$status" -eq 0 ]
-    [[ "$output" == *"system preview included"* ]]
+    [[ "$output" == *"sudo -v && mo clean --dry-run"* ]]
+    [[ "$output" != *"sudo should not be called"* ]]
+}
+
+@test "mo clean rejects removed cleanup selection flags" {
+    local removed_flag
+    for removed_flag in "--select" "--categories" "--exclude"; do
+        run env HOME="$HOME" MOLE_TEST_MODE=1 "$PROJECT_ROOT/mole" clean "$removed_flag"
+        [ "$status" -eq 1 ]
+        [[ "$output" == *"was removed in this release"* ]]
+        [[ "$output" == *"mo clean --dry-run"* ]]
+    done
 }
 
 @test "mo clean --dry-run shows hint when sudo is not cached" {
@@ -89,6 +114,34 @@ run_clean_dry_run() {
     [ "$status" -eq 0 ]
     [[ "$output" == *"sudo -v"* ]]
     [[ "$output" == *"full preview"* ]]
+}
+
+@test "cloud and office timeout path uses helper function instead of bash -c" {
+    run bash -c "grep -Eq 'run_with_shell_timeout 300 run_cloud_and_office_cleanup' '$PROJECT_ROOT/bin/clean.sh'"
+    [ "$status" -eq 0 ]
+
+    run bash -c "! grep -Eq 'run_with_timeout 300[[:space:]]+bash[[:space:]]+-c' '$PROJECT_ROOT/bin/clean.sh'"
+    [ "$status" -eq 0 ]
+}
+
+@test "mo clean --dry-run survives an unwritable TMPDIR" {
+    local blocked_tmp="$HOME/blocked-tmp"
+    mkdir -p "$blocked_tmp"
+    chmod 500 "$blocked_tmp"
+
+    set_mock_sudo_uncached
+    local test_path="$PATH"
+    if [[ -n "${TEST_MOCK_BIN:-}" ]]; then
+        test_path="$TEST_MOCK_BIN:$PATH"
+    fi
+
+    run env HOME="$HOME" TMPDIR="$blocked_tmp" MOLE_TEST_MODE=1 PATH="$test_path" \
+        "$PROJECT_ROOT/mole" clean --dry-run
+
+    [ "$status" -eq 0 ]
+    [[ "$output" != *"mktemp:"* ]]
+    [[ "$output" != *"Failed to create temporary file"* ]]
+    [ -d "$HOME/.cache/mole/tmp" ]
 }
 
 @test "mo clean --dry-run reports user cache without deleting it" {
@@ -255,7 +308,11 @@ EOF
     touch "$HOME/Library/Mail Downloads/old.pdf"
     touch -t 202301010000 "$HOME/Library/Mail Downloads/old.pdf"
 
-    dd if=/dev/zero of="$HOME/Library/Mail Downloads/dummy.dat" bs=1024 count=6000 2>/dev/null
+    if command -v mkfile > /dev/null 2>&1; then
+        mkfile -n 6000k "$HOME/Library/Mail Downloads/dummy.dat"
+    else
+        truncate -s 6000k "$HOME/Library/Mail Downloads/dummy.dat"
+    fi
 
     [ -f "$HOME/Library/Mail Downloads/old.pdf" ]
 

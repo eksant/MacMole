@@ -14,13 +14,20 @@ setup_file() {
 }
 
 teardown_file() {
-    rm -rf "$HOME"
+    if [[ "$HOME" == "${BATS_TEST_DIRNAME}/tmp-"* ]]; then
+        rm -rf "$HOME"
+    fi
     if [[ -n "${ORIGINAL_HOME:-}" ]]; then
         export HOME="$ORIGINAL_HOME"
     fi
 }
 
 setup() {
+    # Safety: refuse to operate on a real home directory.
+    if [[ "$HOME" != "${BATS_TEST_DIRNAME}/tmp-"* ]]; then
+        printf 'FATAL: HOME is not a test temp dir: %s\n' "$HOME" >&2
+        return 1
+    fi
     source "$PROJECT_ROOT/lib/core/common.sh"
     TEST_DIR="$HOME/test_safe_functions"
     mkdir -p "$TEST_DIR"
@@ -77,10 +84,54 @@ teardown() {
 
     run bash -c "source '$PROJECT_ROOT/lib/core/common.sh'; validate_path_for_deletion '/etc'"
     [ "$status" -eq 1 ]
+
+    run bash -c "source '$PROJECT_ROOT/lib/core/common.sh'; validate_path_for_deletion '/Library/Apple'"
+    [ "$status" -eq 1 ]
+
+    run bash -c "source '$PROJECT_ROOT/lib/core/common.sh'; validate_path_for_deletion '/Applications/Finder.app'"
+    [ "$status" -eq 1 ]
+
+    run bash -c "source '$PROJECT_ROOT/lib/core/common.sh'; validate_path_for_deletion '/Users'"
+    [ "$status" -eq 1 ]
+}
+
+@test "validate_path_for_deletion rejects aliased critical paths" {
+    run bash -c "source '$PROJECT_ROOT/lib/core/common.sh'; validate_path_for_deletion '//etc/passwd'"
+    [ "$status" -eq 1 ]
+
+    run bash -c "source '$PROJECT_ROOT/lib/core/common.sh'; validate_path_for_deletion '///System'"
+    [ "$status" -eq 1 ]
 }
 
 @test "validate_path_for_deletion accepts valid path" {
     run bash -c "source '$PROJECT_ROOT/lib/core/common.sh'; validate_path_for_deletion '$TEST_DIR/valid'"
+    [ "$status" -eq 0 ]
+
+    run bash -c "source '$PROJECT_ROOT/lib/core/common.sh'; validate_path_for_deletion '$HOME/Library/Caches/com.example.app/cache.db'"
+    [ "$status" -eq 0 ]
+}
+
+@test "validate_path_for_deletion allows Darwin C cache shards but rejects protected extension paths" {
+    run bash -c "source '$PROJECT_ROOT/lib/core/common.sh'; validate_path_for_deletion '/private/var/folders/test/a/C/com.example.App/com.apple.metal'"
+    [ "$status" -eq 0 ]
+
+    run bash -c "source '$PROJECT_ROOT/lib/core/common.sh'; validate_path_for_deletion '/Library/Extensions/com.example.driver/com.apple.metal' 2>&1"
+    [ "$status" -eq 1 ]
+    [[ "$output" == *"critical system path"* ]]
+}
+
+@test "should_protect_path applies high-risk cleanup denylist" {
+    run bash -c "
+        source '$PROJECT_ROOT/lib/core/common.sh'
+        should_protect_path '$HOME/Library/Caches/ms-playwright/chromium-123'
+        should_protect_path '$HOME/Library/Caches/com.apple.homed/state'
+        should_protect_path '$HOME/Library/Group Containers/group.com.apple.notes/NoteStore.sqlite'
+        should_protect_path '$HOME/Library/Preferences/com.paceap.eden.iLokLicenseManager.plist'
+        should_protect_path '/private/var/folders/aa/bb/C/com.native-instruments.NativeAccess/license'
+        should_protect_path '/Library/Audio/Plug-Ins/VST3/Example.vst3'
+        should_protect_data 'com.native-instruments.NativeAccess'
+        ! should_protect_path '$HOME/Library/Application Support/Example/Cache/item'
+    "
     [ "$status" -eq 0 ]
 }
 
@@ -192,6 +243,21 @@ teardown() {
 
     run bash -c "source '$PROJECT_ROOT/lib/core/common.sh'; safe_find_delete '$TEST_DIR' '*.tmp' 7 'f'"
     [ "$status" -eq 0 ]
+}
+
+@test "safe_find_delete works when app protection is not loaded" {
+    local old_file="$TEST_DIR/file-ops-only.tmp"
+    touch "$old_file"
+    touch -t "$(date -v-8d '+%Y%m%d%H%M.%S' 2>/dev/null || date -d '8 days ago' '+%Y%m%d%H%M.%S')" "$old_file" 2>/dev/null || true
+
+    run bash --noprofile --norc <<EOF
+set -euo pipefail
+source "$PROJECT_ROOT/lib/core/file_ops.sh"
+safe_find_delete "$TEST_DIR" "*.tmp" 7 "f"
+EOF
+
+    [ "$status" -eq 0 ]
+    [ ! -e "$old_file" ]
 }
 
 @test "MOLE_* constants are defined" {
