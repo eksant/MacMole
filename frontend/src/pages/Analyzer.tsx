@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { HardDrive, FolderOpen, RefreshCw } from "lucide-react";
+import { HardDrive, FolderOpen, RefreshCw, AlertTriangle } from "lucide-react";
 import { GetDiskAnalysis } from "../../wailsjs/go/main/CommandService";
 
 interface DiskEntry {
@@ -19,16 +19,18 @@ function fmtBytes(bytes: number): string {
 export default function Analyzer() {
   const [entries, setEntries] = useState<DiskEntry[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const load = () => {
     setLoading(true);
+    setError(null);
     GetDiskAnalysis()
       .then((list) => {
         // Sort by size descending
         const sorted = [...list].sort((a, b) => b.size - a.size);
         setEntries(sorted);
       })
-      .catch(console.error)
+      .catch((err: unknown) => setError(String(err)))
       .finally(() => setLoading(false));
   };
 
@@ -38,6 +40,15 @@ export default function Analyzer() {
 
   return (
     <div className="flex flex-col gap-5 animate-fade-in-up">
+      {error && (
+        <div
+          className="rounded-xl px-4 py-3 flex items-center gap-2.5 text-sm"
+          style={{ background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.25)", color: "#f87171" }}
+        >
+          <AlertTriangle size={14} className="flex-shrink-0" />
+          {error}
+        </div>
+      )}
       <div className="flex items-start justify-between">
         <div>
           <h2 className="text-xl font-semibold text-white flex items-center gap-2">

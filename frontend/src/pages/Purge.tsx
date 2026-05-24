@@ -19,6 +19,7 @@ export default function Purge() {
   const [done, setDone]       = useState(false);
   const [success, setSuccess] = useState(false);
   const logRef = useRef<HTMLDivElement>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     EventsOn("command:output", (line: string) => {
@@ -32,6 +33,7 @@ export default function Purge() {
   }, [lines]);
 
   const run = async (dryRun: boolean) => {
+    setError(null);
     setRunning(true);
     setDone(false);
     setLines([]);
@@ -40,6 +42,8 @@ export default function Purge() {
       setSuccess(result.success);
       if (result.error) setLines(prev => [...prev, "Error: " + result.error]);
       if (!dryRun) notify("Mole — Purge", result.success ? "Purge completed successfully." : "Purge finished with errors.");
+    } catch (err: unknown) {
+      setError(String(err));
     } finally {
       setRunning(false);
       setDone(true);
@@ -48,6 +52,15 @@ export default function Purge() {
 
   return (
     <div className="flex flex-col gap-5 animate-fade-in-up">
+      {error && (
+        <div
+          className="rounded-xl px-4 py-3 flex items-center gap-2.5 text-sm"
+          style={{ background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.25)", color: "#f87171" }}
+        >
+          <AlertCircle size={14} className="flex-shrink-0" />
+          {error}
+        </div>
+      )}
       {/* Header */}
       <div>
         <h2 className="text-xl font-semibold text-white flex items-center gap-2">

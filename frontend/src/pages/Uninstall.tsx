@@ -23,17 +23,19 @@ export default function Uninstall() {
   const [scanning, setScanning] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [result, setResult] = useState<{ success: boolean; message: string } | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const scan = () => {
     setScanning(true);
     setResult(null);
+    setError(null);
     setSelected(new Set());
     ScanApps()
       .then((list) => {
         const sorted = [...list].sort((a, b) => b.size - a.size);
         setApps(sorted);
       })
-      .catch(console.error)
+      .catch((err: unknown) => setError(String(err)))
       .finally(() => setScanning(false));
   };
 
@@ -77,6 +79,15 @@ export default function Uninstall() {
 
   return (
     <div className="flex flex-col gap-5 animate-fade-in-up">
+      {error && (
+        <div
+          className="rounded-xl px-4 py-3 flex items-center gap-2.5 text-sm"
+          style={{ background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.25)", color: "#f87171" }}
+        >
+          <AlertTriangle size={14} className="flex-shrink-0" />
+          {error}
+        </div>
+      )}
       {/* Header */}
       <div>
         <h2 className="text-xl font-semibold text-white flex items-center gap-2">
