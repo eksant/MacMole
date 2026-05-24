@@ -1,17 +1,18 @@
 import { useState, useEffect, useRef } from "react";
 import {
-  Cpu,
-  MemoryStick,
-  HardDrive,
-  Wifi,
-  Clock,
-  Zap,
-  CheckCircle2,
-  XCircle,
-  BatteryMedium,
   Activity,
+  AlertCircle,
+  BatteryMedium,
+  CheckCircle2,
+  Clock,
+  Cpu,
+  HardDrive,
+  MemoryStick,
+  Wifi,
+  XCircle,
+  Zap,
 } from "lucide-react";
-import { useMetrics } from "../hooks/useMetrics";
+import { useMetrics, useWatchedProcesses } from "../hooks/useMetrics";
 import MetricCard from "../components/MetricCard";
 import GaugeBar from "../components/GaugeBar";
 import { RunAll } from "../../wailsjs/go/main/CommandService";
@@ -108,6 +109,8 @@ type OptStatus = "idle" | "running" | "done" | "error";
 
 export default function Dashboard() {
   const m = useMetrics(2000);
+  const watched = useWatchedProcesses();
+  const zombies = watched.filter((p) => p.status === "zombie");
   const [optStatus, setOptStatus] = useState<OptStatus>("idle");
   const [optLines, setOptLines] = useState<string[]>([]);
   const logRef = useRef<HTMLDivElement>(null);
@@ -161,6 +164,22 @@ export default function Dashboard() {
 
   return (
     <div className="flex flex-col gap-4 animate-fade-in-up">
+      {zombies.length > 0 && (
+        <div
+          className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm"
+          style={{
+            background: "rgba(239,68,68,0.08)",
+            border: "1px solid rgba(239,68,68,0.2)",
+            color: "#fca5a5",
+          }}
+        >
+          <AlertCircle size={14} className="flex-shrink-0" />
+          <span>
+            {zombies.length} zombie process{zombies.length > 1 ? "es" : ""} detected — visit
+            Processes page to clean up.
+          </span>
+        </div>
+      )}
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>

@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef } from "react";
-import { GetMetrics } from "../../wailsjs/go/main/MetricsService";
+import { GetMetrics, GetWatchedProcesses } from "../../wailsjs/go/main/MetricsService";
+import type { main } from "../../wailsjs/go/models";
 
 export interface SystemMetrics {
   cpu: { usage: number; per_core: number[]; num_cores: number };
@@ -18,6 +19,8 @@ export interface SystemMetrics {
   top_processes: { name: string; cpu: number; memory: number }[];
 }
 
+export type WatchedProcess = main.WatchedProcess;
+
 export function useMetrics(intervalMs = 2000) {
   const [metrics, setMetrics] = useState<SystemMetrics | null>(null);
   const timer = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -35,4 +38,21 @@ export function useMetrics(intervalMs = 2000) {
   }, [intervalMs]);
 
   return metrics;
+}
+
+export function useWatchedProcesses(intervalMs = 10000) {
+  const [procs, setProcs] = useState<WatchedProcess[]>([]);
+
+  useEffect(() => {
+    const fetchProcs = () => {
+      GetWatchedProcesses()
+        .then(setProcs)
+        .catch(() => setProcs([]));
+    };
+    fetchProcs();
+    const t = setInterval(fetchProcs, intervalMs);
+    return () => clearInterval(t);
+  }, [intervalMs]);
+
+  return procs;
 }
