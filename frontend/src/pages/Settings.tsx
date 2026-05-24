@@ -221,7 +221,7 @@ export default function Settings() {
               </div>
             ) : (
               <div className="flex items-center gap-1.5 text-xs text-emerald-400/70">
-                <CheckCircle2 size={11} /> You're on the latest version.
+                <CheckCircle2 size={11} /> You&apos;re on the latest version.
               </div>
             )}
           </div>
