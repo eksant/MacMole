@@ -14,6 +14,7 @@ import {
   FileText,
   Code2,
   Activity,
+  Clock,
 } from "lucide-react";
 import logoSvg from "../assets/images/logo.svg";
 import { EventsOn, EventsOff } from "../../wailsjs/runtime/runtime";
@@ -36,6 +37,7 @@ const nav: { id: Page; label: string; icon: React.ReactNode; group?: string }[] 
   { id: "nodemodules", label: "Node Modules", icon: <Package size={17} />, group: "Tools" },
   { id: "devcaches", label: "Dev Caches", icon: <Code2 size={17} />, group: "Tools" },
   { id: "processes", label: "Processes", icon: <Activity size={17} />, group: "Tools" },
+  { id: "history", label: "History", icon: <Clock size={17} />, group: "Tools" },
   { id: "analyzer", label: "Analyzer", icon: <HardDrive size={17} />, group: "Tools" },
   { id: "settings", label: "Settings", icon: <Settings size={17} /> },
 ];
@@ -52,6 +54,7 @@ const accentMap: Partial<Record<Page, string>> = {
   nodemodules: "#22c55e",
   devcaches: "#10b981",
   processes: "#f97316",
+  history: "#6366f1",
   analyzer: "#06b6d4",
   settings: "#94a3b8",
 };

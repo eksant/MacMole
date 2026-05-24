@@ -11,6 +11,7 @@ import Logs from "./pages/Logs";
 import NodeModules from "./pages/NodeModules";
 import DevCaches from "./pages/DevCaches";
 import Processes from "./pages/Processes";
+import History from "./pages/History";
 import Settings from "./pages/Settings";
 
 export type Page =
@@ -25,6 +26,7 @@ export type Page =
   | "nodemodules"
   | "devcaches"
   | "processes"
+  | "history"
   | "settings";
 
 export default function App() {
@@ -54,6 +56,8 @@ export default function App() {
         return <DevCaches />;
       case "processes":
         return <Processes />;
+      case "history":
+        return <History />;
       case "settings":
         return <Settings />;
     }
