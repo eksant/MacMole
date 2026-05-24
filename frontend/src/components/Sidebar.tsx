@@ -12,6 +12,7 @@ import {
   AlertCircle,
   AppWindow,
   FileText,
+  Code2,
 } from "lucide-react";
 import logoSvg from "../assets/images/logo.svg";
 import { EventsOn, EventsOff } from "../../wailsjs/runtime/runtime";
@@ -32,6 +33,7 @@ const nav: { id: Page; label: string; icon: React.ReactNode; group?: string }[] 
   { id: "uninstall", label: "Uninstall", icon: <AppWindow size={17} />, group: "Tools" },
   { id: "logs", label: "Clean Logs", icon: <FileText size={17} />, group: "Tools" },
   { id: "nodemodules", label: "Node Modules", icon: <Package size={17} />, group: "Tools" },
+  { id: "devcaches", label: "Dev Caches", icon: <Code2 size={17} />, group: "Tools" },
   { id: "analyzer", label: "Analyzer", icon: <HardDrive size={17} />, group: "Tools" },
   { id: "settings", label: "Settings", icon: <Settings size={17} /> },
 ];
@@ -46,6 +48,7 @@ const accentMap: Partial<Record<Page, string>> = {
   uninstall: "#ef4444",
   logs: "#a78bfa",
   nodemodules: "#22c55e",
+  devcaches: "#10b981",
   analyzer: "#06b6d4",
   settings: "#94a3b8",
 };

@@ -9,6 +9,7 @@ import Installer from "./pages/Installer";
 import Uninstall from "./pages/Uninstall";
 import Logs from "./pages/Logs";
 import NodeModules from "./pages/NodeModules";
+import DevCaches from "./pages/DevCaches";
 import Settings from "./pages/Settings";
 
 export type Page =
@@ -21,6 +22,7 @@ export type Page =
   | "uninstall"
   | "logs"
   | "nodemodules"
+  | "devcaches"
   | "settings";
 
 export default function App() {
@@ -46,6 +48,8 @@ export default function App() {
         return <Logs />;
       case "nodemodules":
         return <NodeModules />;
+      case "devcaches":
+        return <DevCaches />;
       case "settings":
         return <Settings />;
     }
