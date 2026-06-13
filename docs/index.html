@@ -46,6 +46,7 @@
       text-decoration: none; transition: background .2s; white-space: nowrap;
     }
     .btn-nav:hover { background: rgba(139,92,246,0.25); }
+    .btn-nav[data-incompatible] { opacity: 0.45; pointer-events: none; cursor: default; }
 
     .hero {
       text-align: center; padding: 6rem 2rem 4rem;
@@ -69,6 +70,10 @@
       box-shadow: 0 4px 20px rgba(139,92,246,0.3); transition: opacity .2s;
     }
     .btn-primary:hover { opacity: 0.88; }
+    .btn-primary[data-incompatible] {
+      background: rgba(255,255,255,0.08); color: var(--text-muted);
+      box-shadow: none; cursor: default; pointer-events: none;
+    }
     .btn-secondary {
       display: inline-flex; align-items: center; gap: 0.5rem;
       padding: 0.75rem 1.75rem; border-radius: 10px; font-size: 0.95rem; font-weight: 600;
@@ -77,6 +82,11 @@
     }
     .btn-secondary:hover { background: rgba(255,255,255,0.1); }
     .version-note { margin-top: 1rem; font-size: 0.78rem; color: var(--text-muted); }
+    .os-warning {
+      display: none; margin-top: 1.25rem;
+      padding: 0.6rem 1.25rem; border-radius: 8px; font-size: 0.8rem;
+      background: rgba(251,191,36,0.08); border: 1px solid rgba(251,191,36,0.2); color: #fbbf24;
+    }
 
     section { padding: 4rem 2rem; max-width: 1100px; margin: 0 auto; }
     .section-label { font-size: 0.75rem; font-weight: 600; letter-spacing: 0.1em; color: var(--purple); text-transform: uppercase; margin-bottom: 0.75rem; }
@@ -97,12 +107,21 @@
     .screenshot-item img { width: 100%; border-radius: var(--radius); border: 1px solid var(--border); box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
 
     .install-section { max-width: 760px; margin: 0 auto; padding: 2rem 2rem 5rem; }
+    .install-btn-wrap { margin-top: 1.5rem; display: flex; flex-direction: column; gap: 0.75rem; align-items: flex-start; }
+    .install-os-note { font-size: 0.78rem; color: var(--text-muted); }
+    .install-os-warning {
+      display: none; padding: 0.75rem 1rem; border-radius: 8px; font-size: 0.82rem;
+      background: rgba(251,191,36,0.08); border: 1px solid rgba(251,191,36,0.2); color: #fbbf24;
+    }
     .code-block {
       background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
       padding: 1.25rem 1.5rem; font-family: "SF Mono", "Fira Code", monospace; font-size: 0.85rem;
       color: #c9c4ff; overflow-x: auto; margin-top: 1rem; line-height: 1.7;
     }
     .code-block .c { color: rgba(201,196,255,0.35); }
+
+    .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin .6s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
 
     footer { border-top: 1px solid var(--border); padding: 2rem; text-align: center; font-size: 0.8rem; color: var(--text-muted); }
     footer a { color: var(--purple); text-decoration: none; }
@@ -135,7 +154,9 @@
       <button class="lang-btn active" onclick="setLang('en')">EN</button>
       <button class="lang-btn" onclick="setLang('id')">ID</button>
     </div>
-    <a class="btn-nav" href="https://github.com/eksant/MacMole/releases/latest" data-i18n="nav_download">Download v0.2.0</a>
+    <a id="btn-nav" class="btn-nav" href="https://github.com/eksant/MacMole/releases/latest">
+      <span class="spinner"></span>
+    </a>
   </div>
 </nav>
 
@@ -146,10 +167,13 @@
   <h1 data-i18n-html="hero_title">Deep clean and<br/><span>optimize your Mac</span></h1>
   <p data-i18n="hero_subtitle">MacMole is a native macOS desktop app that wraps the powerful Mole CLI — real-time metrics, browser &amp; AI cache cleanup, and one-click optimization.</p>
   <div class="hero-cta">
-    <a class="btn-primary" href="https://github.com/eksant/MacMole/releases/latest" data-i18n="hero_cta_download">↓ Download for macOS</a>
+    <a id="btn-hero" class="btn-primary" href="https://github.com/eksant/MacMole/releases/latest">
+      <span class="spinner"></span>
+    </a>
     <a class="btn-secondary" href="https://github.com/eksant/MacMole" data-i18n="hero_cta_github">View on GitHub</a>
   </div>
-  <p class="version-note" data-i18n="hero_version_note">v0.2.0 · macOS 12+ · Apple Silicon &amp; Intel · Free for personal use</p>
+  <p id="hero-version-note" class="version-note"></p>
+  <div id="os-warning" class="os-warning"></div>
 </div>
 
 <!-- FEATURES -->
@@ -158,46 +182,14 @@
   <div class="section-title" data-i18n="features_title">Everything your Mac needs</div>
   <p class="section-sub" data-i18n="features_sub">All-in-one toolkit replacing CleanMyMac, AppCleaner, DaisyDisk, and iStat Menus.</p>
   <div class="features-grid">
-    <div class="feature-card">
-      <div class="feature-icon">📊</div>
-      <h3 data-i18n="f1_title">Real-time Dashboard</h3>
-      <p data-i18n="f1_desc">CPU, RAM, Disk, Network, and Battery with a live health score and per-process breakdown.</p>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon">🧹</div>
-      <h3 data-i18n="f2_title">Deep Cleaner</h3>
-      <p data-i18n="f2_desc">Browser caches (Chrome, Brave, Arc), AI tool caches (Claude, Copilot, Cursor), and app caches — all with safety badges.</p>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon">⚡</div>
-      <h3 data-i18n="f3_title">System Optimizer</h3>
-      <p data-i18n="f3_desc">Rebuild launch services, flush DNS, refresh Finder and Dock, clear logs, and reset network services.</p>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon">🗂️</div>
-      <h3 data-i18n="f4_title">Disk Analyzer</h3>
-      <p data-i18n="f4_desc">Visual breakdown of disk usage by directory — navigate, inspect, and move large files to Trash.</p>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon">🗑️</div>
-      <h3 data-i18n="f5_title">App Uninstaller</h3>
-      <p data-i18n="f5_desc">Remove apps with all hidden remnants — preferences, launch agents, caches, and extensions.</p>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon">📦</div>
-      <h3 data-i18n="f6_title">Node Modules</h3>
-      <p data-i18n="f6_desc">Scan your projects and purge unused node_modules directories to reclaim gigabytes.</p>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon">🔒</div>
-      <h3 data-i18n="f7_title">Privacy Guide</h3>
-      <p data-i18n="f7_desc">Built-in Full Disk Access guidance — auto-detects when permission is granted and stops asking.</p>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon">🌐</div>
-      <h3 data-i18n="f8_title">Bilingual UI</h3>
-      <p data-i18n="f8_desc">Full English and Bahasa Indonesia support — switch instantly from the top-right language toggle.</p>
-    </div>
+    <div class="feature-card"><div class="feature-icon">📊</div><h3 data-i18n="f1_title">Real-time Dashboard</h3><p data-i18n="f1_desc">CPU, RAM, Disk, Network, and Battery with a live health score and per-process breakdown.</p></div>
+    <div class="feature-card"><div class="feature-icon">🧹</div><h3 data-i18n="f2_title">Deep Cleaner</h3><p data-i18n="f2_desc">Browser caches (Chrome, Brave, Arc), AI tool caches (Claude, Copilot, Cursor), and app caches — all with safety badges.</p></div>
+    <div class="feature-card"><div class="feature-icon">⚡</div><h3 data-i18n="f3_title">System Optimizer</h3><p data-i18n="f3_desc">Rebuild launch services, flush DNS, refresh Finder and Dock, clear logs, and reset network services.</p></div>
+    <div class="feature-card"><div class="feature-icon">🗂️</div><h3 data-i18n="f4_title">Disk Analyzer</h3><p data-i18n="f4_desc">Visual breakdown of disk usage by directory — navigate, inspect, and move large files to Trash.</p></div>
+    <div class="feature-card"><div class="feature-icon">🗑️</div><h3 data-i18n="f5_title">App Uninstaller</h3><p data-i18n="f5_desc">Remove apps with all hidden remnants — preferences, launch agents, caches, and extensions.</p></div>
+    <div class="feature-card"><div class="feature-icon">📦</div><h3 data-i18n="f6_title">Node Modules</h3><p data-i18n="f6_desc">Scan your projects and purge unused node_modules directories to reclaim gigabytes.</p></div>
+    <div class="feature-card"><div class="feature-icon">🔒</div><h3 data-i18n="f7_title">Privacy Guide</h3><p data-i18n="f7_desc">Built-in Full Disk Access guidance — auto-detects when permission is granted and stops asking.</p></div>
+    <div class="feature-card"><div class="feature-icon">🌐</div><h3 data-i18n="f8_title">Bilingual UI</h3><p data-i18n="f8_desc">Full English and Bahasa Indonesia support — switch instantly from the top-right language toggle.</p></div>
   </div>
 </section>
 
@@ -205,34 +197,21 @@
 <div class="screenshots" id="screenshots">
   <div class="section-label" data-i18n="screenshots_label">Preview</div>
   <div class="section-title" data-i18n="screenshots_title">See it in action</div>
-
   <div style="margin-top:2rem;">
     <div class="screenshot-item">
-      <div class="screenshot-meta">
-        <h3>📊 <span data-i18n="ss1_title">Dashboard</span></h3>
-        <p data-i18n="ss1_desc">Real-time system health — CPU, RAM, Disk, Network, Battery, and a health score. One-click Optimize All runs clean + optimize in sequence.</p>
-      </div>
+      <div class="screenshot-meta"><h3>📊 <span data-i18n="ss1_title">Dashboard</span></h3><p data-i18n="ss1_desc">Real-time system health — CPU, RAM, Disk, Network, Battery, and a health score. One-click Optimize All runs clean + optimize in sequence.</p></div>
       <img src="screenshot/mac-mole-dashboard.jpeg" alt="MacMole Dashboard" loading="lazy" />
     </div>
     <div class="screenshot-item">
-      <div class="screenshot-meta">
-        <h3>🧹 <span data-i18n="ss2_title">Cleanup</span></h3>
-        <p data-i18n="ss2_desc">Browser, AI tool, and app cache cleanup in one view. Each target shows its size, a safety badge, and requires confirmation before deletion.</p>
-      </div>
+      <div class="screenshot-meta"><h3>🧹 <span data-i18n="ss2_title">Cleanup</span></h3><p data-i18n="ss2_desc">Browser, AI tool, and app cache cleanup in one view. Each target shows its size, a safety badge, and requires confirmation before deletion.</p></div>
       <img src="screenshot/mac-mole-cleanup.jpeg" alt="MacMole Cleanup" loading="lazy" />
     </div>
     <div class="screenshot-item">
-      <div class="screenshot-meta">
-        <h3>📋 <span data-i18n="ss3_title">History</span></h3>
-        <p data-i18n="ss3_desc">Every clean, optimize, and purge operation is logged — timestamps, full output, and status so you can review what changed.</p>
-      </div>
+      <div class="screenshot-meta"><h3>📋 <span data-i18n="ss3_title">History</span></h3><p data-i18n="ss3_desc">Every clean, optimize, and purge operation is logged — timestamps, full output, and status so you can review what changed.</p></div>
       <img src="screenshot/mac-mole-history.jpeg" alt="MacMole History" loading="lazy" />
     </div>
     <div class="screenshot-item">
-      <div class="screenshot-meta">
-        <h3>⚙️ <span data-i18n="ss4_title">Settings</span></h3>
-        <p data-i18n="ss4_desc">Launch at login, notification preferences, Full Disk Access guide with auto-detection, and a built-in update checker.</p>
-      </div>
+      <div class="screenshot-meta"><h3>⚙️ <span data-i18n="ss4_title">Settings</span></h3><p data-i18n="ss4_desc">Launch at login, notification preferences, Full Disk Access guide with auto-detection, and a built-in update checker.</p></div>
       <img src="screenshot/mac-mole-settings.jpeg" alt="MacMole Settings" loading="lazy" />
     </div>
   </div>
@@ -243,7 +222,13 @@
   <div class="section-label" data-i18n="install_label">Get started</div>
   <div class="section-title" data-i18n="install_title">Install MacMole</div>
   <p class="section-sub" style="margin-top:0.5rem;" data-i18n="install_sub">Download the latest release, open the .app, and drag it to your Applications folder.</p>
-  <a class="btn-primary" style="margin-top:1.5rem;display:inline-flex;" href="https://github.com/eksant/MacMole/releases/latest" data-i18n="install_btn">↓ Download MacMole v0.2.0</a>
+  <div class="install-btn-wrap">
+    <a id="btn-install" class="btn-primary" href="https://github.com/eksant/MacMole/releases/latest">
+      <span class="spinner"></span>
+    </a>
+    <p id="install-os-note" class="install-os-note"></p>
+    <div id="install-os-warning" class="install-os-warning"></div>
+  </div>
   <p style="margin-top:2rem;font-size:0.875rem;color:var(--text-muted);" data-i18n="install_source">Or build from source:</p>
   <div class="code-block">
     <span class="c"># Requires Go 1.22+, Node 18+, and Wails v2</span><br/>
@@ -271,19 +256,14 @@
 </footer>
 
 <script>
+// ── i18n ──────────────────────────────────────────────────────────────────────
 const translations = {
   en: {
-    nav_features: "Features",
-    nav_screenshots: "Screenshots",
-    nav_install: "Install",
-    nav_download: "Download v0.2.0",
+    nav_features: "Features", nav_screenshots: "Screenshots", nav_install: "Install",
     hero_title: "Deep clean and<br/><span>optimize your Mac</span>",
     hero_subtitle: "MacMole is a native macOS desktop app that wraps the powerful Mole CLI — real-time metrics, browser & AI cache cleanup, and one-click optimization.",
-    hero_cta_download: "↓ Download for macOS",
     hero_cta_github: "View on GitHub",
-    hero_version_note: "v0.2.0 · macOS 12+ · Apple Silicon & Intel · Free for personal use",
-    features_label: "What's inside",
-    features_title: "Everything your Mac needs",
+    features_label: "What's inside", features_title: "Everything your Mac needs",
     features_sub: "All-in-one toolkit replacing CleanMyMac, AppCleaner, DaisyDisk, and iStat Menus.",
     f1_title: "Real-time Dashboard", f1_desc: "CPU, RAM, Disk, Network, and Battery with a live health score and per-process breakdown.",
     f2_title: "Deep Cleaner", f2_desc: "Browser caches (Chrome, Brave, Arc), AI tool caches (Claude, Copilot, Cursor), and app caches — all with safety badges.",
@@ -293,35 +273,30 @@ const translations = {
     f6_title: "Node Modules", f6_desc: "Scan your projects and purge unused node_modules directories to reclaim gigabytes.",
     f7_title: "Privacy Guide", f7_desc: "Built-in Full Disk Access guidance — auto-detects when permission is granted and stops asking.",
     f8_title: "Bilingual UI", f8_desc: "Full English and Bahasa Indonesia support — switch instantly from the top-right language toggle.",
-    screenshots_label: "Preview",
-    screenshots_title: "See it in action",
+    screenshots_label: "Preview", screenshots_title: "See it in action",
     ss1_title: "Dashboard", ss1_desc: "Real-time system health — CPU, RAM, Disk, Network, Battery, and a health score. One-click Optimize All runs clean + optimize in sequence.",
     ss2_title: "Cleanup", ss2_desc: "Browser, AI tool, and app cache cleanup in one view. Each target shows its size, a safety badge, and requires confirmation before deletion.",
     ss3_title: "History", ss3_desc: "Every clean, optimize, and purge operation is logged — timestamps, full output, and status so you can review what changed.",
     ss4_title: "Settings", ss4_desc: "Launch at login, notification preferences, Full Disk Access guide with auto-detection, and a built-in update checker.",
-    install_label: "Get started",
-    install_title: "Install MacMole",
+    install_label: "Get started", install_title: "Install MacMole",
     install_sub: "Download the latest release, open the .app, and drag it to your Applications folder.",
-    install_btn: "↓ Download MacMole v0.2.0",
-    install_source: "Or build from source:",
-    install_cli: "Also install the Mole CLI for terminal use:",
-    footer_license: "is free for personal use",
-    footer_built: "Built on",
-    footer_releases: "Releases",
-    footer_issues: "Issues",
+    install_source: "Or build from source:", install_cli: "Also install the Mole CLI for terminal use:",
+    footer_license: "is free for personal use", footer_built: "Built on",
+    footer_releases: "Releases", footer_issues: "Issues",
+    // dynamic — filled in by initRelease()
+    btn_download: (v) => `↓ Download MacMole ${v}`,
+    btn_download_nav: (v) => `Download ${v}`,
+    version_note: (v) => `${v} · macOS 12+ · Apple Silicon & Intel · Free for personal use`,
+    install_os_note: (v) => `${v} · macOS 12+ · Apple Silicon & Intel`,
+    os_warning: "⚠️ MacMole is macOS only. Your device doesn't appear to be running macOS.",
+    btn_not_compatible: "macOS Only",
   },
   id: {
-    nav_features: "Fitur",
-    nav_screenshots: "Tangkapan Layar",
-    nav_install: "Instal",
-    nav_download: "Unduh v0.2.0",
+    nav_features: "Fitur", nav_screenshots: "Tangkapan Layar", nav_install: "Instal",
     hero_title: "Bersihkan dan<br/><span>optimalkan Mac-mu</span>",
     hero_subtitle: "MacMole adalah aplikasi desktop macOS native yang membungkus Mole CLI — metrik real-time, pembersihan cache browser & AI, dan optimasi satu klik.",
-    hero_cta_download: "↓ Unduh untuk macOS",
     hero_cta_github: "Lihat di GitHub",
-    hero_version_note: "v0.2.0 · macOS 12+ · Apple Silicon & Intel · Gratis untuk penggunaan pribadi",
-    features_label: "Apa saja di dalamnya",
-    features_title: "Semua yang dibutuhkan Mac-mu",
+    features_label: "Apa saja di dalamnya", features_title: "Semua yang dibutuhkan Mac-mu",
     features_sub: "Toolkit lengkap pengganti CleanMyMac, AppCleaner, DaisyDisk, dan iStat Menus.",
     f1_title: "Dashboard Real-time", f1_desc: "CPU, RAM, Disk, Jaringan, dan Baterai dengan skor kesehatan langsung dan rincian per proses.",
     f2_title: "Pembersih Mendalam", f2_desc: "Cache browser (Chrome, Brave, Arc), cache AI (Claude, Copilot, Cursor), dan cache aplikasi — semuanya dengan lencana keamanan.",
@@ -331,27 +306,119 @@ const translations = {
     f6_title: "Node Modules", f6_desc: "Pindai proyek dan hapus direktori node_modules yang tidak dipakai untuk mendapatkan kembali gigabyte ruang.",
     f7_title: "Panduan Privasi", f7_desc: "Panduan Full Disk Access bawaan — otomatis mendeteksi saat izin diberikan dan berhenti menampilkan notifikasi.",
     f8_title: "UI Dua Bahasa", f8_desc: "Dukungan penuh Bahasa Inggris dan Bahasa Indonesia — beralih seketika dari toggle bahasa di kanan atas.",
-    screenshots_label: "Pratinjau",
-    screenshots_title: "Lihat langsung",
+    screenshots_label: "Pratinjau", screenshots_title: "Lihat langsung",
     ss1_title: "Dashboard", ss1_desc: "Kesehatan sistem real-time — CPU, RAM, Disk, Jaringan, Baterai, dan skor kesehatan. Tombol Optimize All menjalankan bersih + optimalkan sekaligus.",
     ss2_title: "Pembersihan", ss2_desc: "Pembersihan cache browser, AI, dan aplikasi dalam satu tampilan. Setiap target menampilkan ukuran, lencana keamanan, dan memerlukan konfirmasi sebelum penghapusan.",
     ss3_title: "Riwayat", ss3_desc: "Setiap operasi bersih, optimasi, dan purge dicatat — cap waktu, output lengkap, dan status agar kamu bisa meninjau perubahan.",
     ss4_title: "Pengaturan", ss4_desc: "Jalankan saat login, preferensi notifikasi, panduan Full Disk Access dengan deteksi otomatis, dan pemeriksa pembaruan bawaan.",
-    install_label: "Mulai sekarang",
-    install_title: "Instal MacMole",
+    install_label: "Mulai sekarang", install_title: "Instal MacMole",
     install_sub: "Unduh versi terbaru, buka file .app, dan seret ke folder Applications.",
-    install_btn: "↓ Unduh MacMole v0.2.0",
-    install_source: "Atau build dari source:",
-    install_cli: "Instal juga Mole CLI untuk penggunaan terminal:",
-    footer_license: "gratis untuk penggunaan pribadi",
-    footer_built: "Dibangun di atas",
-    footer_releases: "Rilis",
-    footer_issues: "Isu",
+    install_source: "Atau build dari source:", install_cli: "Instal juga Mole CLI untuk penggunaan terminal:",
+    footer_license: "gratis untuk penggunaan pribadi", footer_built: "Dibangun di atas",
+    footer_releases: "Rilis", footer_issues: "Isu",
+    btn_download: (v) => `↓ Unduh MacMole ${v}`,
+    btn_download_nav: (v) => `Unduh ${v}`,
+    version_note: (v) => `${v} · macOS 12+ · Apple Silicon & Intel · Gratis untuk penggunaan pribadi`,
+    install_os_note: (v) => `${v} · macOS 12+ · Apple Silicon & Intel`,
+    os_warning: "⚠️ MacMole hanya untuk macOS. Perangkat Anda tampaknya tidak menjalankan macOS.",
+    btn_not_compatible: "Khusus macOS",
   }
 };
 
 let currentLang = localStorage.getItem('macmole_site_lang') || 'en';
+// Release state — populated async
+let releaseVersion = null;
+let releaseDownloadUrl = null;
+let isMacOS = false;
 
+// ── OS Detection ──────────────────────────────────────────────────────────────
+function detectMacOS() {
+  const ua = navigator.userAgent;
+  const platform = navigator.platform || '';
+  // userAgentData is more reliable in modern Chrome/Edge
+  if (navigator.userAgentData) {
+    return navigator.userAgentData.platform === 'macOS';
+  }
+  return /Macintosh|MacIntel|MacPPC|Mac68K/.test(platform) ||
+         (/Mac OS X/.test(ua) && !/iPhone|iPad/.test(ua));
+}
+
+// ── GitHub Release Fetch ───────────────────────────────────────────────────────
+async function fetchLatestRelease() {
+  const res = await fetch('https://api.github.com/repos/eksant/MacMole/releases/latest', {
+    headers: { Accept: 'application/vnd.github+json' }
+  });
+  if (!res.ok) throw new Error('API error');
+  const data = await res.json();
+  const version = data.tag_name || 'v0.2.0';
+  // Prefer .dmg, then .zip, then fallback to releases page
+  const dmg = data.assets && data.assets.find(a => /\.dmg$/i.test(a.name));
+  const zip = data.assets && data.assets.find(a => /MacMole.*\.zip$/i.test(a.name));
+  const asset = dmg || zip;
+  const url = asset ? asset.browser_download_url : (data.html_url || 'https://github.com/eksant/MacMole/releases/latest');
+  return { version, url, hasBinary: !!asset };
+}
+
+// ── Apply release + OS state to all buttons ───────────────────────────────────
+function applyDownloadState() {
+  if (!releaseVersion) return;
+  const t = translations[currentLang];
+  const compatible = isMacOS;
+
+  const btnLabel   = compatible ? t.btn_download(releaseVersion) : t.btn_not_compatible;
+  const navLabel   = compatible ? t.btn_download_nav(releaseVersion) : t.btn_not_compatible;
+  const noteText   = t.version_note(releaseVersion);
+  const osNoteText = t.install_os_note(releaseVersion);
+  const warningText = t.os_warning;
+
+  // Hero button
+  const btnHero = document.getElementById('btn-hero');
+  if (btnHero) {
+    btnHero.textContent = btnLabel;
+    btnHero.href = releaseDownloadUrl;
+    if (!compatible) btnHero.setAttribute('data-incompatible', '1');
+    else btnHero.removeAttribute('data-incompatible');
+  }
+
+  // Nav button
+  const btnNav = document.getElementById('btn-nav');
+  if (btnNav) {
+    btnNav.textContent = navLabel;
+    btnNav.href = releaseDownloadUrl;
+    if (!compatible) btnNav.setAttribute('data-incompatible', '1');
+    else btnNav.removeAttribute('data-incompatible');
+  }
+
+  // Install button
+  const btnInstall = document.getElementById('btn-install');
+  if (btnInstall) {
+    btnInstall.textContent = btnLabel;
+    btnInstall.href = releaseDownloadUrl;
+    if (!compatible) btnInstall.setAttribute('data-incompatible', '1');
+    else btnInstall.removeAttribute('data-incompatible');
+  }
+
+  // Version note (hero)
+  const versionNote = document.getElementById('hero-version-note');
+  if (versionNote) versionNote.textContent = noteText;
+
+  // Install OS note
+  const installOsNote = document.getElementById('install-os-note');
+  if (installOsNote) installOsNote.textContent = compatible ? osNoteText : '';
+
+  // OS warnings
+  const heroWarn = document.getElementById('os-warning');
+  const installWarn = document.getElementById('install-os-warning');
+  if (!compatible) {
+    if (heroWarn) { heroWarn.textContent = warningText; heroWarn.style.display = 'inline-block'; }
+    if (installWarn) { installWarn.textContent = warningText; installWarn.style.display = 'block'; }
+  } else {
+    if (heroWarn) heroWarn.style.display = 'none';
+    if (installWarn) installWarn.style.display = 'none';
+  }
+}
+
+// ── i18n ──────────────────────────────────────────────────────────────────────
 function setLang(lang) {
   currentLang = lang;
   localStorage.setItem('macmole_site_lang', lang);
@@ -366,7 +433,25 @@ function setLang(lang) {
     if (t[key] !== undefined) el.innerHTML = t[key];
   });
   document.documentElement.lang = lang;
+  // Re-apply dynamic download state in new language
+  applyDownloadState();
 }
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+isMacOS = detectMacOS();
+
+fetchLatestRelease()
+  .then(({ version, url }) => {
+    releaseVersion = version;
+    releaseDownloadUrl = url;
+    applyDownloadState();
+  })
+  .catch(() => {
+    // Fallback: use static values
+    releaseVersion = 'v0.2.0';
+    releaseDownloadUrl = 'https://github.com/eksant/MacMole/releases/latest';
+    applyDownloadState();
+  });
 
 setLang(currentLang);
 </script>
