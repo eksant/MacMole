@@ -1,0 +1,99 @@
+{
+  "title": "Cleanup",
+  "tabs": {
+    "browser": "Browser",
+    "ai": "AI & Editors",
+    "app": "App Caches"
+  },
+  "empty": {
+    "browser": "No browser caches detected on this Mac.",
+    "ai": "No AI or editor caches detected on this Mac.",
+    "app": "No app caches detected on this Mac."
+  },
+  "unavailable": "Not available",
+  "dialog": {
+    "title": "Confirm Cleanup",
+    "subtitle": "The following items will be permanently deleted:",
+    "confirm": "Clean {{count}} item — Free {{size}}",
+    "confirm_plural": "Clean {{count}} items — Free {{size}}",
+    "warning": "This action cannot be undone."
+  },
+  "result": {
+    "freed": "Freed {{size}}",
+    "error": "Error: {{message}}",
+    "complete": "Cleanup complete. Total freed: {{size}}"
+  },
+  "targets": {
+    "browser": {
+      "chrome_ai_model": {
+        "name": "Chrome AI Model Cache",
+        "safetyNote": "Safe — On-device AI model auto-downloaded by Chrome. Does not affect browsing data, bookmarks, or accounts. Chrome re-downloads automatically when needed."
+      },
+      "chrome_gpu_cache": {
+        "name": "Chrome GPU Cache",
+        "safetyNote": "Safe — Shader and GPU pipeline cache used to speed up rendering. Regenerated automatically on next Chrome launch."
+      },
+      "arc_service_worker": {
+        "name": "Arc Service Worker Cache",
+        "safetyNote": "Safe — Cached web app assets for offline support. Arc rebuilds these automatically when you next visit each site."
+      },
+      "arc_gpu_cache": {
+        "name": "Arc GPU Cache",
+        "safetyNote": "Safe — Shader and GPU pipeline cache. Regenerated automatically on next Arc launch."
+      },
+      "brave_gpu_cache": {
+        "name": "Brave GPU Cache",
+        "safetyNote": "Safe — Shader and GPU pipeline cache. Regenerated automatically on next Brave launch."
+      },
+      "playwright_browsers": {
+        "name": "Playwright Browser Binaries",
+        "safetyNote": "Safe — Test browser binaries downloaded by Playwright. Will be re-downloaded automatically when you next run Playwright tests."
+      }
+    },
+    "ai": {
+      "claude_vm_bundles": {
+        "name": "Claude VM Bundles",
+        "safetyNote": "Caution — Sandbox VM used by Claude Code for isolated worktree execution. Safe to delete, but Claude Code will re-download (~5 min) the first time isolated execution is used again."
+      },
+      "claude_local_sessions": {
+        "name": "Claude Local Sessions",
+        "safetyNote": "Caution — Local session data for Claude. Deleting this removes cached session history but does not affect your Claude account or cloud data."
+      },
+      "vscode_old_extensions": {
+        "name": "VS Code Old Extensions",
+        "safetyNote": "Manual Review — Old extension versions flagged in VS Code's .obsolete file. Verify that newer versions are active before deleting. Cannot be recovered without manual reinstall."
+      },
+      "vscode_orphaned_extensions": {
+        "name": "VS Code Orphaned Extensions",
+        "safetyNote": "Manual Review — Extension directories without a package.json. Likely corrupted or partially uninstalled. Verify they are not in use before deleting."
+      }
+    },
+    "app": {
+      "docker_build_cache": {
+        "name": "Docker Build Cache",
+        "safetyNote": "Caution — Cached build layers from docker build commands. Safe to delete; layers will be rebuilt on next docker build (may slow initial builds)."
+      },
+      "docker_unused_images": {
+        "name": "Docker Unused Images",
+        "safetyNote": "Caution — Docker images not referenced by any container. Active containers and their images are not affected. Re-pull from registry if needed."
+      },
+      "pyinstaller_cache": {
+        "name": "PyInstaller Cache",
+        "safetyNote": "Safe — Build cache for PyInstaller. Regenerated automatically on next PyInstaller build."
+      },
+      "uv_cache": {
+        "name": "uv Package Cache",
+        "safetyNote": "Safe — Package download cache for the uv Python package manager. Re-downloaded automatically on next install."
+      },
+      "nordvpn_cache": {
+        "name": "NordVPN Cache",
+        "safetyNote": "Safe — Temporary cache files for NordVPN. Regenerated automatically on next NordVPN launch."
+      },
+      "node_gyp_cache": {
+        "name": "node-gyp Cache",
+        "safetyNote": "Safe — Native addon build cache for Node.js. Regenerated automatically on next npm install that builds native modules."
+      }
+    }
+  },
+  "dockerNotRunning": "Docker is not running. Start Docker to enable this cleanup."
+}

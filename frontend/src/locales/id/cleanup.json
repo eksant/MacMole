@@ -1,0 +1,99 @@
+{
+  "title": "Bersihkan",
+  "tabs": {
+    "browser": "Browser",
+    "ai": "AI & Editor",
+    "app": "Cache Aplikasi"
+  },
+  "empty": {
+    "browser": "Tidak ada cache browser yang terdeteksi di Mac ini.",
+    "ai": "Tidak ada cache AI atau editor yang terdeteksi di Mac ini.",
+    "app": "Tidak ada cache aplikasi yang terdeteksi di Mac ini."
+  },
+  "unavailable": "Tidak tersedia",
+  "dialog": {
+    "title": "Konfirmasi Pembersihan",
+    "subtitle": "Item berikut akan dihapus secara permanen:",
+    "confirm": "Bersihkan {{count}} item — Bebaskan {{size}}",
+    "confirm_plural": "Bersihkan {{count}} item — Bebaskan {{size}}",
+    "warning": "Tindakan ini tidak dapat dibatalkan."
+  },
+  "result": {
+    "freed": "Dibebaskan {{size}}",
+    "error": "Kesalahan: {{message}}",
+    "complete": "Pembersihan selesai. Total dibebaskan: {{size}}"
+  },
+  "targets": {
+    "browser": {
+      "chrome_ai_model": {
+        "name": "Cache Model AI Chrome",
+        "safetyNote": "Aman — Model AI lokal yang diunduh otomatis oleh Chrome. Tidak memengaruhi data penelusuran, bookmark, atau akun. Chrome akan mengunduh ulang secara otomatis bila diperlukan."
+      },
+      "chrome_gpu_cache": {
+        "name": "Cache GPU Chrome",
+        "safetyNote": "Aman — Cache shader dan pipeline GPU untuk mempercepat rendering. Dibuat ulang otomatis saat Chrome dibuka kembali."
+      },
+      "arc_service_worker": {
+        "name": "Cache Service Worker Arc",
+        "safetyNote": "Aman — Aset web app yang di-cache untuk dukungan offline. Arc membangun ulang ini secara otomatis saat kamu mengunjungi situs berikutnya."
+      },
+      "arc_gpu_cache": {
+        "name": "Cache GPU Arc",
+        "safetyNote": "Aman — Cache shader dan pipeline GPU. Dibuat ulang otomatis saat Arc dibuka kembali."
+      },
+      "brave_gpu_cache": {
+        "name": "Cache GPU Brave",
+        "safetyNote": "Aman — Cache shader dan pipeline GPU. Dibuat ulang otomatis saat Brave dibuka kembali."
+      },
+      "playwright_browsers": {
+        "name": "Binari Browser Playwright",
+        "safetyNote": "Aman — Binari browser uji yang diunduh oleh Playwright. Akan diunduh ulang otomatis saat kamu menjalankan tes Playwright berikutnya."
+      }
+    },
+    "ai": {
+      "claude_vm_bundles": {
+        "name": "Bundle VM Claude",
+        "safetyNote": "Hati-hati — VM sandbox yang digunakan Claude Code untuk eksekusi worktree terisolasi. Aman dihapus, tetapi Claude Code akan mengunduh ulang (~5 mnt) saat pertama kali eksekusi terisolasi digunakan lagi."
+      },
+      "claude_local_sessions": {
+        "name": "Sesi Lokal Claude",
+        "safetyNote": "Hati-hati — Data sesi lokal untuk Claude. Menghapus ini menghilangkan riwayat sesi yang di-cache tetapi tidak memengaruhi akun atau data cloud Claude kamu."
+      },
+      "vscode_old_extensions": {
+        "name": "Ekstensi VS Code Lama",
+        "safetyNote": "Cek Manual — Versi ekstensi lama yang ditandai dalam file .obsolete VS Code. Pastikan versi terbaru sudah aktif sebelum menghapus. Tidak dapat dipulihkan tanpa instalasi ulang manual."
+      },
+      "vscode_orphaned_extensions": {
+        "name": "Ekstensi VS Code Yatim Piatu",
+        "safetyNote": "Cek Manual — Direktori ekstensi tanpa package.json. Kemungkinan rusak atau sebagian tidak terinstal. Pastikan tidak digunakan sebelum menghapus."
+      }
+    },
+    "app": {
+      "docker_build_cache": {
+        "name": "Cache Build Docker",
+        "safetyNote": "Hati-hati — Layer build yang di-cache dari perintah docker build. Aman dihapus; layer akan dibuat ulang pada docker build berikutnya (mungkin memperlambat build awal)."
+      },
+      "docker_unused_images": {
+        "name": "Image Docker Tidak Terpakai",
+        "safetyNote": "Hati-hati — Image Docker yang tidak direferensikan oleh container apa pun. Container aktif dan image-nya tidak terpengaruh. Tarik ulang dari registry jika diperlukan."
+      },
+      "pyinstaller_cache": {
+        "name": "Cache PyInstaller",
+        "safetyNote": "Aman — Cache build untuk PyInstaller. Dibuat ulang otomatis pada build PyInstaller berikutnya."
+      },
+      "uv_cache": {
+        "name": "Cache Paket uv",
+        "safetyNote": "Aman — Cache unduhan paket untuk manajer paket Python uv. Diunduh ulang otomatis pada instalasi berikutnya."
+      },
+      "nordvpn_cache": {
+        "name": "Cache NordVPN",
+        "safetyNote": "Aman — File cache sementara untuk NordVPN. Dibuat ulang otomatis saat NordVPN dibuka kembali."
+      },
+      "node_gyp_cache": {
+        "name": "Cache node-gyp",
+        "safetyNote": "Aman — Cache build addon native untuk Node.js. Dibuat ulang otomatis pada npm install berikutnya yang membangun modul native."
+      }
+    }
+  },
+  "dockerNotRunning": "Docker tidak berjalan. Mulai Docker untuk mengaktifkan pembersihan ini."
+}
