@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import Sidebar from "./components/Sidebar";
 import Dashboard from "./pages/Dashboard";
 import Cleaner from "./pages/Cleaner";
@@ -30,6 +31,31 @@ export type Page =
   | "history"
   | "settings"
   | "cleanup";
+
+function LangSwitcher() {
+  const { i18n } = useTranslation('common')
+  const handleLangChange = (lang: string) => {
+    void i18n.changeLanguage(lang)
+    localStorage.setItem('macmole_lang', lang)
+  }
+  return (
+    <div className="no-drag flex items-center gap-1">
+      {(['en', 'id'] as const).map((lang) => (
+        <button
+          key={lang}
+          onClick={() => handleLangChange(lang)}
+          className={`flex items-center gap-1 rounded px-2 py-0.5 text-xs font-medium transition-colors ${
+            i18n.language === lang
+              ? 'bg-white/20 text-white'
+              : 'text-white/40 hover:text-white/70'
+          }`}
+        >
+          {lang === 'en' ? '🇺🇸' : '🇮🇩'} {lang.toUpperCase()}
+        </button>
+      ))}
+    </div>
+  )
+}
 
 export default function App() {
   const [page, setPage] = useState<Page>("dashboard");
@@ -69,8 +95,10 @@ export default function App() {
 
   return (
     <div className="flex flex-col h-screen w-screen overflow-hidden bg-transparent">
-      {/* Traffic-light spacer + drag handle (h-10 = 40px clears the inset buttons) */}
-      <div className="drag-region h-10 w-full flex-shrink-0" />
+      {/* Traffic-light spacer + drag handle. LangSwitcher sits on the right, outside the drag area. */}
+      <div className="drag-region h-10 w-full flex-shrink-0 flex items-center justify-end pr-4">
+        <LangSwitcher />
+      </div>
       <div className="flex flex-1 overflow-hidden">
         <Sidebar current={page} onNavigate={setPage} />
         <main className="no-drag flex-1 overflow-y-auto px-6 pb-6">{renderPage()}</main>

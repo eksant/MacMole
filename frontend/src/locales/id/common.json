@@ -1,19 +1,21 @@
 {
   "nav": {
     "dashboard": "Dashboard",
-    "cleaner": "Pembersih",
-    "optimizer": "Pengoptimal",
-    "analyzer": "Penganalisis",
-    "processes": "Proses",
+    "cleanup": "Bersihkan",
     "devcaches": "Cache Dev",
-    "nodemodules": "Node Modules",
-    "installer": "Pemasang",
     "uninstall": "Hapus Aplikasi",
-    "logs": "Log",
-    "purge": "Hapus Paksa",
+    "installer": "Bersihkan Aplikasi",
+    "logs": "Bersihkan Log",
+    "nodemodules": "Node Modules",
+    "analyzer": "Analisis Disk",
+    "processes": "Proses",
     "history": "Riwayat",
-    "settings": "Pengaturan",
-    "cleanup": "Bersihkan"
+    "settings": "Pengaturan"
+  },
+  "navGroup": {
+    "clean": "Bersihkan",
+    "manage": "Kelola",
+    "monitor": "Monitor"
   },
   "button": {
     "clean": "Bersihkan",

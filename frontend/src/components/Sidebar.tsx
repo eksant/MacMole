@@ -118,17 +118,16 @@ type CliStatus = "checking" | "ready" | "installing" | "failed";
 export default function Sidebar({ current, onNavigate }: Props) {
   const [cliStatus, setCliStatus] = useState<CliStatus>("checking");
   const [failMsg, setFailMsg] = useState("");
-  const { i18n } = useTranslation();
-
-  const handleLangChange = (lang: string) => {
-    void i18n.changeLanguage(lang);
-    localStorage.setItem('macmole_lang', lang);
-  };
+  const { t } = useTranslation('common');
 
   useEffect(() => {
-    IsMoInstalled().then((ok) => {
-      setCliStatus(ok ? "ready" : "installing");
-    });
+    IsMoInstalled()
+      .then((ok) => {
+        setCliStatus(ok ? "ready" : "installing");
+      })
+      .catch(() => {
+        setCliStatus("failed");
+      });
 
     EventsOn("mo:installing", () => setCliStatus("installing"));
     EventsOn("mo:ready", () => setCliStatus("ready"));
@@ -175,43 +174,26 @@ export default function Sidebar({ current, onNavigate }: Props) {
       {/* Navigation */}
       <nav className="flex flex-col gap-0.5 flex-1 overflow-y-auto">
         {/* Top-level: Dashboard only */}
-        {nav.filter(n => !n.group && n.id !== "settings").map(({ id, label, icon }) => (
-          <NavBtn key={id} id={id} label={label} icon={icon} current={current} onNavigate={onNavigate} />
+        {nav.filter(n => !n.group && n.id !== "settings").map(({ id, icon }) => (
+          <NavBtn key={id} id={id} label={t(`nav.${id}`, { defaultValue: id })} icon={icon} current={current} onNavigate={onNavigate} />
         ))}
 
         {(["Clean", "Manage", "Monitor"] as const).map(groupName => (
           <div key={groupName}>
             <p className="text-xs uppercase tracking-wider px-3 pt-4 pb-1.5"
                style={{ color: "rgba(255,255,255,0.40)", letterSpacing: "0.08em" }}>
-              {groupName}
+              {t(`navGroup.${groupName.toLowerCase()}`, { defaultValue: groupName })}
             </p>
-            {nav.filter(n => n.group === groupName).map(({ id, label, icon }) => (
-              <NavBtn key={id} id={id} label={label} icon={icon} current={current} onNavigate={onNavigate} />
+            {nav.filter(n => n.group === groupName).map(({ id, icon }) => (
+              <NavBtn key={id} id={id} label={t(`nav.${id}`, { defaultValue: id })} icon={icon} current={current} onNavigate={onNavigate} />
             ))}
           </div>
         ))}
 
         <div className="flex-1" />
 
-        {/* Language switcher */}
-        <div className="no-drag flex items-center gap-1 px-3 py-2">
-          {(['en', 'id'] as const).map((lang) => (
-            <button
-              key={lang}
-              onClick={() => handleLangChange(lang)}
-              className={`flex items-center gap-1 rounded px-2 py-1 text-xs font-medium transition-colors ${
-                i18n.language === lang
-                  ? 'bg-white/20 text-white'
-                  : 'text-white/50 hover:text-white/80'
-              }`}
-            >
-              {lang === 'en' ? '🇺🇸' : '🇮🇩'} {lang.toUpperCase()}
-            </button>
-          ))}
-        </div>
-
-        {nav.filter(n => n.id === "settings").map(({ id, label, icon }) => (
-          <NavBtn key={id} id={id} label={label} icon={icon} current={current} onNavigate={onNavigate} />
+        {nav.filter(n => n.id === "settings").map(({ id, icon }) => (
+          <NavBtn key={id} id={id} label={t(`nav.${id}`, { defaultValue: id })} icon={icon} current={current} onNavigate={onNavigate} />
         ))}
       </nav>
 

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Code2, RefreshCw, Trash2, CheckCircle2, AlertCircle } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { GetDevCaches, CleanDevCaches } from "../../wailsjs/go/main/DevCacheService";
@@ -21,20 +21,20 @@ export default function DevCaches() {
   const [results, setResults] = useState<main.DevCacheResult[]>([]);
   const [error, setError] = useState<string | null>(null);
 
-  const load = () => {
+  const load = useCallback(() => {
     setLoading(true);
     setError(null);
     GetDevCaches()
-      .then((t) => setTools(t ?? []))
+      .then((tools) => setTools(tools ?? []))
       .catch((err: unknown) => {
         setError(err instanceof Error ? err.message : t("scan_failed"));
       })
       .finally(() => setLoading(false));
-  };
+  }, [t]);
 
   useEffect(() => {
     load();
-  }, []);
+  }, [load]);
 
   const toggle = (id: string) => {
     setSelected((prev) => {

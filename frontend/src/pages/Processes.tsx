@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Activity, RefreshCw, Zap, AlertTriangle } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { ListFlaggedProcesses, KillProcesses } from "../../wailsjs/go/main/ProcessService";
@@ -28,7 +28,7 @@ export default function Processes() {
   const [results, setResults] = useState<main.KillProcessResult[]>([]);
   const [error, setError] = useState<string | null>(null);
 
-  const load = () => {
+  const load = useCallback(() => {
     setLoading(true);
     setError(null);
     ListFlaggedProcesses()
@@ -37,11 +37,11 @@ export default function Processes() {
         setError(err instanceof Error ? err.message : t("scan_failed"));
       })
       .finally(() => setLoading(false));
-  };
+  }, [t]);
 
   useEffect(() => {
     load();
-  }, []);
+  }, [load]);
 
   const toggle = (pid: number) => {
     setSelected((prev) => {

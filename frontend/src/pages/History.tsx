@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Clock, Trash2, CheckCircle2, XCircle, RefreshCw } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { GetHistory, ClearHistory } from "../../wailsjs/go/main/HistoryService";
@@ -18,7 +18,7 @@ export default function History() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const load = () => {
+  const load = useCallback(() => {
     setLoading(true);
     setError(null);
     GetHistory(100)
@@ -27,7 +27,7 @@ export default function History() {
         setError(err instanceof Error ? err.message : t("load_failed"));
       })
       .finally(() => setLoading(false));
-  };
+  }, [t]);
 
   const clear = async () => {
     try {
@@ -39,7 +39,7 @@ export default function History() {
     load();
   };
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => { load(); }, [load]);
 
   return (
     <div className="flex flex-col gap-5 animate-fade-in-up">
