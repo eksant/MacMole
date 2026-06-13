@@ -1,0 +1,43 @@
+{
+  "nav": {
+    "dashboard": "Dashboard",
+    "cleaner": "Cleaner",
+    "optimizer": "Optimizer",
+    "analyzer": "Analyzer",
+    "processes": "Processes",
+    "devcaches": "Dev Caches",
+    "nodemodules": "Node Modules",
+    "installer": "Installer",
+    "uninstall": "Uninstall",
+    "logs": "Logs",
+    "purge": "Purge",
+    "history": "History",
+    "settings": "Settings",
+    "cleanup": "Cleanup"
+  },
+  "button": {
+    "clean": "Clean",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "selectAll": "Select All",
+    "deselectAll": "Deselect All",
+    "preview": "Preview",
+    "refresh": "Refresh",
+    "close": "Close"
+  },
+  "badge": {
+    "safe": "Safe",
+    "caution": "Caution",
+    "manual": "Manual Review"
+  },
+  "status": {
+    "loading": "Loading…",
+    "error": "An error occurred.",
+    "success": "Done",
+    "notAvailable": "Not available"
+  },
+  "lang": {
+    "en": "EN",
+    "id": "ID"
+  }
+}

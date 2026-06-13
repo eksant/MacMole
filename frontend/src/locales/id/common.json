@@ -1,0 +1,43 @@
+{
+  "nav": {
+    "dashboard": "Dashboard",
+    "cleaner": "Pembersih",
+    "optimizer": "Pengoptimal",
+    "analyzer": "Penganalisis",
+    "processes": "Proses",
+    "devcaches": "Cache Dev",
+    "nodemodules": "Node Modules",
+    "installer": "Pemasang",
+    "uninstall": "Hapus Aplikasi",
+    "logs": "Log",
+    "purge": "Hapus Paksa",
+    "history": "Riwayat",
+    "settings": "Pengaturan",
+    "cleanup": "Bersihkan"
+  },
+  "button": {
+    "clean": "Bersihkan",
+    "cancel": "Batal",
+    "confirm": "Konfirmasi",
+    "selectAll": "Pilih Semua",
+    "deselectAll": "Hapus Pilihan",
+    "preview": "Pratinjau",
+    "refresh": "Segarkan",
+    "close": "Tutup"
+  },
+  "badge": {
+    "safe": "Aman",
+    "caution": "Hati-hati",
+    "manual": "Cek Manual"
+  },
+  "status": {
+    "loading": "Memuat…",
+    "error": "Terjadi kesalahan.",
+    "success": "Selesai",
+    "notAvailable": "Tidak tersedia"
+  },
+  "lang": {
+    "en": "EN",
+    "id": "ID"
+  }
+}
