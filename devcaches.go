@@ -513,3 +513,180 @@ func (d *DevCacheService) CleanAICaches(ids []string) []DevCacheResult {
 	}
 	return results
 }
+
+// GetAppCaches returns detected app-specific cache targets.
+func (d *DevCacheService) GetAppCaches() []CacheTarget {
+	home := safeHome()
+	if home == "" {
+		return nil
+	}
+	caches := filepath.Join(home, "Library", "Caches")
+	appSupport := filepath.Join(home, "Library", "Application Support")
+
+	type entry struct {
+		id    string
+		name  string
+		level string
+		paths []string
+	}
+	entries := []entry{
+		{"pyinstaller_cache", "PyInstaller Cache", "safe", []string{
+			filepath.Join(appSupport, "pyinstaller"),
+		}},
+		{"uv_cache", "uv Package Cache", "safe", []string{
+			filepath.Join(home, ".cache", "uv"),
+		}},
+		{"nordvpn_cache", "NordVPN Cache", "safe", []string{
+			filepath.Join(caches, "com.nordvpn.macos"),
+		}},
+		{"node_gyp_cache", "node-gyp Cache", "safe", []string{
+			filepath.Join(caches, "node-gyp"),
+		}},
+	}
+
+	result := make([]CacheTarget, 0, len(entries)+2)
+	for _, e := range entries {
+		ct := CacheTarget{
+			ID:          e.id,
+			Name:        e.name,
+			Category:    "app",
+			SafetyLevel: e.level,
+		}
+		ct.Exists = anyExists(e.paths)
+		if ct.Exists {
+			ct.SizeMB = sumDirSizes(e.paths)
+		}
+		result = append(result, ct)
+	}
+
+	// Docker targets
+	binExists, daemonRunning := dockerStatus()
+	if binExists {
+		buildCache := CacheTarget{
+			ID:          "docker_build_cache",
+			Name:        "Docker Build Cache",
+			Category:    "app",
+			SafetyLevel: "caution",
+			Exists:      true,
+		}
+		unusedImages := CacheTarget{
+			ID:          "docker_unused_images",
+			Name:        "Docker Unused Images",
+			Category:    "app",
+			SafetyLevel: "caution",
+			Exists:      true,
+		}
+		if !daemonRunning {
+			buildCache.Unavailable = true
+			buildCache.UnavailableReason = "Docker is not running"
+			unusedImages.Unavailable = true
+			unusedImages.UnavailableReason = "Docker is not running"
+		} else {
+			// Estimate sizes via docker system df
+			out, err := exec.Command("docker", "system", "df", "--format", "{{json .}}").Output()
+			if err == nil {
+				// best-effort parse — ignore errors
+				lines := strings.Split(strings.TrimSpace(string(out)), "\n")
+				for _, line := range lines {
+					var row struct {
+						Type        string `json:"Type"`
+						Reclaimable string `json:"Reclaimable"`
+					}
+					if json.Unmarshal([]byte(line), &row) != nil {
+						continue
+					}
+					// parse "X.XGB (Y%)" → extract numeric MB
+					val := strings.Fields(row.Reclaimable)
+					if len(val) == 0 {
+						continue
+					}
+					numStr := val[0]
+					var mult int64 = 1
+					if strings.HasSuffix(numStr, "GB") {
+						mult = 1024
+						numStr = strings.TrimSuffix(numStr, "GB")
+					} else if strings.HasSuffix(numStr, "MB") {
+						numStr = strings.TrimSuffix(numStr, "MB")
+					} else {
+						continue
+					}
+					var numVal float64
+					fmt.Sscanf(numStr, "%f", &numVal)
+					mb := int64(numVal * float64(mult))
+					switch row.Type {
+					case "Build Cache":
+						buildCache.SizeMB = mb
+					case "Images":
+						unusedImages.SizeMB = mb
+					}
+				}
+			}
+		}
+		result = append(result, buildCache, unusedImages)
+	}
+	return result
+}
+
+// CleanAppCaches removes selected app cache targets by ID.
+func (d *DevCacheService) CleanAppCaches(ids []string) []DevCacheResult {
+	home := safeHome()
+	if home == "" {
+		return nil
+	}
+	idSet := make(map[string]bool, len(ids))
+	for _, id := range ids {
+		idSet[id] = true
+	}
+	caches := filepath.Join(home, "Library", "Caches")
+	appSupport := filepath.Join(home, "Library", "Application Support")
+
+	fixedPaths := map[string][]string{
+		"pyinstaller_cache": {filepath.Join(appSupport, "pyinstaller")},
+		"uv_cache":          {filepath.Join(home, ".cache", "uv")},
+		"nordvpn_cache":     {filepath.Join(caches, "com.nordvpn.macos")},
+		"node_gyp_cache":    {filepath.Join(caches, "node-gyp")},
+	}
+
+	var results []DevCacheResult
+
+	for id, paths := range fixedPaths {
+		if !idSet[id] {
+			continue
+		}
+		var errs []string
+		var freed int64
+		for _, p := range paths {
+			if _, err := os.Stat(p); os.IsNotExist(err) {
+				continue
+			}
+			freed += duSize(p)
+			if err := os.RemoveAll(p); err != nil {
+				errs = append(errs, err.Error())
+			}
+		}
+		if len(errs) > 0 {
+			results = append(results, DevCacheResult{ID: id, Error: strings.Join(errs, "; ")})
+		} else {
+			results = append(results, DevCacheResult{ID: id, Success: true, Freed: fmt.Sprintf("%d MB", freed/(1024*1024))})
+		}
+	}
+
+	// Docker commands — always use hardcoded args
+	if idSet["docker_build_cache"] {
+		out, err := exec.Command("docker", "builder", "prune", "-a", "-f").CombinedOutput()
+		if err != nil {
+			results = append(results, DevCacheResult{ID: "docker_build_cache", Error: string(out)})
+		} else {
+			results = append(results, DevCacheResult{ID: "docker_build_cache", Success: true, Freed: "see docker output"})
+		}
+	}
+	if idSet["docker_unused_images"] {
+		out, err := exec.Command("docker", "image", "prune", "-a", "-f").CombinedOutput()
+		if err != nil {
+			results = append(results, DevCacheResult{ID: "docker_unused_images", Error: string(out)})
+		} else {
+			results = append(results, DevCacheResult{ID: "docker_unused_images", Success: true, Freed: "see docker output"})
+		}
+	}
+	return results
+}
