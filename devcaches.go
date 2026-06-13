@@ -202,3 +202,153 @@ func (d *DevCacheService) CleanDevCaches(ids []string) []DevCacheResult {
 	}
 	return results
 }
+
+// GetBrowserCaches returns detected browser cache targets on this Mac.
+func (d *DevCacheService) GetBrowserCaches() []CacheTarget {
+	home := safeHome()
+	if home == "" {
+		return nil
+	}
+	appSupport := filepath.Join(home, "Library", "Application Support")
+	caches := filepath.Join(home, "Library", "Caches")
+
+	chromeBase := filepath.Join(appSupport, "Google", "Chrome")
+	arcBase := filepath.Join(appSupport, "Arc")
+	braveBase := filepath.Join(appSupport, "BraveSoftware", "Brave-Browser")
+
+	chromeGPU := append(
+		globDirs(chromeBase, "GPUCache", 4),
+		append(globDirs(chromeBase, "DawnWebGPUCache", 4),
+			append(globDirs(chromeBase, "DawnGraphiteCache", 4),
+				globDirs(chromeBase, "GraphiteDawnCache", 4)...)...)...)
+	arcGPU := append(
+		globDirs(arcBase, "GPUCache", 5),
+		append(globDirs(arcBase, "GrShaderCache", 5),
+			append(globDirs(arcBase, "ShaderCache", 5),
+				globDirs(arcBase, "DawnWebGPUCache", 5)...)...)...)
+	braveGPU := append(
+		globDirs(braveBase, "GPUCache", 4),
+		append(globDirs(braveBase, "DawnWebGPUCache", 4),
+			globDirs(braveBase, "DawnGraphiteCache", 4)...)...)
+
+	playwrightPaths := []string{
+		filepath.Join(caches, "ms-playwright"),
+		filepath.Join(caches, "ms-playwright-mcp"),
+		filepath.Join(caches, "ms-playwright-go"),
+	}
+
+	targets := []struct {
+		id    string
+		name  string
+		level string
+		paths []string
+	}{
+		{"chrome_ai_model", "Chrome AI Model", "safe", []string{
+			filepath.Join(chromeBase, "OptGuideOnDeviceModel"),
+			filepath.Join(chromeBase, "WasmTtsEngine"),
+		}},
+		{"chrome_gpu_cache", "Chrome GPU Cache", "safe", chromeGPU},
+		{"arc_service_worker", "Arc Service Worker Cache", "safe", []string{
+			filepath.Join(arcBase, "User Data", "Default", "Service Worker", "CacheStorage"),
+			filepath.Join(arcBase, "User Data", "Default", "Service Worker", "ScriptCache"),
+			filepath.Join(arcBase, "User Data", "Default", "Shared Dictionary", "cache"),
+		}},
+		{"arc_gpu_cache", "Arc GPU Cache", "safe", arcGPU},
+		{"brave_gpu_cache", "Brave GPU Cache", "safe", braveGPU},
+		{"playwright_browsers", "Playwright Browsers", "safe", playwrightPaths},
+	}
+
+	result := make([]CacheTarget, 0, len(targets))
+	for _, t := range targets {
+		ct := CacheTarget{
+			ID:          t.id,
+			Name:        t.name,
+			Category:    "browser",
+			SafetyLevel: t.level,
+		}
+		ct.Exists = anyExists(t.paths)
+		if ct.Exists {
+			ct.SizeMB = sumDirSizes(t.paths)
+		}
+		result = append(result, ct)
+	}
+	return result
+}
+
+// CleanBrowserCaches removes the selected browser cache targets by ID.
+func (d *DevCacheService) CleanBrowserCaches(ids []string) []DevCacheResult {
+	home := safeHome()
+	if home == "" {
+		return nil
+	}
+	idSet := make(map[string]bool, len(ids))
+	for _, id := range ids {
+		idSet[id] = true
+	}
+
+	appSupport := filepath.Join(home, "Library", "Application Support")
+	caches := filepath.Join(home, "Library", "Caches")
+	chromeBase := filepath.Join(appSupport, "Google", "Chrome")
+	arcBase := filepath.Join(appSupport, "Arc")
+	braveBase := filepath.Join(appSupport, "BraveSoftware", "Brave-Browser")
+
+	type entry struct {
+		id    string
+		paths []string
+	}
+	plan := []entry{
+		{"chrome_ai_model", []string{
+			filepath.Join(chromeBase, "OptGuideOnDeviceModel"),
+			filepath.Join(chromeBase, "WasmTtsEngine"),
+		}},
+		{"chrome_gpu_cache", append(
+			globDirs(chromeBase, "GPUCache", 4),
+			append(globDirs(chromeBase, "DawnWebGPUCache", 4),
+				append(globDirs(chromeBase, "DawnGraphiteCache", 4),
+					globDirs(chromeBase, "GraphiteDawnCache", 4)...)...)...)},
+		{"arc_service_worker", []string{
+			filepath.Join(arcBase, "User Data", "Default", "Service Worker", "CacheStorage"),
+			filepath.Join(arcBase, "User Data", "Default", "Service Worker", "ScriptCache"),
+			filepath.Join(arcBase, "User Data", "Default", "Shared Dictionary", "cache"),
+		}},
+		{"arc_gpu_cache", append(
+			globDirs(arcBase, "GPUCache", 5),
+			append(globDirs(arcBase, "GrShaderCache", 5),
+				append(globDirs(arcBase, "ShaderCache", 5),
+					globDirs(arcBase, "DawnWebGPUCache", 5)...)...)...)},
+		{"brave_gpu_cache", append(
+			globDirs(braveBase, "GPUCache", 4),
+			append(globDirs(braveBase, "DawnWebGPUCache", 4),
+				globDirs(braveBase, "DawnGraphiteCache", 4)...)...)},
+		{"playwright_browsers", []string{
+			filepath.Join(caches, "ms-playwright"),
+			filepath.Join(caches, "ms-playwright-mcp"),
+			filepath.Join(caches, "ms-playwright-go"),
+		}},
+	}
+
+	var results []DevCacheResult
+	for _, e := range plan {
+		if !idSet[e.id] {
+			continue
+		}
+		var errs []string
+		var freedBytes int64
+		for _, p := range e.paths {
+			if _, err := os.Stat(p); os.IsNotExist(err) {
+				continue
+			}
+			freedBytes += duSize(p)
+			if err := os.RemoveAll(p); err != nil {
+				errs = append(errs, err.Error())
+			}
+		}
+		if len(errs) > 0 {
+			results = append(results, DevCacheResult{ID: e.id, Error: strings.Join(errs, "; ")})
+		} else {
+			mb := freedBytes / (1024 * 1024)
+			results = append(results, DevCacheResult{ID: e.id, Success: true, Freed: fmt.Sprintf("%d MB", mb)})
+		}
+	}
+	return results
+}
