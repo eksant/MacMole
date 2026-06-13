@@ -185,7 +185,7 @@ export default function Settings() {
       {/* Updates */}
       <Section title={t("sections.updates")} icon={<RefreshCw size={12} />}>
         <Row label={t("updates.current_version")}>
-          <span className="text-xs text-white/30 tabular-nums">v0.1.0</span>
+          <span className="text-xs text-white/30 tabular-nums">v0.2.0</span>
         </Row>
         <Row label={t("updates.check_for_update")}>
           <Button variant="ghost" size="sm" onClick={checkUpdate} disabled={updateLoading} className="gap-1.5 text-xs text-white/70">

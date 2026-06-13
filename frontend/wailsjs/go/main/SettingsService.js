@@ -6,6 +6,10 @@ export function CheckForUpdate() {
   return window['go']['main']['SettingsService']['CheckForUpdate']();
 }
 
+export function HasFullDiskAccess() {
+  return window['go']['main']['SettingsService']['HasFullDiskAccess']();
+}
+
 export function IsLoginItem() {
   return window['go']['main']['SettingsService']['IsLoginItem']();
 }

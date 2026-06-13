@@ -228,7 +228,7 @@ export default function Sidebar({ current, onNavigate }: Props) {
           </div>
         )}
         <span className="text-xs" style={{ color: "rgba(255,255,255,0.18)" }}>
-          v0.1.0
+          v0.2.0
         </span>
       </div>
     </aside>

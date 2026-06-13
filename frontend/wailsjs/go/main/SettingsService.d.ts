@@ -4,6 +4,8 @@ import {main} from '../models';
 
 export function CheckForUpdate():Promise<main.UpdateInfo>;
 
+export function HasFullDiskAccess():Promise<boolean>;
+
 export function IsLoginItem():Promise<boolean>;
 
 export function OpenPrivacySettings():Promise<void>;

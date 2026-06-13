@@ -21,7 +21,9 @@
     "modal_body": "MacMole membersihkan Downloads, cache Library, dan data aplikasi. macOS akan meminta izin pertama kali mengakses setiap folder.",
     "modal_tip": "Memberikan Full Disk Access menghilangkan semua dialog izin di masa mendatang.",
     "modal_open": "Buka Pengaturan Privasi",
-    "modal_done": "Mengerti"
+    "modal_later": "Nanti saja",
+    "modal_dismiss": "Jangan tampilkan lagi",
+    "modal_granted": "Akses diberikan — selesai!"
   },
   "general": {
     "launch_at_login": "Jalankan saat Login",

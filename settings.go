@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"os"
 	"os/exec"
 	"strings"
 	"time"
@@ -47,7 +48,7 @@ type UpdateInfo struct {
 	ReleaseURL     string `json:"release_url"`
 }
 
-const currentVersion = "0.1.0"
+const currentVersion = "0.2.0"
 const githubReleasesAPI = "https://api.github.com/repos/fishwww-ww/MacMole/releases/latest"
 
 // CheckForUpdate fetches the latest GitHub release and compares with the current version.
@@ -87,6 +88,17 @@ func (s *SettingsService) CheckForUpdate() UpdateInfo {
 	info.HasUpdate = isNewerVersion(latest, currentVersion)
 
 	return info
+}
+
+// HasFullDiskAccess reports whether the app has Full Disk Access by probing the
+// system TCC database — a path that requires FDA and does NOT trigger a dialog.
+func (s *SettingsService) HasFullDiskAccess() bool {
+	f, err := os.Open("/Library/Application Support/com.apple.TCC/TCC.db")
+	if err != nil {
+		return false
+	}
+	_ = f.Close()
+	return true
 }
 
 // OpenPrivacySettings opens System Settings → Privacy & Security → Full Disk Access.

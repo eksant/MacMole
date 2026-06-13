@@ -21,7 +21,9 @@
     "modal_body": "MacMole cleans Downloads, Library caches, and app data. macOS will ask for permission the first time it accesses each folder.",
     "modal_tip": "Granting Full Disk Access removes all future permission dialogs.",
     "modal_open": "Open Privacy Settings",
-    "modal_done": "Got it"
+    "modal_later": "Maybe later",
+    "modal_dismiss": "Don't show again",
+    "modal_granted": "Access granted — you're all set!"
   },
   "general": {
     "launch_at_login": "Launch at Login",
