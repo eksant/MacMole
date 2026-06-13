@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"os"
 	"os/exec"
@@ -348,6 +349,166 @@ func (d *DevCacheService) CleanBrowserCaches(ids []string) []DevCacheResult {
 		} else {
 			mb := freedBytes / (1024 * 1024)
 			results = append(results, DevCacheResult{ID: e.id, Success: true, Freed: fmt.Sprintf("%d MB", mb)})
+		}
+	}
+	return results
+}
+
+// vscodeObsoleteExtensions reads ~/.vscode/extensions/.obsolete and returns
+// a CacheTarget per matched extension directory.
+func vscodeObsoleteExtensions(home string) []CacheTarget {
+	extDir := filepath.Join(home, ".vscode", "extensions")
+	obsoleteFile := filepath.Join(extDir, ".obsolete")
+	data, err := os.ReadFile(obsoleteFile)
+	if err != nil {
+		return nil
+	}
+	var obsolete map[string]bool
+	if err := json.Unmarshal(data, &obsolete); err != nil {
+		return nil
+	}
+	var targets []CacheTarget
+	for name := range obsolete {
+		p := filepath.Join(extDir, name)
+		if _, err := os.Stat(p); err != nil {
+			continue
+		}
+		targets = append(targets, CacheTarget{
+			ID:          "vscode_ext_" + name,
+			Name:        name,
+			Category:    "ai",
+			SafetyLevel: "manual",
+			Exists:      true,
+			SizeMB:      duSize(p) / (1024 * 1024),
+		})
+	}
+	return targets
+}
+
+// GetAICaches returns detected AI tool and editor cache targets.
+func (d *DevCacheService) GetAICaches() []CacheTarget {
+	home := safeHome()
+	if home == "" {
+		return nil
+	}
+	appSupport := filepath.Join(home, "Library", "Application Support")
+
+	type entry struct {
+		id    string
+		name  string
+		level string
+		paths []string
+	}
+	entries := []entry{
+		{"claude_vm_bundles", "Claude VM Bundles", "caution", []string{
+			filepath.Join(appSupport, "Claude", "vm_bundles"),
+		}},
+		{"claude_local_sessions", "Claude Local Sessions", "caution", []string{
+			filepath.Join(home, ".local", "share", "claude"),
+		}},
+	}
+
+	result := make([]CacheTarget, 0, len(entries)+4)
+	for _, e := range entries {
+		ct := CacheTarget{
+			ID:          e.id,
+			Name:        e.name,
+			Category:    "ai",
+			SafetyLevel: e.level,
+		}
+		ct.Exists = anyExists(e.paths)
+		if ct.Exists {
+			ct.SizeMB = sumDirSizes(e.paths)
+		}
+		result = append(result, ct)
+	}
+
+	// VSCode old extensions (one target per obsolete extension dir)
+	result = append(result, vscodeObsoleteExtensions(home)...)
+
+	// VSCode orphaned extension dirs (have no package.json inside)
+	extDir := filepath.Join(home, ".vscode", "extensions")
+	entries2, _ := os.ReadDir(extDir)
+	for _, entry := range entries2 {
+		if !entry.IsDir() || strings.HasPrefix(entry.Name(), ".") {
+			continue
+		}
+		pkgJSON := filepath.Join(extDir, entry.Name(), "package.json")
+		if _, err := os.Stat(pkgJSON); err == nil {
+			continue
+		}
+		p := filepath.Join(extDir, entry.Name())
+		result = append(result, CacheTarget{
+			ID:          "vscode_orphan_" + entry.Name(),
+			Name:        entry.Name(),
+			Category:    "ai",
+			SafetyLevel: "manual",
+			Exists:      true,
+			SizeMB:      duSize(p) / (1024 * 1024),
+		})
+	}
+	return result
+}
+
+// CleanAICaches removes selected AI/editor cache targets by ID.
+func (d *DevCacheService) CleanAICaches(ids []string) []DevCacheResult {
+	home := safeHome()
+	if home == "" {
+		return nil
+	}
+	idSet := make(map[string]bool, len(ids))
+	for _, id := range ids {
+		idSet[id] = true
+	}
+	appSupport := filepath.Join(home, "Library", "Application Support")
+
+	fixedPaths := map[string][]string{
+		"claude_vm_bundles":     {filepath.Join(appSupport, "Claude", "vm_bundles")},
+		"claude_local_sessions": {filepath.Join(home, ".local", "share", "claude")},
+	}
+
+	var results []DevCacheResult
+
+	for id, paths := range fixedPaths {
+		if !idSet[id] {
+			continue
+		}
+		var errs []string
+		var freed int64
+		for _, p := range paths {
+			if _, err := os.Stat(p); os.IsNotExist(err) {
+				continue
+			}
+			freed += duSize(p)
+			if err := os.RemoveAll(p); err != nil {
+				errs = append(errs, err.Error())
+			}
+		}
+		if len(errs) > 0 {
+			results = append(results, DevCacheResult{ID: id, Error: strings.Join(errs, "; ")})
+		} else {
+			results = append(results, DevCacheResult{ID: id, Success: true, Freed: fmt.Sprintf("%d MB", freed/(1024*1024))})
+		}
+	}
+
+	// VSCode extension dirs — handles both "vscode_ext_" and "vscode_orphan_" prefixes
+	extDir := filepath.Join(home, ".vscode", "extensions")
+	for id := range idSet {
+		var prefix string
+		if strings.HasPrefix(id, "vscode_ext_") {
+			prefix = "vscode_ext_"
+		} else if strings.HasPrefix(id, "vscode_orphan_") {
+			prefix = "vscode_orphan_"
+		} else {
+			continue
+		}
+		dirName := strings.TrimPrefix(id, prefix)
+		p := filepath.Join(extDir, dirName)
+		freed := duSize(p)
+		if err := os.RemoveAll(p); err != nil {
+			results = append(results, DevCacheResult{ID: id, Error: err.Error()})
+		} else {
+			results = append(results, DevCacheResult{ID: id, Success: true, Freed: fmt.Sprintf("%d MB", freed/(1024*1024))})
 		}
 	}
 	return results
