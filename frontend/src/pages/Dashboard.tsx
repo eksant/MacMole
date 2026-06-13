@@ -7,11 +7,18 @@ import {
   Clock,
   Cpu,
   HardDrive,
+  Info,
   MemoryStick,
   Wifi,
   XCircle,
   Zap,
 } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { useTranslation } from "react-i18next";
 import { useMetrics, useWatchedProcesses } from "../hooks/useMetrics";
 import MetricCard from "../components/MetricCard";
@@ -204,11 +211,14 @@ export default function Dashboard() {
         <div className="flex items-center gap-5">
           <ScoreRing score={score} />
 
-          {/* Optimize All button */}
-          <button
-            disabled={optStatus === "running"}
-            onClick={runAll}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 disabled:opacity-50 no-drag"
+          {/* Optimize All button + info tooltip */}
+          <TooltipProvider delayDuration={300}>
+            <div className="flex flex-col items-end gap-1.5">
+              <div className="flex items-center gap-1.5">
+                <button
+                  disabled={optStatus === "running"}
+                  onClick={runAll}
+                  className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 disabled:opacity-50 no-drag"
             style={
               optStatus === "done"
                 ? {
@@ -265,7 +275,24 @@ export default function Dashboard() {
                 <Zap size={14} /> {t("optimize_all")}
               </>
             )}
-          </button>
+                </button>
+
+                {/* Info tooltip */}
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button className="no-drag rounded p-1 text-white/30 hover:text-white/60 transition-colors">
+                      <Info size={13} />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom" className="max-w-xs">
+                    <p className="font-medium text-white/90 mb-1">{t("optimize_all_what")}</p>
+                    <p className="text-white/60 mb-1">✅ {t("optimize_all_covers")}</p>
+                    <p className="text-amber-400/80">⚠️ {t("optimize_all_excludes")}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </div>
+            </div>
+          </TooltipProvider>
         </div>
       </div>
       {lastRun && optStatus === "idle" && (

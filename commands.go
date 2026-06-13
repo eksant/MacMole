@@ -179,7 +179,10 @@ func (c *CommandService) runMo(args ...string) CommandResult {
 
 	// #nosec G204 — moPath is resolved from known Homebrew paths, args are hardcoded.
 	cmd := exec.CommandContext(c.ctx, c.moPath, args...)
-	cmd.Env = append(os.Environ(), "NO_COLOR=1", "TERM=dumb")
+	// MOLE_TEST_NO_AUTH=1 prevents the CLI from opening sudo/Touch ID prompts.
+	// The app runs the CLI without a TTY, so sudo would hang or fail anyway.
+	// User-level cleanup (~/Library/Caches, brew, npm, etc.) runs unaffected.
+	cmd.Env = append(os.Environ(), "NO_COLOR=1", "TERM=dumb", "MOLE_TEST_NO_AUTH=1")
 
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {

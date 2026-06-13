@@ -6,7 +6,7 @@
 
 <p align="center">
   <a href="https://github.com/eksant/MacMole/releases"><img src="https://img.shields.io/github/v/release/eksant/MacMole?label=desktop&style=flat-square" alt="Desktop Release"></a>
-  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square" alt="License"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-Non--Commercial-red.svg?style=flat-square" alt="License"></a>
   <a href="https://github.com/tw93/Mole"><img src="https://img.shields.io/badge/forked%20from-tw93%2FMole-orange?style=flat-square" alt="Forked from tw93/Mole"></a>
   <a href="https://github.com/eksant/MacMole/commits"><img src="https://img.shields.io/github/commit-activity/m/eksant/MacMole?style=flat-square" alt="Commits"></a>
 </p>
@@ -404,7 +404,12 @@ Real feedback from users who shared Mole on X.
 
 ## License
 
-MIT License. See [LICENSE](LICENSE) for details.
+**Dual license:**
+
+- **`mole/` directory** (upstream Mole CLI) — [MIT License](LICENSE), copyright tw93.
+- **Everything else** (MacMole Desktop — Go/Wails backend, React frontend, assets) — **Non-Commercial License**, copyright eksant.
+
+Free for personal, educational, and internal use. Commercial use requires prior written permission. See [LICENSE](LICENSE) for full terms or contact eksant@gmail.com.
 
 - Original Mole CLI — © 2025 [tw93](https://github.com/tw93) · [tw93/Mole](https://github.com/tw93/Mole)
 - MacMole Desktop — © 2025 [eksant](https://github.com/eksant) · [eksant/MacMole](https://github.com/eksant/MacMole)
