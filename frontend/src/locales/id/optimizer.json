@@ -1,0 +1,22 @@
+{
+  "title": "Pengoptimal Sistem",
+  "description": "Segarkan cache, bangun ulang layanan, dan atur ulang status sistem.",
+  "tasks": {
+    "rebuild_system_databases": "Bangun ulang basis data sistem dan bersihkan cache",
+    "reset_network_services": "Atur ulang layanan jaringan",
+    "refresh_finder_dock": "Segarkan Finder dan Dock",
+    "clean_diagnostic_logs": "Bersihkan log diagnostik dan crash",
+    "rebuild_launch_services": "Bangun ulang layanan peluncuran dan indeks Spotlight"
+  },
+  "preview": "Pratinjau",
+  "optimize": "Optimalkan",
+  "optimizing": "Mengoptimalkan…",
+  "progress": "Kemajuan",
+  "running_tasks": "Menjalankan tugas…",
+  "optimization_complete": "Optimasi selesai!",
+  "finished_with_errors": "Selesai dengan kesalahan.",
+  "initializing_optimizer": "Menginisialisasi pengoptimal…",
+  "notify_title": "Mole — Pengoptimal",
+  "notify_success": "Optimasi selesai!",
+  "notify_error": "Pengoptimal selesai dengan kesalahan."
+}

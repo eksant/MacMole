@@ -1,0 +1,21 @@
+{
+  "title": "Node Modules",
+  "description": "Temukan dan hapus direktori node_modules di seluruh proyek Anda untuk merebut kembali ruang disk.",
+  "rescan": "Pindai Ulang",
+  "scanning": "Memindai…",
+  "select_all": "Pilih Semua",
+  "deselect_all": "Batalkan Semua",
+  "remove_selected": "Hapus Yang Dipilih",
+  "removing": "Menghapus…",
+  "found_count": "{{count}} ditemukan",
+  "total_reclaimable": "Total yang bisa dipulihkan: {{size}}",
+  "selected_summary": "{{count}} dipilih — {{size}}",
+  "scanning_message": "Memindai node_modules… ini mungkin membutuhkan waktu.",
+  "no_results": "Tidak ada node_modules ditemukan. Jalankan pemindaian untuk mencari direktori pengembangan Anda.",
+  "column_project": "Proyek",
+  "column_last_modified": "Terakhir dimodifikasi",
+  "column_size": "Ukuran",
+  "badge_old": "lama",
+  "notify_title": "MacMole — Node Modules",
+  "notify_default": "node_modules dihapus."
+}

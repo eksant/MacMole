@@ -1,0 +1,22 @@
+{
+  "title": "Pengelola Proses",
+  "description": "Deteksi dan hentikan proses zombie, CPU tinggi, atau memori tinggi.",
+  "warning": "Menghentikan proses tidak dapat dibatalkan. Hanya proses yang ditandai yang ditampilkan.",
+  "refresh": "Segarkan",
+  "scanning": "Memindai…",
+  "kill_selected": "Hentikan Yang Dipilih",
+  "kill_selected_count": "Hentikan {{count}} Yang Dipilih",
+  "killing": "Menghentikan…",
+  "no_flagged_processes": "Tidak ada proses yang ditandai. Sistem terlihat sehat.",
+  "pid_label": "PID",
+  "runtime_label": "waktu berjalan",
+  "cpu_label": "cpu",
+  "mem_label": "mem",
+  "status_labels": {
+    "zombie": "Zombie",
+    "high_cpu": "CPU Tinggi",
+    "high_mem": "Memori Tinggi"
+  },
+  "scan_failed": "Pemindaian gagal.",
+  "kill_failed": "Penghentian gagal."
+}

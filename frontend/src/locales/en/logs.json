@@ -1,0 +1,19 @@
+{
+  "title": "Log Cleaner",
+  "description": "Remove application log files from ~/Library/Logs. Safe to clean — apps recreate logs as needed.",
+  "refresh": "Refresh",
+  "scanning": "Scanning…",
+  "select_all": "Select All",
+  "deselect_all": "Deselect All",
+  "delete_selected": "Delete Selected",
+  "deleting": "Deleting…",
+  "items_count_singular": "{{count}} item",
+  "items_count_plural": "{{count}} items",
+  "total": "Total: {{size}}",
+  "selected_summary": "{{count}} selected — {{size}}",
+  "scanning_message": "Scanning ~/Library/Logs…",
+  "no_log_entries": "No log entries found.",
+  "modified": "Modified {{date}}",
+  "notify_title": "MacMole — Log Cleaner",
+  "notify_default": "Logs removed successfully."
+}

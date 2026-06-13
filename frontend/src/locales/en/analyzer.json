@@ -1,0 +1,9 @@
+{
+  "title": "Disk Analyzer",
+  "description": "Disk usage overview for major directories. Run {{command}} in terminal for full interactive explorer.",
+  "refresh": "Refresh",
+  "scanning": "Scanning…",
+  "calculating_sizes": "Calculating sizes… (may take a moment)",
+  "no_directories_found": "No directories found.",
+  "total_across_directories": "Total across {{count}} directories"
+}

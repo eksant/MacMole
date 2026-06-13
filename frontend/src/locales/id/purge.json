@@ -1,0 +1,21 @@
+{
+  "title": "Pembersihan Total",
+  "description": "Hapus file yatim, tautan rusak, dan sisa aplikasi.",
+  "tasks": {
+    "remove_orphaned_support": "Hapus file dukungan aplikasi yang yatim",
+    "delete_preference_plists": "Hapus sisa plist preferensi",
+    "clear_font_caches": "Bersihkan cache font yang tidak terpakai",
+    "remove_stale_extensions": "Hapus ekstensi sistem yang kadaluarsa",
+    "clean_broken_symlinks": "Bersihkan symlink yang rusak"
+  },
+  "warning": "Gunakan Pratinjau terlebih dahulu untuk memeriksa apa yang akan dihapus. Pembersihan total lebih agresif dari Bersih.",
+  "preview": "Pratinjau",
+  "run_purge": "Jalankan Pembersihan Total",
+  "purging": "Membersihkan total…",
+  "purge_complete": "Pembersihan total selesai!",
+  "finished_with_errors": "Selesai dengan kesalahan.",
+  "scanning_message": "Memindai file yatim…",
+  "notify_title": "Mole — Pembersihan Total",
+  "notify_success": "Pembersihan total berhasil diselesaikan.",
+  "notify_error": "Pembersihan total selesai dengan kesalahan."
+}

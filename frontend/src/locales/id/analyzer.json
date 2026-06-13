@@ -1,0 +1,9 @@
+{
+  "title": "Penganalisa Disk",
+  "description": "Ikhtisar penggunaan disk untuk direktori utama. Jalankan {{command}} di terminal untuk penjelajah interaktif lengkap.",
+  "refresh": "Segarkan",
+  "scanning": "Memindai…",
+  "calculating_sizes": "Menghitung ukuran… (mungkin membutuhkan waktu)",
+  "no_directories_found": "Tidak ada direktori ditemukan.",
+  "total_across_directories": "Total dari {{count}} direktori"
+}

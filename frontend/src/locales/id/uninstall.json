@@ -1,0 +1,17 @@
+{
+  "title": "Penghapus Aplikasi",
+  "description": "Hapus aplikasi dari /Applications beserta file data terkaitnya.",
+  "warning": "Penghapusan bersifat permanen. Pratinjau file yang akan dihapus sebelum mengonfirmasi.",
+  "refresh": "Segarkan",
+  "scanning": "Memindai…",
+  "select_all": "Pilih Semua",
+  "deselect_all": "Batalkan Semua",
+  "remove_selected": "Hapus Yang Dipilih",
+  "removing": "Menghapus…",
+  "selected_summary_single": "{{count}} aplikasi dipilih — {{size}} untuk dipulihkan",
+  "selected_summary_plural": "{{count}} aplikasi dipilih — {{size}} untuk dipulihkan",
+  "scanning_message": "Memindai /Applications…",
+  "no_apps_found": "Tidak ada aplikasi di /Applications.",
+  "notify_title": "MacMole — Penghapus Aplikasi",
+  "notify_default": "Aplikasi berhasil dihapus."
+}

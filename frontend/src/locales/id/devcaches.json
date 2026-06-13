@@ -1,0 +1,12 @@
+{
+  "title": "Cache Dev",
+  "description": "Bersihkan cache alat pengembang menggunakan perintah bersih native masing-masing alat.",
+  "refresh": "Segarkan",
+  "scanning": "Memindai…",
+  "clean_selected": "Bersihkan Yang Dipilih",
+  "cleaning": "Membersihkan…",
+  "not_installed": "Tidak terinstal",
+  "selected_summary": "{{count}} dipilih — ~{{size}} untuk dibebaskan",
+  "scan_failed": "Gagal memindai cache dev.",
+  "clean_failed": "Pembersihan gagal."
+}

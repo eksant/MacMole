@@ -1,0 +1,43 @@
+{
+  "title": "Pengaturan",
+  "description": "Preferensi dan informasi aplikasi.",
+  "sections": {
+    "general": "Umum",
+    "notifications": "Notifikasi",
+    "updates": "Pembaruan",
+    "about": "Tentang"
+  },
+  "general": {
+    "launch_at_login": "Jalankan saat Login",
+    "launch_at_login_desc": "Mulai Mole secara otomatis saat Anda masuk ke macOS",
+    "appearance": "Tampilan",
+    "appearance_desc": "Mode gelap selalu aktif",
+    "dark": "Gelap"
+  },
+  "notifications": {
+    "enable_notifications": "Aktifkan Notifikasi",
+    "enable_notifications_desc": "Tampilkan peringatan saat pembersihan, optimasi, atau pembersihan total selesai",
+    "notifications_blocked": "Diblokir di Pengaturan Sistem — aktifkan di Notifikasi macOS",
+    "go_to_system_settings": "Buka Pengaturan Sistem → Notifikasi → Mole untuk mengaktifkan."
+  },
+  "updates": {
+    "current_version": "Versi saat ini",
+    "check_for_update": "Periksa pembaruan",
+    "checking": "Memeriksa...",
+    "check_now": "Periksa sekarang",
+    "update_available": "Pembaruan tersedia: v{{version}}",
+    "download": "Unduh",
+    "up_to_date": "Anda menggunakan versi terbaru."
+  },
+  "about": {
+    "built_with": "Dibangun dengan",
+    "built_with_value": "Wails v2 · React · Go",
+    "mole_cli": "Mole CLI",
+    "mole_cli_value": "brew install mole",
+    "source_code": "Kode sumber",
+    "github": "GitHub",
+    "report_issue": "Laporkan masalah",
+    "open_issue": "Buka issue"
+  },
+  "footer": "Mole berjalan diam-diam di menu bar. Tutup jendela untuk menyembunyikannya; gunakan ikon menu bar untuk menampilkan atau keluar."
+}

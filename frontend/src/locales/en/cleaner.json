@@ -1,0 +1,14 @@
+{
+  "title": "Deep Cleaner",
+  "description": "Remove caches, logs, browser data, and developer leftovers.",
+  "preview": "Preview",
+  "run_clean": "Run Clean",
+  "cleaning": "Cleaning…",
+  "processing": "Processing…",
+  "clean_complete": "Clean complete!",
+  "finished_with_errors": "Finished with errors.",
+  "scanning_system": "Scanning system…",
+  "notify_title": "Mole — Deep Cleaner",
+  "notify_success": "Clean completed successfully.",
+  "notify_error": "Clean finished with errors."
+}

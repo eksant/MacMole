@@ -1,0 +1,22 @@
+{
+  "title": "System Optimizer",
+  "description": "Refresh caches, rebuild services, and reset system state.",
+  "tasks": {
+    "rebuild_system_databases": "Rebuild system databases and clear caches",
+    "reset_network_services": "Reset network services",
+    "refresh_finder_dock": "Refresh Finder and Dock",
+    "clean_diagnostic_logs": "Clean diagnostic and crash logs",
+    "rebuild_launch_services": "Rebuild launch services and Spotlight index"
+  },
+  "preview": "Preview",
+  "optimize": "Optimize",
+  "optimizing": "Optimizing…",
+  "progress": "Progress",
+  "running_tasks": "Running tasks…",
+  "optimization_complete": "Optimization complete!",
+  "finished_with_errors": "Finished with errors.",
+  "initializing_optimizer": "Initializing optimizer…",
+  "notify_title": "Mole — Optimizer",
+  "notify_success": "Optimization complete!",
+  "notify_error": "Optimizer finished with errors."
+}

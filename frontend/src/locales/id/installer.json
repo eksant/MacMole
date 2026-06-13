@@ -1,0 +1,21 @@
+{
+  "title": "Pembersihan Installer",
+  "description": "Hapus file installer .pkg, .dmg, dan .zip yang sudah tidak dibutuhkan.",
+  "tasks": {
+    "find_pkg": "Temukan dan hapus file installer .pkg",
+    "clear_dmg": "Bersihkan sisa image disk .dmg",
+    "delete_zip": "Hapus arsip .zip yang diunduh di Downloads",
+    "remove_caches": "Hapus cache installer yang tidak terpakai",
+    "clean_quarantine": "Bersihkan atribut karantina"
+  },
+  "preview": "Pratinjau",
+  "clean_installers": "Bersihkan Installer",
+  "cleaning": "Membersihkan…",
+  "cleaning_up": "Membersihkan…",
+  "cleanup_complete": "Pembersihan selesai!",
+  "finished_with_errors": "Selesai dengan kesalahan.",
+  "scanning_message": "Memindai file installer…",
+  "notify_title": "Mole — Pembersihan Installer",
+  "notify_success": "Pembersihan installer selesai.",
+  "notify_error": "Selesai dengan kesalahan."
+}

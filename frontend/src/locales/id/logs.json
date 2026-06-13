@@ -1,0 +1,19 @@
+{
+  "title": "Pembersih Log",
+  "description": "Hapus file log aplikasi dari ~/Library/Logs. Aman untuk dibersihkan — aplikasi membuat ulang log sesuai kebutuhan.",
+  "refresh": "Segarkan",
+  "scanning": "Memindai…",
+  "select_all": "Pilih Semua",
+  "deselect_all": "Batalkan Semua",
+  "delete_selected": "Hapus Yang Dipilih",
+  "deleting": "Menghapus…",
+  "items_count_singular": "{{count}} item",
+  "items_count_plural": "{{count}} item",
+  "total": "Total: {{size}}",
+  "selected_summary": "{{count}} dipilih — {{size}}",
+  "scanning_message": "Memindai ~/Library/Logs…",
+  "no_log_entries": "Tidak ada entri log ditemukan.",
+  "modified": "Dimodifikasi {{date}}",
+  "notify_title": "MacMole — Pembersih Log",
+  "notify_default": "Log berhasil dihapus."
+}

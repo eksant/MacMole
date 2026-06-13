@@ -1,0 +1,21 @@
+{
+  "title": "Deep Purge",
+  "description": "Remove orphaned files, broken links, and leftover app remnants.",
+  "tasks": {
+    "remove_orphaned_support": "Remove orphaned app support files",
+    "delete_preference_plists": "Delete leftover preference plists",
+    "clear_font_caches": "Clear unused font caches",
+    "remove_stale_extensions": "Remove stale system extensions",
+    "clean_broken_symlinks": "Clean up broken symlinks"
+  },
+  "warning": "Use Preview first to inspect what will be removed. Purge is more aggressive than Clean.",
+  "preview": "Preview",
+  "run_purge": "Run Purge",
+  "purging": "Purging…",
+  "purge_complete": "Purge complete!",
+  "finished_with_errors": "Finished with errors.",
+  "scanning_message": "Scanning for orphaned files…",
+  "notify_title": "Mole — Purge",
+  "notify_success": "Purge completed successfully.",
+  "notify_error": "Purge finished with errors."
+}

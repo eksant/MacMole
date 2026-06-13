@@ -1,0 +1,21 @@
+{
+  "title": "Node Modules",
+  "description": "Find and remove node_modules directories across your projects to reclaim disk space.",
+  "rescan": "Rescan",
+  "scanning": "Scanning…",
+  "select_all": "Select All",
+  "deselect_all": "Deselect All",
+  "remove_selected": "Remove Selected",
+  "removing": "Removing…",
+  "found_count": "{{count}} found",
+  "total_reclaimable": "Total reclaimable: {{size}}",
+  "selected_summary": "{{count}} selected — {{size}}",
+  "scanning_message": "Scanning for node_modules… this may take a moment.",
+  "no_results": "No node_modules found. Run a scan to search your development directories.",
+  "column_project": "Project",
+  "column_last_modified": "Last modified",
+  "column_size": "Size",
+  "badge_old": "old",
+  "notify_title": "MacMole — Node Modules",
+  "notify_default": "node_modules removed."
+}

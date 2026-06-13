@@ -1,0 +1,22 @@
+{
+  "title": "Process Manager",
+  "description": "Detect and terminate zombie, high-CPU, or high-memory processes.",
+  "warning": "Killing processes is irreversible. Only flagged processes are shown.",
+  "refresh": "Refresh",
+  "scanning": "Scanning…",
+  "kill_selected": "Kill Selected",
+  "kill_selected_count": "Kill {{count}} Selected",
+  "killing": "Killing…",
+  "no_flagged_processes": "No flagged processes found. System looks healthy.",
+  "pid_label": "PID",
+  "runtime_label": "runtime",
+  "cpu_label": "cpu",
+  "mem_label": "mem",
+  "status_labels": {
+    "zombie": "Zombie",
+    "high_cpu": "High CPU",
+    "high_mem": "High Mem"
+  },
+  "scan_failed": "Scan failed.",
+  "kill_failed": "Kill failed."
+}

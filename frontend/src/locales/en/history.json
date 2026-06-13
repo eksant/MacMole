@@ -1,0 +1,8 @@
+{
+  "title": "Operation History",
+  "description": "Audit log of all cleanup operations.",
+  "no_operations": "No operations recorded yet.",
+  "freed_mb": "{{amount}} MB freed",
+  "load_failed": "Failed to load history.",
+  "clear_failed": "Failed to clear history."
+}

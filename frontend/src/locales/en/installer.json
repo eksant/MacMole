@@ -1,0 +1,21 @@
+{
+  "title": "Installer Cleanup",
+  "description": "Remove .pkg, .dmg, and .zip installer files that are no longer needed.",
+  "tasks": {
+    "find_pkg": "Find and remove .pkg installer files",
+    "clear_dmg": "Clear leftover .dmg disk images",
+    "delete_zip": "Delete downloaded .zip archives in Downloads",
+    "remove_caches": "Remove unused installer caches",
+    "clean_quarantine": "Clean up quarantine attributes"
+  },
+  "preview": "Preview",
+  "clean_installers": "Clean Installers",
+  "cleaning": "Cleaning…",
+  "cleaning_up": "Cleaning up…",
+  "cleanup_complete": "Cleanup complete!",
+  "finished_with_errors": "Finished with errors.",
+  "scanning_message": "Scanning for installer files…",
+  "notify_title": "Mole — Installer Cleanup",
+  "notify_success": "Installer cleanup done.",
+  "notify_error": "Finished with errors."
+}

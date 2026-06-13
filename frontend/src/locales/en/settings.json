@@ -1,0 +1,43 @@
+{
+  "title": "Settings",
+  "description": "Preferences and app information.",
+  "sections": {
+    "general": "General",
+    "notifications": "Notifications",
+    "updates": "Updates",
+    "about": "About"
+  },
+  "general": {
+    "launch_at_login": "Launch at Login",
+    "launch_at_login_desc": "Start Mole automatically when you log in to macOS",
+    "appearance": "Appearance",
+    "appearance_desc": "Dark mode is always active",
+    "dark": "Dark"
+  },
+  "notifications": {
+    "enable_notifications": "Enable Notifications",
+    "enable_notifications_desc": "Show alert when clean, optimize, or purge finishes",
+    "notifications_blocked": "Blocked in System Settings — enable in macOS Notifications",
+    "go_to_system_settings": "Go to System Settings → Notifications → Mole to enable."
+  },
+  "updates": {
+    "current_version": "Current version",
+    "check_for_update": "Check for update",
+    "checking": "Checking...",
+    "check_now": "Check now",
+    "update_available": "Update available: v{{version}}",
+    "download": "Download",
+    "up_to_date": "You're on the latest version."
+  },
+  "about": {
+    "built_with": "Built with",
+    "built_with_value": "Wails v2 · React · Go",
+    "mole_cli": "Mole CLI",
+    "mole_cli_value": "brew install mole",
+    "source_code": "Source code",
+    "github": "GitHub",
+    "report_issue": "Report an issue",
+    "open_issue": "Open issue"
+  },
+  "footer": "Mole runs silently in the menu bar. Close the window to hide it; use the menu-bar icon to show it or quit."
+}

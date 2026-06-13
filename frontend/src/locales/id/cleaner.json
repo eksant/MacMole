@@ -1,0 +1,14 @@
+{
+  "title": "Pembersih Mendalam",
+  "description": "Hapus cache, log, data browser, dan sisa pengembangan.",
+  "preview": "Pratinjau",
+  "run_clean": "Jalankan Pembersihan",
+  "cleaning": "Membersihkan…",
+  "processing": "Memproses…",
+  "clean_complete": "Pembersihan selesai!",
+  "finished_with_errors": "Selesai dengan kesalahan.",
+  "scanning_system": "Memindai sistem…",
+  "notify_title": "Mole — Pembersih Mendalam",
+  "notify_success": "Pembersihan berhasil diselesaikan.",
+  "notify_error": "Pembersihan selesai dengan kesalahan."
+}

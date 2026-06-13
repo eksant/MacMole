@@ -1,0 +1,12 @@
+{
+  "title": "Dev Caches",
+  "description": "Clean developer tool caches using each tool's native clean command.",
+  "refresh": "Refresh",
+  "scanning": "Scanning…",
+  "clean_selected": "Clean Selected",
+  "cleaning": "Cleaning…",
+  "not_installed": "Not installed",
+  "selected_summary": "{{count}} selected — ~{{size}} to free",
+  "scan_failed": "Failed to scan dev caches.",
+  "clean_failed": "Clean failed."
+}

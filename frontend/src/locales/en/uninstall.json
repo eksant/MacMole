@@ -1,0 +1,17 @@
+{
+  "title": "App Uninstaller",
+  "description": "Remove apps from /Applications and their associated data files.",
+  "warning": "Deletion is permanent. Preview which files will be removed before confirming.",
+  "refresh": "Refresh",
+  "scanning": "Scanning…",
+  "select_all": "Select All",
+  "deselect_all": "Deselect All",
+  "remove_selected": "Remove Selected",
+  "removing": "Removing…",
+  "selected_summary_single": "{{count}} app selected — {{size}} to reclaim",
+  "selected_summary_plural": "{{count}} apps selected — {{size}} to reclaim",
+  "scanning_message": "Scanning /Applications…",
+  "no_apps_found": "No apps found in /Applications.",
+  "notify_title": "MacMole — Uninstaller",
+  "notify_default": "Apps removed successfully."
+}

@@ -1,0 +1,8 @@
+{
+  "title": "Riwayat Operasi",
+  "description": "Log audit semua operasi pembersihan.",
+  "no_operations": "Belum ada operasi yang dicatat.",
+  "freed_mb": "{{amount}} MB dibebaskan",
+  "load_failed": "Gagal memuat riwayat.",
+  "clear_failed": "Gagal menghapus riwayat."
+}
