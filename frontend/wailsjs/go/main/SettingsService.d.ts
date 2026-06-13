@@ -6,4 +6,6 @@ export function CheckForUpdate():Promise<main.UpdateInfo>;
 
 export function IsLoginItem():Promise<boolean>;
 
+export function OpenPrivacySettings():Promise<void>;
+
 export function SetLoginItem(arg1:boolean):Promise<boolean>;

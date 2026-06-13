@@ -10,6 +10,10 @@ export function IsLoginItem() {
   return window['go']['main']['SettingsService']['IsLoginItem']();
 }
 
+export function OpenPrivacySettings() {
+  return window['go']['main']['SettingsService']['OpenPrivacySettings']();
+}
+
 export function SetLoginItem(arg1) {
   return window['go']['main']['SettingsService']['SetLoginItem'](arg1);
 }

@@ -9,9 +9,10 @@ import {
   CheckCircle2,
   AlertCircle,
   Loader2,
+  ShieldCheck,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { IsLoginItem, SetLoginItem, CheckForUpdate } from "../../wailsjs/go/main/SettingsService";
+import { IsLoginItem, SetLoginItem, CheckForUpdate, OpenPrivacySettings } from "../../wailsjs/go/main/SettingsService";
 import { requestNotifyPermission } from "../utils/notify";
 import type { main } from "../../wailsjs/go/models";
 import { Switch } from "@/components/ui/switch";
@@ -109,6 +110,34 @@ export default function Settings() {
         </h2>
         <p className="text-sm text-white/40 mt-1">{t("description")}</p>
       </div>
+
+      {/* Privacy & Security */}
+      <Section title={t("sections.privacy")} icon={<ShieldCheck size={12} />}>
+        <div className="py-3 flex flex-col gap-3">
+          <p className="text-xs text-white/45 leading-relaxed">{t("privacy.subtitle")}</p>
+          <div className="flex flex-col gap-2">
+            <div
+              className="flex items-start gap-3 rounded-xl p-3"
+              style={{ background: "rgba(139,92,246,0.08)", border: "1px solid rgba(139,92,246,0.15)" }}
+            >
+              <ShieldCheck size={14} className="mt-0.5 flex-shrink-0" style={{ color: "#a78bfa" }} />
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-semibold text-white/90">{t("privacy.fda_label")}</p>
+                <p className="text-xs text-white/40 mt-0.5 leading-relaxed">{t("privacy.fda_desc")}</p>
+              </div>
+            </div>
+          </div>
+          <Button
+            size="sm"
+            variant="outline"
+            className="self-start text-xs"
+            onClick={() => void OpenPrivacySettings()}
+          >
+            <ExternalLink size={12} className="mr-1.5" />
+            {t("privacy.open_button")}
+          </Button>
+        </div>
+      </Section>
 
       {/* General */}
       <Section title={t("sections.general")} icon={<SettingsIcon size={12} />}>

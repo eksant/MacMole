@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { PermissionsModal, usePermissionsGuide } from "./components/PermissionsGuide";
 import Sidebar from "./components/Sidebar";
 import Dashboard from "./pages/Dashboard";
 import Cleaner from "./pages/Cleaner";
@@ -59,6 +60,7 @@ function LangSwitcher() {
 
 export default function App() {
   const [page, setPage] = useState<Page>("dashboard");
+  const { showModal, dismiss } = usePermissionsGuide();
 
   const renderPage = () => {
     switch (page) {
@@ -103,6 +105,7 @@ export default function App() {
         <Sidebar current={page} onNavigate={setPage} />
         <main className="no-drag flex-1 overflow-y-auto px-6 pb-6">{renderPage()}</main>
       </div>
+      {showModal && <PermissionsModal onClose={dismiss} />}
     </div>
   );
 }

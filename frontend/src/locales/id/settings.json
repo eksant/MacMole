@@ -3,9 +3,25 @@
   "description": "Preferensi dan informasi aplikasi.",
   "sections": {
     "general": "Umum",
+    "privacy": "Privasi & Keamanan",
     "notifications": "Notifikasi",
     "updates": "Pembaruan",
     "about": "Tentang"
+  },
+  "privacy": {
+    "title": "Privasi & Keamanan",
+    "subtitle": "MacMole memerlukan akses file untuk membersihkan Mac Anda. macOS akan meminta izin sekali per folder.",
+    "fda_label": "Full Disk Access",
+    "fda_desc": "Direkomendasikan — memberikan akses ke semua folder sekaligus. Tidak ada lagi dialog izin saat pembersihan.",
+    "files_label": "Files & Folders",
+    "files_desc": "Berikan akses per folder. macOS akan meminta izin sekali per folder (Downloads, Library, dll.).",
+    "open_button": "Buka Pengaturan Privasi →",
+    "dismiss": "Saya akan atur sendiri",
+    "modal_title": "Berikan Akses untuk Hasil Terbaik",
+    "modal_body": "MacMole membersihkan Downloads, cache Library, dan data aplikasi. macOS akan meminta izin pertama kali mengakses setiap folder.",
+    "modal_tip": "Memberikan Full Disk Access menghilangkan semua dialog izin di masa mendatang.",
+    "modal_open": "Buka Pengaturan Privasi",
+    "modal_done": "Mengerti"
   },
   "general": {
     "launch_at_login": "Jalankan saat Login",

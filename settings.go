@@ -89,6 +89,11 @@ func (s *SettingsService) CheckForUpdate() UpdateInfo {
 	return info
 }
 
+// OpenPrivacySettings opens System Settings → Privacy & Security → Full Disk Access.
+func (s *SettingsService) OpenPrivacySettings() {
+	_ = exec.Command("open", "x-apple.systempreferences:com.apple.preference.security?Privacy_AllFiles").Start() // #nosec G204 — hardcoded URL scheme
+}
+
 // isNewerVersion compares semver strings, returns true if a > b.
 func isNewerVersion(a, b string) bool {
 	pa := parseSemver(a)

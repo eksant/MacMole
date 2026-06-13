@@ -3,9 +3,25 @@
   "description": "Preferences and app information.",
   "sections": {
     "general": "General",
+    "privacy": "Privacy & Security",
     "notifications": "Notifications",
     "updates": "Updates",
     "about": "About"
+  },
+  "privacy": {
+    "title": "Privacy & Security",
+    "subtitle": "MacMole needs file access to clean your Mac. macOS will ask once per folder.",
+    "fda_label": "Full Disk Access",
+    "fda_desc": "Recommended — grants access to all folders at once. No more permission dialogs during cleanup.",
+    "files_label": "Files & Folders",
+    "files_desc": "Grant access folder-by-folder. macOS will ask once per folder (Downloads, Library, etc.).",
+    "open_button": "Open Privacy Settings →",
+    "dismiss": "I'll handle it myself",
+    "modal_title": "Grant Access for Best Results",
+    "modal_body": "MacMole cleans Downloads, Library caches, and app data. macOS will ask for permission the first time it accesses each folder.",
+    "modal_tip": "Granting Full Disk Access removes all future permission dialogs.",
+    "modal_open": "Open Privacy Settings",
+    "modal_done": "Got it"
   },
   "general": {
     "launch_at_login": "Launch at Login",
