@@ -134,7 +134,7 @@ Note: `build/trayicon.png` is used as a template image (`[img setTemplate:YES]` 
 
 ## Plans & Roadmap
 
-Implementation plans live in `docs/superpowers/plans/`:
+Implementation plans live in `plans/`:
 - `phase1-foundation.md` — Bug fixes + ESLint/Prettier/golangci-lint setup
 - `phase2-cli-sync.md` — Sync upstream tw93/mole + expose new features
 - `phase3-new-features.md` — Dev Caches, Process Killer, SQLite History

@@ -23,16 +23,29 @@ A native macOS desktop application that wraps the Mole CLI in a clean, modern UI
 
 **Desktop App** — this repository root is the desktop app source. Run `wails build` to build.
 
-<table>
-  <tr>
-    <td><img src="./assets/screenshot-dashboard.jpeg" alt="Dashboard" /></td>
-    <td><img src="./assets/screenshot-optimizer.jpeg" alt="System Optimizer" /></td>
-  </tr>
-  <tr>
-    <td><img src="./assets/screenshot-uninstall.jpeg" alt="App Uninstaller" /></td>
-    <td><img src="./assets/screenshot-analyzer.jpeg" alt="Disk Analyzer" /></td>
-  </tr>
-</table>
+### Dashboard
+
+Real-time system overview — CPU, RAM, Disk, Network, and Battery health score at a glance. One-click **Optimize All** button runs clean + optimize in sequence.
+
+<img src="./docs/screenshot/mac-mole-dashboard.jpeg" alt="MacMole Dashboard — real-time system metrics and health score" width="900" />
+
+### Cleanup
+
+Browser, AI tool, and app cache cleanup in one place. Each target shows estimated size, safety badge, and requires confirmation before any deletion.
+
+<img src="./docs/screenshot/mac-mole-cleanup.jpeg" alt="MacMole Cleanup — browser, AI, and app cache removal with safety badges" width="900" />
+
+### History
+
+Full log of every clean, optimize, and purge operation — timestamps, output, and status for every run.
+
+<img src="./docs/screenshot/mac-mole-history.jpeg" alt="MacMole History — operation log with timestamps and output" width="900" />
+
+### Settings
+
+Privacy & Security redirect, launch-at-login toggle, notifications, update checker, and app info. Full Disk Access guide built-in.
+
+<img src="./docs/screenshot/mac-mole-settings.jpeg" alt="MacMole Settings — privacy, notifications, and update management" width="900" />
 
 | Feature | Detail |
 |---------|--------|
