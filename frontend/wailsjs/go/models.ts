@@ -48,6 +48,32 @@ export namespace main {
 	        this.num_cores = source["num_cores"];
 	    }
 	}
+	export class CacheTarget {
+	    id: string;
+	    name: string;
+	    category: string;
+	    exists: boolean;
+	    size_mb: number;
+	    safety_level: string;
+	    unavailable: boolean;
+	    unavailable_reason: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new CacheTarget(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.id = source["id"];
+	        this.name = source["name"];
+	        this.category = source["category"];
+	        this.exists = source["exists"];
+	        this.size_mb = source["size_mb"];
+	        this.safety_level = source["safety_level"];
+	        this.unavailable = source["unavailable"];
+	        this.unavailable_reason = source["unavailable_reason"];
+	    }
+	}
 	export class CommandResult {
 	    success: boolean;
 	    output: string;

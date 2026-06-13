@@ -44,21 +44,6 @@ type CacheTarget struct {
 	UnavailableReason string `json:"unavailable_reason"`
 }
 
-// macOSMajorVersion returns the macOS major version (e.g. 14 for Sonoma).
-func macOSMajorVersion() int {
-	out, err := exec.Command("sw_vers", "-productVersion").Output()
-	if err != nil {
-		return 0
-	}
-	parts := strings.SplitN(strings.TrimSpace(string(out)), ".", 2)
-	if len(parts) == 0 {
-		return 0
-	}
-	major := 0
-	fmt.Sscanf(parts[0], "%d", &major)
-	return major
-}
-
 // sumDirSizes returns the total size in MB across all given paths.
 func sumDirSizes(paths []string) int64 {
 	var total int64
@@ -586,8 +571,7 @@ func (d *DevCacheService) GetAppCaches() []CacheTarget {
 			out, err := exec.Command("docker", "system", "df", "--format", "{{json .}}").Output()
 			if err == nil {
 				// best-effort parse — ignore errors
-				lines := strings.Split(strings.TrimSpace(string(out)), "\n")
-				for _, line := range lines {
+				for line := range strings.SplitSeq(strings.TrimSpace(string(out)), "\n") {
 					var row struct {
 						Type        string `json:"Type"`
 						Reclaimable string `json:"Reclaimable"`
@@ -602,16 +586,16 @@ func (d *DevCacheService) GetAppCaches() []CacheTarget {
 					}
 					numStr := val[0]
 					var mult int64 = 1
-					if strings.HasSuffix(numStr, "GB") {
+					if s, ok := strings.CutSuffix(numStr, "GB"); ok {
 						mult = 1024
-						numStr = strings.TrimSuffix(numStr, "GB")
-					} else if strings.HasSuffix(numStr, "MB") {
-						numStr = strings.TrimSuffix(numStr, "MB")
+						numStr = s
+					} else if s, ok := strings.CutSuffix(numStr, "MB"); ok {
+						numStr = s
 					} else {
 						continue
 					}
 					var numVal float64
-					fmt.Sscanf(numStr, "%f", &numVal)
+					_, _ = fmt.Sscanf(numStr, "%f", &numVal)
 					mb := int64(numVal * float64(mult))
 					switch row.Type {
 					case "Build Cache":
