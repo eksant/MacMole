@@ -7,6 +7,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"time"
 )
 
 // DevCacheService manages developer tool caches.
@@ -28,6 +29,85 @@ type DevCacheResult struct {
 	Success bool   `json:"success"`
 	Freed   string `json:"freed"`
 	Error   string `json:"error"`
+}
+
+// CacheTarget describes a detectable cache item for Browser/AI/App cleanup.
+type CacheTarget struct {
+	ID                string `json:"id"`
+	Name              string `json:"name"`
+	Category          string `json:"category"` // "browser" | "ai" | "app"
+	Exists            bool   `json:"exists"`
+	SizeMB            int64  `json:"size_mb"`
+	SafetyLevel       string `json:"safety_level"` // "safe" | "caution" | "manual"
+	Unavailable       bool   `json:"unavailable"`
+	UnavailableReason string `json:"unavailable_reason"`
+}
+
+// macOSMajorVersion returns the macOS major version (e.g. 14 for Sonoma).
+func macOSMajorVersion() int {
+	out, err := exec.Command("sw_vers", "-productVersion").Output()
+	if err != nil {
+		return 0
+	}
+	parts := strings.SplitN(strings.TrimSpace(string(out)), ".", 2)
+	if len(parts) == 0 {
+		return 0
+	}
+	major := 0
+	fmt.Sscanf(parts[0], "%d", &major)
+	return major
+}
+
+// sumDirSizes returns the total size in MB across all given paths.
+func sumDirSizes(paths []string) int64 {
+	var total int64
+	for _, p := range paths {
+		total += duSize(p)
+	}
+	return total / (1024 * 1024)
+}
+
+// anyExists returns true if at least one of the given paths exists on disk.
+func anyExists(paths []string) bool {
+	for _, p := range paths {
+		if _, err := os.Stat(p); err == nil {
+			return true
+		}
+	}
+	return false
+}
+
+// globDirs returns all directories matching name inside root, up to maxDepth levels deep.
+func globDirs(root, name string, maxDepth int) []string {
+	var found []string
+	_ = filepath.WalkDir(root, func(path string, d os.DirEntry, err error) error {
+		if err != nil {
+			return filepath.SkipDir
+		}
+		rel, _ := filepath.Rel(root, path)
+		depth := len(strings.Split(rel, string(os.PathSeparator)))
+		if depth > maxDepth {
+			return filepath.SkipDir
+		}
+		if d.IsDir() && d.Name() == name {
+			found = append(found, path)
+			return filepath.SkipDir
+		}
+		return nil
+	})
+	return found
+}
+
+// dockerStatus checks if the Docker binary exists and daemon is running.
+// Returns (installed, running).
+func dockerStatus() (bool, bool) {
+	if _, err := exec.LookPath("docker"); err != nil {
+		return false, false
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+	err := exec.CommandContext(ctx, "docker", "info").Run()
+	return true, err == nil
 }
 
 var devCacheTools = []struct {
