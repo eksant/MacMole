@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   LayoutDashboard,
   HardDrive,
@@ -117,6 +118,12 @@ type CliStatus = "checking" | "ready" | "installing" | "failed";
 export default function Sidebar({ current, onNavigate }: Props) {
   const [cliStatus, setCliStatus] = useState<CliStatus>("checking");
   const [failMsg, setFailMsg] = useState("");
+  const { i18n } = useTranslation();
+
+  const handleLangChange = (lang: string) => {
+    void i18n.changeLanguage(lang);
+    localStorage.setItem('macmole_lang', lang);
+  };
 
   useEffect(() => {
     IsMoInstalled().then((ok) => {
@@ -185,6 +192,24 @@ export default function Sidebar({ current, onNavigate }: Props) {
         ))}
 
         <div className="flex-1" />
+
+        {/* Language switcher */}
+        <div className="no-drag flex items-center gap-1 px-3 py-2">
+          {(['en', 'id'] as const).map((lang) => (
+            <button
+              key={lang}
+              onClick={() => handleLangChange(lang)}
+              className={`flex items-center gap-1 rounded px-2 py-1 text-xs font-medium transition-colors ${
+                i18n.language === lang
+                  ? 'bg-white/20 text-white'
+                  : 'text-white/50 hover:text-white/80'
+              }`}
+            >
+              {lang === 'en' ? '🇺🇸' : '🇮🇩'} {lang.toUpperCase()}
+            </button>
+          ))}
+        </div>
+
         {nav.filter(n => n.id === "settings").map(({ id, label, icon }) => (
           <NavBtn key={id} id={id} label={label} icon={icon} current={current} onNavigate={onNavigate} />
         ))}
