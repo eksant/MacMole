@@ -74,6 +74,17 @@ coverage.html
 *.exe
 *.test
 
+# SQLite user data (runtime, not repo)
+*.db
+*.db-shm
+*.db-wal
+
+# Go profiling artifacts
+*.prof
+
+# i18n compiled output (if ever generated)
+frontend/src/locales/**/*.js
+
 # ── Mole CLI — compiled binaries (source and scripts stay tracked) ─────────────
 mole/cmd/analyze/analyze
 mole/cmd/status/status

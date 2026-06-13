@@ -99,6 +99,16 @@ mole/
 
 ---
 
+## i18n Rules
+
+- All UI strings via `useTranslation()` hook — no hardcoded strings in JSX
+- Translation files: `frontend/src/locales/{en,id}/<page>.json`
+- Key format: `<page>.<section>.<key>` (e.g. `cleanup.browser.targets.chrome_ai_model.name`)
+- When adding any new UI text: add both EN and ID strings before committing
+- Safety/description strings for cleanup targets: `cleanup.<category>.targets.<id>.{name,description,safetyNote,recoverNote}`
+
+---
+
 ## Icon Assets
 
 | File | Size | Purpose |
@@ -136,3 +146,4 @@ Project skills are in `.claude/commands/`:
 - `/dev` — Start the Wails dev server
 - `/build` — Build the production app
 - `/sync-mole` — Sync upstream mole CLI changes
+- `/cleanup-scan` — Scan storage and report cleanup opportunities (no deletions)
