@@ -1,11 +1,13 @@
 import { useState, useEffect, useRef } from "react";
 import { Trash2, PlayCircle, Eye, CheckCircle2, AlertCircle } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { RunClean } from "../../wailsjs/go/main/CommandService";
 import { EventsOn, EventsOff } from "../../wailsjs/runtime/runtime";
 import { notify } from "../utils/notify";
 import SpinnerRing from "../components/SpinnerRing";
 
 export default function Cleaner() {
+  const { t } = useTranslation("cleaner");
   const [running, setRunning] = useState(false);
   const [lines, setLines] = useState<string[]>([]);
   const [done, setDone] = useState(false);
@@ -35,8 +37,8 @@ export default function Cleaner() {
       if (result.error) setLines((prev) => [...prev, "Error: " + result.error]);
       if (!dryRun)
         notify(
-          "Mole — Deep Cleaner",
-          result.success ? "Clean completed successfully." : "Clean finished with errors."
+          t("notify_title"),
+          result.success ? t("notify_success") : t("notify_error")
         );
     } finally {
       setRunning(false);
@@ -55,10 +57,10 @@ export default function Cleaner() {
           >
             <Trash2 size={16} className="text-white" />
           </span>
-          Deep Cleaner
+          {t("title")}
         </h2>
         <p className="text-sm mt-1.5 ml-10" style={{ color: "rgba(255,255,255,0.4)" }}>
-          Remove caches, logs, browser data, and developer leftovers.
+          {t("description")}
         </p>
       </div>
 
@@ -74,7 +76,7 @@ export default function Cleaner() {
             color: "rgba(255,255,255,0.75)",
           }}
         >
-          <Eye size={14} /> Preview
+          <Eye size={14} /> {t("preview")}
         </button>
         <button
           disabled={running}
@@ -108,11 +110,11 @@ export default function Cleaner() {
                   strokeLinecap="round"
                 />
               </svg>
-              Cleaning…
+              {t("cleaning")}
             </>
           ) : (
             <>
-              <PlayCircle size={14} /> Run Clean
+              <PlayCircle size={14} /> {t("run_clean")}
             </>
           )}
         </button>
@@ -120,7 +122,7 @@ export default function Cleaner() {
 
       {/* Running animation */}
       {running && lines.length === 0 && (
-        <SpinnerRing size={52} color="#3b82f6" label="Scanning system…" />
+        <SpinnerRing size={52} color="#3b82f6" label={t("scanning_system")} />
       )}
 
       {/* Log output */}
@@ -140,7 +142,7 @@ export default function Cleaner() {
               className="leading-5"
               style={{ color: l.toLowerCase().startsWith("error") ? "#f87171" : undefined }}
             >
-              {l || "\u00A0"}
+              {l || " "}
             </div>
           ))}
           {running && (
@@ -150,7 +152,7 @@ export default function Cleaner() {
                 <span />
                 <span />
               </div>
-              Processing…
+              {t("processing")}
             </div>
           )}
           {done && (
@@ -158,12 +160,12 @@ export default function Cleaner() {
               {success ? (
                 <>
                   <CheckCircle2 size={14} style={{ color: "#34d399" }} />
-                  <span style={{ color: "#34d399" }}>Clean complete!</span>
+                  <span style={{ color: "#34d399" }}>{t("clean_complete")}</span>
                 </>
               ) : (
                 <>
                   <AlertCircle size={14} style={{ color: "#f87171" }} />
-                  <span style={{ color: "#f87171" }}>Finished with errors.</span>
+                  <span style={{ color: "#f87171" }}>{t("finished_with_errors")}</span>
                 </>
               )}
             </div>

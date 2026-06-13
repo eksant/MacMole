@@ -1,19 +1,22 @@
 import { useState, useEffect, useRef } from "react";
 import { Flame, PlayCircle, Eye, CheckCircle2, AlertCircle, TriangleAlert } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { RunPurge } from "../../wailsjs/go/main/CommandService";
 import { EventsOn, EventsOff } from "../../wailsjs/runtime/runtime";
 import { notify } from "../utils/notify";
 import SpinnerRing from "../components/SpinnerRing";
 
-const TASKS = [
-  "Remove orphaned app support files",
-  "Delete leftover preference plists",
-  "Clear unused font caches",
-  "Remove stale system extensions",
-  "Clean up broken symlinks",
-];
-
 export default function Purge() {
+  const { t } = useTranslation("purge");
+
+  const TASKS = [
+    t("tasks.remove_orphaned_support"),
+    t("tasks.delete_preference_plists"),
+    t("tasks.clear_font_caches"),
+    t("tasks.remove_stale_extensions"),
+    t("tasks.clean_broken_symlinks"),
+  ];
+
   const [running, setRunning] = useState(false);
   const [lines, setLines] = useState<string[]>([]);
   const [done, setDone] = useState(false);
@@ -45,8 +48,8 @@ export default function Purge() {
       if (result.error) setLines((prev) => [...prev, "Error: " + result.error]);
       if (!dryRun)
         notify(
-          "Mole — Purge",
-          result.success ? "Purge completed successfully." : "Purge finished with errors."
+          t("notify_title"),
+          result.success ? t("notify_success") : t("notify_error")
         );
     } catch (err: unknown) {
       setError(String(err));
@@ -80,10 +83,10 @@ export default function Purge() {
           >
             <Flame size={16} className="text-white" />
           </span>
-          Deep Purge
+          {t("title")}
         </h2>
         <p className="text-sm mt-1.5 ml-10" style={{ color: "rgba(255,255,255,0.4)" }}>
-          Remove orphaned files, broken links, and leftover app remnants.
+          {t("description")}
         </p>
       </div>
 
@@ -92,7 +95,7 @@ export default function Purge() {
         className="rounded-2xl p-4 flex flex-col gap-2.5"
         style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}
       >
-        {TASKS.map((t, i) => (
+        {TASKS.map((task, i) => (
           <div
             key={i}
             className="flex items-center gap-3 text-sm"
@@ -108,7 +111,7 @@ export default function Purge() {
             >
               {i + 1}
             </span>
-            {t}
+            {task}
           </div>
         ))}
       </div>
@@ -123,10 +126,7 @@ export default function Purge() {
         }}
       >
         <TriangleAlert size={13} className="flex-shrink-0 mt-0.5" />
-        <span>
-          Use <strong>Preview</strong> first to inspect what will be removed. Purge is more
-          aggressive than Clean.
-        </span>
+        <span>{t("warning")}</span>
       </div>
 
       {/* Buttons */}
@@ -141,7 +141,7 @@ export default function Purge() {
             color: "rgba(255,255,255,0.75)",
           }}
         >
-          <Eye size={14} /> Preview
+          <Eye size={14} /> {t("preview")}
         </button>
         <button
           disabled={running}
@@ -175,11 +175,11 @@ export default function Purge() {
                   strokeLinecap="round"
                 />
               </svg>
-              Purging…
+              {t("purging")}
             </>
           ) : (
             <>
-              <PlayCircle size={14} /> Run Purge
+              <PlayCircle size={14} /> {t("run_purge")}
             </>
           )}
         </button>
@@ -187,7 +187,7 @@ export default function Purge() {
 
       {/* Spinner */}
       {running && lines.length === 0 && (
-        <SpinnerRing size={52} color="#f97316" label="Scanning for orphaned files…" />
+        <SpinnerRing size={52} color="#f97316" label={t("scanning_message")} />
       )}
 
       {/* Log */}
@@ -207,7 +207,7 @@ export default function Purge() {
               className="leading-5"
               style={{ color: l.toLowerCase().startsWith("error") ? "#f87171" : undefined }}
             >
-              {l || "\u00A0"}
+              {l || " "}
             </div>
           ))}
           {running && (
@@ -217,7 +217,7 @@ export default function Purge() {
                 <span />
                 <span />
               </div>
-              Purging…
+              {t("purging")}
             </div>
           )}
           {done && (
@@ -225,12 +225,12 @@ export default function Purge() {
               {success ? (
                 <>
                   <CheckCircle2 size={14} style={{ color: "#34d399" }} />
-                  <span style={{ color: "#34d399" }}>Purge complete!</span>
+                  <span style={{ color: "#34d399" }}>{t("purge_complete")}</span>
                 </>
               ) : (
                 <>
                   <AlertCircle size={14} style={{ color: "#f87171" }} />
-                  <span style={{ color: "#f87171" }}>Finished with errors.</span>
+                  <span style={{ color: "#f87171" }}>{t("finished_with_errors")}</span>
                 </>
               )}
             </div>

@@ -1,19 +1,22 @@
 import { useState, useEffect, useRef } from "react";
 import { Zap, PlayCircle, Eye, CheckCircle2, AlertCircle } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { RunOptimize } from "../../wailsjs/go/main/CommandService";
 import { EventsOn, EventsOff } from "../../wailsjs/runtime/runtime";
 import { notify } from "../utils/notify";
 import SpinnerRing from "../components/SpinnerRing";
 
-const TASKS = [
-  "Rebuild system databases and clear caches",
-  "Reset network services",
-  "Refresh Finder and Dock",
-  "Clean diagnostic and crash logs",
-  "Rebuild launch services and Spotlight index",
-];
-
 export default function Optimizer() {
+  const { t } = useTranslation("optimizer");
+
+  const TASKS = [
+    t("tasks.rebuild_system_databases"),
+    t("tasks.reset_network_services"),
+    t("tasks.refresh_finder_dock"),
+    t("tasks.clean_diagnostic_logs"),
+    t("tasks.rebuild_launch_services"),
+  ];
+
   const [running, setRunning] = useState(false);
   const [lines, setLines] = useState<string[]>([]);
   const [done, setDone] = useState(false);
@@ -50,8 +53,8 @@ export default function Optimizer() {
       if (result.error) setLines((prev) => [...prev, "Error: " + result.error]);
       if (!dryRun)
         notify(
-          "Mole — Optimizer",
-          result.success ? "Optimization complete!" : "Optimizer finished with errors."
+          t("notify_title"),
+          result.success ? t("notify_success") : t("notify_error")
         );
     } finally {
       setRunning(false);
@@ -70,10 +73,10 @@ export default function Optimizer() {
           >
             <Zap size={16} className="text-white" />
           </span>
-          System Optimizer
+          {t("title")}
         </h2>
         <p className="text-sm mt-1.5 ml-10" style={{ color: "rgba(255,255,255,0.4)" }}>
-          Refresh caches, rebuild services, and reset system state.
+          {t("description")}
         </p>
       </div>
 
@@ -82,7 +85,7 @@ export default function Optimizer() {
         className="rounded-2xl p-4 flex flex-col gap-2.5"
         style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}
       >
-        {TASKS.map((t, i) => (
+        {TASKS.map((task, i) => (
           <div
             key={i}
             className="flex items-center gap-3 text-sm"
@@ -98,7 +101,7 @@ export default function Optimizer() {
             >
               {i + 1}
             </span>
-            {t}
+            {task}
           </div>
         ))}
       </div>
@@ -107,7 +110,7 @@ export default function Optimizer() {
       {running && (
         <div className="flex flex-col gap-1.5 animate-fade-in">
           <div className="flex justify-between text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>
-            <span>Progress</span>
+            <span>{t("progress")}</span>
             <span>{progress}%</span>
           </div>
           <div
@@ -138,7 +141,7 @@ export default function Optimizer() {
             color: "rgba(255,255,255,0.75)",
           }}
         >
-          <Eye size={14} /> Preview
+          <Eye size={14} /> {t("preview")}
         </button>
         <button
           disabled={running}
@@ -172,11 +175,11 @@ export default function Optimizer() {
                   strokeLinecap="round"
                 />
               </svg>
-              Optimizing…
+              {t("optimizing")}
             </>
           ) : (
             <>
-              <PlayCircle size={14} /> Optimize
+              <PlayCircle size={14} /> {t("optimize")}
             </>
           )}
         </button>
@@ -184,7 +187,7 @@ export default function Optimizer() {
 
       {/* Spinner while log is empty */}
       {running && lines.length === 0 && (
-        <SpinnerRing size={52} color="#f59e0b" label="Initializing optimizer…" />
+        <SpinnerRing size={52} color="#f59e0b" label={t("initializing_optimizer")} />
       )}
 
       {/* Log */}
@@ -204,7 +207,7 @@ export default function Optimizer() {
               className="leading-5"
               style={{ color: l.toLowerCase().startsWith("error") ? "#f87171" : undefined }}
             >
-              {l || "\u00A0"}
+              {l || " "}
             </div>
           ))}
           {running && (
@@ -214,7 +217,7 @@ export default function Optimizer() {
                 <span />
                 <span />
               </div>
-              Running tasks…
+              {t("running_tasks")}
             </div>
           )}
           {done && (
@@ -222,12 +225,12 @@ export default function Optimizer() {
               {success ? (
                 <>
                   <CheckCircle2 size={14} style={{ color: "#34d399" }} />
-                  <span style={{ color: "#34d399" }}>Optimization complete!</span>
+                  <span style={{ color: "#34d399" }}>{t("optimization_complete")}</span>
                 </>
               ) : (
                 <>
                   <AlertCircle size={14} style={{ color: "#f87171" }} />
-                  <span style={{ color: "#f87171" }}>Finished with errors.</span>
+                  <span style={{ color: "#f87171" }}>{t("finished_with_errors")}</span>
                 </>
               )}
             </div>

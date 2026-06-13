@@ -10,6 +10,7 @@ import {
   AlertCircle,
   Loader2,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { IsLoginItem, SetLoginItem, CheckForUpdate } from "../../wailsjs/go/main/SettingsService";
 import { requestNotifyPermission } from "../utils/notify";
 import type { main } from "../../wailsjs/go/models";
@@ -60,6 +61,7 @@ function Section({
 }
 
 export default function Settings() {
+  const { t } = useTranslation("settings");
   const [notifications, setNotifications] = useState(
     () => localStorage.getItem("pref_notifications") !== "false"
   );
@@ -103,16 +105,16 @@ export default function Settings() {
     <div className="flex flex-col gap-5 max-w-xl">
       <div>
         <h2 className="text-xl font-semibold text-white flex items-center gap-2">
-          <SettingsIcon size={20} className="text-white/50" /> Settings
+          <SettingsIcon size={20} className="text-white/50" /> {t("title")}
         </h2>
-        <p className="text-sm text-white/40 mt-1">Preferences and app information.</p>
+        <p className="text-sm text-white/40 mt-1">{t("description")}</p>
       </div>
 
       {/* General */}
-      <Section title="General" icon={<SettingsIcon size={12} />}>
+      <Section title={t("sections.general")} icon={<SettingsIcon size={12} />}>
         <Row
-          label="Launch at Login"
-          description="Start Mole automatically when you log in to macOS"
+          label={t("general.launch_at_login")}
+          description={t("general.launch_at_login_desc")}
         >
           {loginLoading ? (
             <Loader2 size={14} className="animate-spin text-white/30" />
@@ -120,21 +122,21 @@ export default function Settings() {
             <Switch checked={loginItem} onCheckedChange={toggleLoginItem} />
           )}
         </Row>
-        <Row label="Appearance" description="Dark mode is always active">
+        <Row label={t("general.appearance")} description={t("general.appearance_desc")}>
           <div className="flex items-center gap-1.5 text-xs text-white/30">
-            <Moon size={12} /> Dark
+            <Moon size={12} /> {t("general.dark")}
           </div>
         </Row>
       </Section>
 
       {/* Notifications */}
-      <Section title="Notifications" icon={<Bell size={12} />}>
+      <Section title={t("sections.notifications")} icon={<Bell size={12} />}>
         <Row
-          label="Enable Notifications"
+          label={t("notifications.enable_notifications")}
           description={
             notifPermission === "denied"
-              ? "Blocked in System Settings — enable in macOS Notifications"
-              : "Show alert when clean, optimize, or purge finishes"
+              ? t("notifications.notifications_blocked")
+              : t("notifications.enable_notifications_desc")
           }
         >
           <Switch
@@ -146,24 +148,24 @@ export default function Settings() {
         {notifPermission === "denied" && (
           <div className="pb-3 text-xs text-amber-400/70 flex items-center gap-1.5">
             <AlertCircle size={11} />
-            Go to System Settings → Notifications → Mole to enable.
+            {t("notifications.go_to_system_settings")}
           </div>
         )}
       </Section>
 
       {/* Updates */}
-      <Section title="Updates" icon={<RefreshCw size={12} />}>
-        <Row label="Current version">
+      <Section title={t("sections.updates")} icon={<RefreshCw size={12} />}>
+        <Row label={t("updates.current_version")}>
           <span className="text-xs text-white/30 tabular-nums">v0.1.0</span>
         </Row>
-        <Row label="Check for update">
+        <Row label={t("updates.check_for_update")}>
           <Button variant="ghost" size="sm" onClick={checkUpdate} disabled={updateLoading} className="gap-1.5 text-xs text-white/70">
             {updateLoading ? (
               <Loader2 size={11} className="animate-spin" />
             ) : (
               <RefreshCw size={11} />
             )}
-            {updateLoading ? "Checking..." : "Check now"}
+            {updateLoading ? t("updates.checking") : t("updates.check_now")}
           </Button>
         </Row>
         {updateInfo && (
@@ -177,16 +179,16 @@ export default function Settings() {
                 }}
               >
                 <span className="text-blue-400">
-                  Update available: v{updateInfo.latest_version}
+                  {t("updates.update_available", { version: updateInfo.latest_version })}
                 </span>
                 <Button variant="ghost" size="sm" className="gap-1 text-xs text-blue-400/70 hover:text-blue-400"
                   onClick={() => window.open?.(updateInfo.release_url)}>
-                  Download <ExternalLink size={10} />
+                  {t("updates.download")} <ExternalLink size={10} />
                 </Button>
               </div>
             ) : (
               <div className="flex items-center gap-1.5 text-xs text-emerald-400/70">
-                <CheckCircle2 size={11} /> You&apos;re on the latest version.
+                <CheckCircle2 size={11} /> {t("updates.up_to_date")}
               </div>
             )}
           </div>
@@ -194,33 +196,30 @@ export default function Settings() {
       </Section>
 
       {/* About */}
-      <Section title="About" icon={<Info size={12} />}>
-        <Row label="Built with">
-          <span className="text-xs text-white/30">Wails v2 · React · Go</span>
+      <Section title={t("sections.about")} icon={<Info size={12} />}>
+        <Row label={t("about.built_with")}>
+          <span className="text-xs text-white/30">{t("about.built_with_value")}</span>
         </Row>
-        <Row label="Mole CLI">
-          <span className="text-xs text-emerald-400/70 font-mono">brew install mole</span>
+        <Row label={t("about.mole_cli")}>
+          <span className="text-xs text-emerald-400/70 font-mono">{t("about.mole_cli_value")}</span>
         </Row>
-        <Row label="Source code">
+        <Row label={t("about.source_code")}>
           <Button variant="ghost" size="sm" className="gap-1 text-xs text-blue-400/70 hover:text-blue-400"
             onClick={() => window.open?.("https://github.com/fishwww-ww/MacMole")}>
-            GitHub <ExternalLink size={10} />
+            {t("about.github")} <ExternalLink size={10} />
           </Button>
         </Row>
-        <Row label="Report an issue">
+        <Row label={t("about.report_issue")}>
           <Button variant="ghost" size="sm" className="gap-1 text-xs text-blue-400/70 hover:text-blue-400"
             onClick={() => window.open?.("https://github.com/fishwww-ww/MacMole/issues")}>
-            Open issue <ExternalLink size={10} />
+            {t("about.open_issue")} <ExternalLink size={10} />
           </Button>
         </Row>
       </Section>
 
       <div className="flex items-start gap-2 text-xs text-white/20 mt-1">
         <Info size={11} className="mt-0.5 flex-shrink-0" />
-        <span>
-          Mole runs silently in the menu bar. Close the window to hide it; use the menu-bar icon to
-          show it or quit.
-        </span>
+        <span>{t("footer")}</span>
       </div>
     </div>
   );

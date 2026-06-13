@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Trash2, RefreshCw, AlertTriangle } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { ScanApps, DeleteApps } from "../../wailsjs/go/main/CommandService";
 import { notify } from "../utils/notify";
 import { Button } from "@/components/ui/button";
@@ -19,6 +20,7 @@ function fmtBytes(bytes: number): string {
 }
 
 export default function Uninstall() {
+  const { t } = useTranslation("uninstall");
   const [apps, setApps] = useState<AppEntry[]>([]);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [scanning, setScanning] = useState(false);
@@ -72,7 +74,7 @@ export default function Uninstall() {
       const res = await DeleteApps(Array.from(selected));
       setResult({ success: res.success, message: res.success ? res.output : res.error });
       if (res.success) {
-        notify("MacMole — Uninstaller", res.output || "Apps removed successfully.");
+        notify(t("notify_title"), res.output || t("notify_default"));
         scan();
       }
     } finally {
@@ -104,10 +106,10 @@ export default function Uninstall() {
           >
             <Trash2 size={16} className="text-white" />
           </span>
-          App Uninstaller
+          {t("title")}
         </h2>
         <p className="text-sm mt-1.5 ml-10" style={{ color: "rgba(255,255,255,0.4)" }}>
-          Remove apps from /Applications and their associated data files.
+          {t("description")}
         </p>
       </div>
 
@@ -121,27 +123,36 @@ export default function Uninstall() {
         }}
       >
         <AlertTriangle size={15} className="flex-shrink-0 mt-0.5" />
-        <span>Deletion is permanent. Preview which files will be removed before confirming.</span>
+        <span>{t("warning")}</span>
       </div>
 
       {/* Toolbar */}
       <div className="flex items-center gap-3">
-        <Button variant="glass" size="sm" onClick={scan} disabled={scanning || deleting} className="gap-2"><RefreshCw size={13} className={scanning ? "animate-spin" : ""} />{scanning ? "Scanning…" : "Refresh"}</Button>
+        <Button variant="glass" size="sm" onClick={scan} disabled={scanning || deleting} className="gap-2">
+          <RefreshCw size={13} className={scanning ? "animate-spin" : ""} />
+          {scanning ? t("scanning") : t("refresh")}
+        </Button>
 
         {apps.length > 0 && (
-          <Button variant="ghost" size="sm" onClick={toggleAll} disabled={scanning || deleting}>{selected.size === apps.length ? "Deselect All" : "Select All"}</Button>
+          <Button variant="ghost" size="sm" onClick={toggleAll} disabled={scanning || deleting}>
+            {selected.size === apps.length ? t("deselect_all") : t("select_all")}
+          </Button>
         )}
 
         <div className="flex-1" />
 
         {selected.size > 0 && (
           <span className="text-xs text-white/40">
-            {selected.size} app{selected.size !== 1 ? "s" : ""} selected — {fmtBytes(totalSelected)}{" "}
-            to reclaim
+            {selected.size !== 1
+              ? t("selected_summary_plural", { count: selected.size, size: fmtBytes(totalSelected) })
+              : t("selected_summary_single", { count: selected.size, size: fmtBytes(totalSelected) })}
           </span>
         )}
 
-        <Button variant="destructive" onClick={doDelete} disabled={selected.size === 0 || deleting || scanning} className="gap-2 font-semibold"><Trash2 size={13} />{deleting ? "Removing…" : "Remove Selected"}</Button>
+        <Button variant="destructive" onClick={doDelete} disabled={selected.size === 0 || deleting || scanning} className="gap-2 font-semibold">
+          <Trash2 size={13} />
+          {deleting ? t("removing") : t("remove_selected")}
+        </Button>
       </div>
 
       {/* Result banner */}
@@ -160,11 +171,11 @@ export default function Uninstall() {
 
       {/* App list */}
       {scanning && apps.length === 0 && (
-        <p className="text-white/30 text-sm">Scanning /Applications…</p>
+        <p className="text-white/30 text-sm">{t("scanning_message")}</p>
       )}
 
       {!scanning && apps.length === 0 && (
-        <p className="text-white/30 text-sm">No apps found in /Applications.</p>
+        <p className="text-white/30 text-sm">{t("no_apps_found")}</p>
       )}
 
       {apps.length > 0 && (

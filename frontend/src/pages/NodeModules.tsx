@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Package, RefreshCw, ArrowUpDown, AlertTriangle } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { ScanNodeModules, DeleteNodeModules } from "../../wailsjs/go/main/CommandService";
 import { notify } from "../utils/notify";
 import { Button } from "@/components/ui/button";
@@ -41,6 +42,7 @@ function fmtRelativeDate(unix: number): string {
 }
 
 export default function NodeModules() {
+  const { t } = useTranslation("nodemodules");
   const [entries, setEntries] = useState<NodeModulesEntry[]>([]);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [scanning, setScanning] = useState(false);
@@ -110,7 +112,7 @@ export default function NodeModules() {
       const res = await DeleteNodeModules(Array.from(selected));
       setResult({ success: res.success, message: res.success ? res.output : res.error });
       if (res.success) {
-        notify("MacMole — Node Modules", res.output || "node_modules removed.");
+        notify(t("notify_title"), res.output || t("notify_default"));
         scan();
       }
     } finally {
@@ -156,10 +158,10 @@ export default function NodeModules() {
           >
             <Package size={16} className="text-white" />
           </span>
-          Node Modules
+          {t("title")}
         </h2>
         <p className="text-sm mt-1.5 ml-10" style={{ color: "rgba(255,255,255,0.4)" }}>
-          Find and remove node_modules directories across your projects to reclaim disk space.
+          {t("description")}
         </p>
       </div>
 
@@ -169,9 +171,11 @@ export default function NodeModules() {
           className="flex items-center gap-6 px-4 py-3 rounded-xl text-sm"
           style={{ background: "rgba(34,197,94,0.07)", border: "1px solid rgba(34,197,94,0.18)" }}
         >
-          <span style={{ color: "rgba(34,197,94,0.9)" }}>{entries.length} found</span>
+          <span style={{ color: "rgba(34,197,94,0.9)" }}>
+            {t("found_count", { count: entries.length })}
+          </span>
           <span className="text-white/30">·</span>
-          <span className="text-white/50">Total reclaimable: {fmtBytes(totalSize)}</span>
+          <span className="text-white/50">{t("total_reclaimable", { size: fmtBytes(totalSize) })}</span>
         </div>
       )}
 
@@ -179,12 +183,12 @@ export default function NodeModules() {
       <div className="flex items-center gap-3">
         <Button variant="glass" size="sm" onClick={scan} disabled={scanning || deleting} className="gap-2">
           <RefreshCw size={13} className={scanning ? "animate-spin" : ""} />
-          {scanning ? "Scanning…" : "Rescan"}
+          {scanning ? t("scanning") : t("rescan")}
         </Button>
 
         {entries.length > 0 && (
           <Button variant="ghost" size="sm" onClick={toggleAll} disabled={scanning || deleting}>
-            {selected.size === entries.length ? "Deselect All" : "Select All"}
+            {selected.size === entries.length ? t("deselect_all") : t("select_all")}
           </Button>
         )}
 
@@ -192,7 +196,7 @@ export default function NodeModules() {
 
         {selected.size > 0 && (
           <span className="text-xs text-white/40">
-            {selected.size} selected — {fmtBytes(totalSelected)}
+            {t("selected_summary", { count: selected.size, size: fmtBytes(totalSelected) })}
           </span>
         )}
 
@@ -210,7 +214,7 @@ export default function NodeModules() {
           }}
         >
           <Package size={13} />
-          {deleting ? "Removing…" : "Remove Selected"}
+          {deleting ? t("removing") : t("remove_selected")}
         </Button>
       </div>
 
@@ -233,20 +237,20 @@ export default function NodeModules() {
         <div className="flex items-center gap-3 px-4 text-xs text-white/25">
           <span className="w-4 flex-shrink-0" />
           <div className="flex-1 min-w-0">
-            <SortBtn label="Project" k="project_name" />
+            <SortBtn label={t("column_project")} k="project_name" />
           </div>
-          <SortBtn label="Last modified" k="mod_time" />
-          <SortBtn label="Size" k="size" />
+          <SortBtn label={t("column_last_modified")} k="mod_time" />
+          <SortBtn label={t("column_size")} k="size" />
         </div>
       )}
 
       {/* List */}
       {scanning && entries.length === 0 && (
-        <p className="text-white/30 text-sm">Scanning for node_modules… this may take a moment.</p>
+        <p className="text-white/30 text-sm">{t("scanning_message")}</p>
       )}
       {!scanning && entries.length === 0 && (
         <p className="text-white/30 text-sm">
-          No node_modules found. Run a scan to search your development directories.
+          {t("no_results")}
         </p>
       )}
 
@@ -286,7 +290,9 @@ export default function NodeModules() {
                       {entry.project_name}
                     </span>
                     {isOld && (
-                      <Badge variant="warning" className="flex-shrink-0 text-[10px]">old</Badge>
+                      <Badge variant="warning" className="flex-shrink-0 text-[10px]">
+                        {t("badge_old")}
+                      </Badge>
                     )}
                   </div>
                   <div className="text-xs text-white/25 truncate">{entry.project_path}</div>

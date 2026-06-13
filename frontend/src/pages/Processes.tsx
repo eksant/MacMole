@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Activity, RefreshCw, Zap, AlertTriangle } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { ListFlaggedProcesses, KillProcesses } from "../../wailsjs/go/main/ProcessService";
 import type { main } from "../../wailsjs/go/models";
 import { Button } from "@/components/ui/button";
@@ -11,13 +12,15 @@ const STATUS_COLORS: Record<string, string> = {
   "high-mem": "#a78bfa",
 };
 
-const STATUS_LABELS: Record<string, string> = {
-  zombie: "Zombie",
-  "high-cpu": "High CPU",
-  "high-mem": "High Mem",
-};
-
 export default function Processes() {
+  const { t } = useTranslation("processes");
+
+  const STATUS_LABELS: Record<string, string> = {
+    zombie: t("status_labels.zombie"),
+    "high-cpu": t("status_labels.high_cpu"),
+    "high-mem": t("status_labels.high_mem"),
+  };
+
   const [procs, setProcs] = useState<main.ProcessDetail[]>([]);
   const [selected, setSelected] = useState<Set<number>>(new Set());
   const [loading, setLoading] = useState(false);
@@ -31,7 +34,7 @@ export default function Processes() {
     ListFlaggedProcesses()
       .then((p) => setProcs(p ?? []))
       .catch((err: unknown) => {
-        setError(err instanceof Error ? err.message : "Scan failed.");
+        setError(err instanceof Error ? err.message : t("scan_failed"));
       })
       .finally(() => setLoading(false));
   };
@@ -57,7 +60,7 @@ export default function Processes() {
       setSelected(new Set());
       load();
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Kill failed.");
+      setError(err instanceof Error ? err.message : t("kill_failed"));
     } finally {
       setKilling(false);
     }
@@ -73,10 +76,10 @@ export default function Processes() {
           >
             <Activity size={16} className="text-white" />
           </span>
-          Process Manager
+          {t("title")}
         </h2>
         <p className="text-sm mt-1.5 ml-10 text-white/40">
-          Detect and terminate zombie, high-CPU, or high-memory processes.
+          {t("description")}
         </p>
       </div>
 
@@ -89,13 +92,13 @@ export default function Processes() {
         }}
       >
         <AlertTriangle size={14} className="flex-shrink-0" />
-        <span>Killing processes is irreversible. Only flagged processes are shown.</span>
+        <span>{t("warning")}</span>
       </div>
 
       <div className="flex items-center gap-3">
         <Button variant="glass" size="sm" onClick={load} disabled={loading || killing} className="gap-2">
           <RefreshCw size={13} className={loading ? "animate-spin" : ""} />
-          {loading ? "Scanning…" : "Refresh"}
+          {loading ? t("scanning") : t("refresh")}
         </Button>
         <div className="flex-1" />
         <Button
@@ -110,7 +113,11 @@ export default function Processes() {
           }}
         >
           <Zap size={13} />
-          {killing ? "Killing…" : `Kill${selected.size > 0 ? ` ${selected.size}` : ""} Selected`}
+          {killing
+            ? t("killing")
+            : selected.size > 0
+              ? t("kill_selected_count", { count: selected.size })
+              : t("kill_selected")}
         </Button>
       </div>
 
@@ -138,7 +145,7 @@ export default function Processes() {
                 background: "rgba(255,255,255,0.03)",
               }}
             >
-              PID {r.pid}: {r.message}
+              {t("pid_label")} {r.pid}: {r.message}
             </div>
           ))}
         </div>
@@ -147,7 +154,7 @@ export default function Processes() {
       {!loading && procs.length === 0 && (
         <div className="flex items-center gap-2 text-white/30 text-sm mt-4">
           <Activity size={14} />
-          No flagged processes found. System looks healthy.
+          {t("no_flagged_processes")}
         </div>
       )}
 
@@ -184,12 +191,12 @@ export default function Processes() {
                   </Badge>
                 </div>
                 <div className="text-xs text-white/25">
-                  PID {proc.pid} &middot; runtime {proc.runtime}
+                  {t("pid_label")} {proc.pid} &middot; {t("runtime_label")} {proc.runtime}
                 </div>
               </div>
               <div className="flex gap-3 text-xs tabular-nums flex-shrink-0">
-                <span style={{ color: "rgba(249,115,22,0.7)" }}>{proc.cpu.toFixed(1)}% cpu</span>
-                <span style={{ color: "rgba(255,255,255,0.3)" }}>{proc.memory.toFixed(1)}% mem</span>
+                <span style={{ color: "rgba(249,115,22,0.7)" }}>{proc.cpu.toFixed(1)}% {t("cpu_label")}</span>
+                <span style={{ color: "rgba(255,255,255,0.3)" }}>{proc.memory.toFixed(1)}% {t("mem_label")}</span>
               </div>
             </button>
           );

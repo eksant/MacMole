@@ -12,6 +12,7 @@ import {
   XCircle,
   Zap,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useMetrics, useWatchedProcesses } from "../hooks/useMetrics";
 import MetricCard from "../components/MetricCard";
 import GaugeBar from "../components/GaugeBar";
@@ -40,11 +41,19 @@ function healthScore(cpu: number, mem: number, disk: number): number {
 
 /** Animated SVG ring for the health score */
 function ScoreRing({ score }: { score: number }) {
+  const { t } = useTranslation("dashboard");
   const radius = 48;
   const circumference = 2 * Math.PI * radius;
   const offset = circumference - (score / 100) * circumference;
   const color = score >= 80 ? "#34d399" : score >= 60 ? "#fbbf24" : score >= 40 ? "#fb923c" : "#f87171";
-  const label = score >= 80 ? "Excellent" : score >= 60 ? "Good" : score >= 40 ? "Fair" : "Critical";
+  const label =
+    score >= 80
+      ? t("score_labels.excellent")
+      : score >= 60
+        ? t("score_labels.good")
+        : score >= 40
+          ? t("score_labels.fair")
+          : t("score_labels.critical");
   const scoreRef = useRef<SVGCircleElement>(null);
 
   useEffect(() => {
@@ -82,7 +91,7 @@ function ScoreRing({ score }: { score: number }) {
           {label}
         </text>
       </svg>
-      <span className="text-xs" style={{ color: "rgba(255,255,255,0.3)" }}>Health</span>
+      <span className="text-xs" style={{ color: "rgba(255,255,255,0.3)" }}>{t("health")}</span>
     </div>
   );
 }
@@ -95,6 +104,7 @@ function extractFreed(output: string): string {
 }
 
 export default function Dashboard() {
+  const { t } = useTranslation("dashboard");
   const m = useMetrics(2000);
   const watched = useWatchedProcesses();
   const zombies = watched.filter((p) => p.status === "zombie");
@@ -152,7 +162,7 @@ export default function Dashboard() {
           <span />
         </div>
         <p className="text-sm" style={{ color: "rgba(255,255,255,0.3)" }}>
-          Collecting metrics…
+          {t("collecting_metrics")}
         </p>
       </div>
     );
@@ -173,8 +183,9 @@ export default function Dashboard() {
         >
           <AlertCircle size={14} className="flex-shrink-0" />
           <span>
-            {zombies.length} zombie process{zombies.length > 1 ? "es" : ""} detected — visit
-            Processes page to clean up.
+            {zombies.length > 1
+              ? t("zombie_alert_plural", { count: zombies.length })
+              : t("zombie_alert", { count: zombies.length })}
           </span>
         </div>
       )}
@@ -239,19 +250,19 @@ export default function Dashboard() {
                     strokeLinecap="round"
                   />
                 </svg>
-                Optimizing…
+                {t("optimizing")}
               </>
             ) : optStatus === "done" ? (
               <>
-                <CheckCircle2 size={14} /> Done!
+                <CheckCircle2 size={14} /> {t("done")}
               </>
             ) : optStatus === "error" ? (
               <>
-                <XCircle size={14} /> Failed
+                <XCircle size={14} /> {t("failed")}
               </>
             ) : (
               <>
-                <Zap size={14} /> Optimize All
+                <Zap size={14} /> {t("optimize_all")}
               </>
             )}
           </button>
@@ -259,8 +270,10 @@ export default function Dashboard() {
       </div>
       {lastRun && optStatus === "idle" && (
         <div className="text-xs text-center" style={{ color: "rgba(255,255,255,0.25)" }}>
-          Last run: {lastRun.time}
-          {lastRun.freed && <span className="text-emerald-400/50 ml-1">· {lastRun.freed} freed</span>}
+          {t("last_run", { time: lastRun.time })}
+          {lastRun.freed && (
+            <span className="text-emerald-400/50 ml-1">· {lastRun.freed} {t("freed")}</span>
+          )}
         </div>
       )}
 
@@ -281,7 +294,7 @@ export default function Dashboard() {
               className={l.startsWith("---") ? "font-semibold" : ""}
               style={{ color: l.startsWith("---") ? "rgba(139,92,246,0.9)" : undefined }}
             >
-              {l || "\u00A0"}
+              {l || " "}
             </div>
           ))}
           {optStatus === "running" && (
@@ -291,7 +304,7 @@ export default function Dashboard() {
                 <span />
                 <span />
               </div>
-              Running…
+              {t("running")}
             </div>
           )}
         </div>
@@ -300,7 +313,7 @@ export default function Dashboard() {
       {/* Metric grid */}
       <div className="grid grid-cols-2 gap-3">
         {/* CPU */}
-        <MetricCard title="CPU" icon={<Cpu size={13} />} accentColor="#8b5cf6">
+        <MetricCard title={t("cpu")} icon={<Cpu size={13} />} accentColor="#8b5cf6">
           <div className="flex items-end justify-between">
             <span className="text-2xl font-bold tabular-nums text-white">
               {m.cpu.usage.toFixed(1)}
@@ -309,7 +322,7 @@ export default function Dashboard() {
               </span>
             </span>
             <span className="text-xs" style={{ color: "rgba(255,255,255,0.3)" }}>
-              {m.cpu.num_cores} cores
+              {m.cpu.num_cores} {t("cores")}
             </span>
           </div>
           <GaugeBar value={m.cpu.usage} />
@@ -326,7 +339,7 @@ export default function Dashboard() {
         </MetricCard>
 
         {/* Memory */}
-        <MetricCard title="Memory" icon={<MemoryStick size={13} />} accentColor="#6366f1">
+        <MetricCard title={t("memory")} icon={<MemoryStick size={13} />} accentColor="#6366f1">
           <div className="flex items-end justify-between">
             <span className="text-2xl font-bold tabular-nums text-white">
               {m.memory.used_percent.toFixed(1)}
@@ -343,13 +356,13 @@ export default function Dashboard() {
             className="flex justify-between text-xs mt-1"
             style={{ color: "rgba(255,255,255,0.3)" }}
           >
-            <span>Used {fmtBytes(m.memory.used)}</span>
-            <span>Free {fmtBytes(m.memory.available)}</span>
+            <span>{t("used")} {fmtBytes(m.memory.used)}</span>
+            <span>{t("free")} {fmtBytes(m.memory.available)}</span>
           </div>
         </MetricCard>
 
         {/* Disk */}
-        <MetricCard title="Disk" icon={<HardDrive size={13} />} accentColor="#06b6d4">
+        <MetricCard title={t("disk")} icon={<HardDrive size={13} />} accentColor="#06b6d4">
           <div className="flex items-end justify-between">
             <span className="text-2xl font-bold tabular-nums text-white">
               {m.disk.used_percent.toFixed(1)}
@@ -366,17 +379,17 @@ export default function Dashboard() {
             className="flex justify-between text-xs mt-1"
             style={{ color: "rgba(255,255,255,0.3)" }}
           >
-            <span>Used {fmtBytes(m.disk.used)}</span>
-            <span>Free {fmtBytes(m.disk.free)}</span>
+            <span>{t("used")} {fmtBytes(m.disk.used)}</span>
+            <span>{t("free")} {fmtBytes(m.disk.free)}</span>
           </div>
         </MetricCard>
 
         {/* Network */}
-        <MetricCard title="Network" icon={<Wifi size={13} />} accentColor="#10b981">
+        <MetricCard title={t("network")} icon={<Wifi size={13} />} accentColor="#10b981">
           <div className="flex flex-col gap-2.5 mt-1">
             <div className="flex justify-between items-center">
               <span className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>
-                Download
+                {t("download")}
               </span>
               <span className="text-sm font-semibold tabular-nums" style={{ color: "#34d399" }}>
                 {fmtBytes(m.network.bytes_recv_per_sec)}/s
@@ -398,7 +411,7 @@ export default function Dashboard() {
             </div>
             <div className="flex justify-between items-center">
               <span className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>
-                Upload
+                {t("upload")}
               </span>
               <span className="text-sm font-semibold tabular-nums" style={{ color: "#60a5fa" }}>
                 {fmtBytes(m.network.bytes_sent_per_sec)}/s
@@ -425,7 +438,7 @@ export default function Dashboard() {
       {/* Battery + Top Processes row */}
       <div className="grid grid-cols-2 gap-3">
         {/* Battery */}
-        <MetricCard title="Battery" icon={<BatteryMedium size={13} />} accentColor="#f59e0b">
+        <MetricCard title={t("battery")} icon={<BatteryMedium size={13} />} accentColor="#f59e0b">
           {m.battery && m.battery.percent >= 0 ? (
             <>
               <div className="flex items-end justify-between">
@@ -463,13 +476,13 @@ export default function Dashboard() {
               style={{ color: "rgba(255,255,255,0.3)" }}
             >
               <BatteryMedium size={14} />
-              <span className="text-sm">Desktop / No Battery</span>
+              <span className="text-sm">{t("desktop_no_battery")}</span>
             </div>
           )}
         </MetricCard>
 
         {/* Top Processes */}
-        <MetricCard title="Top Processes" icon={<Activity size={13} />} accentColor="#f97316">
+        <MetricCard title={t("top_processes")} icon={<Activity size={13} />} accentColor="#f97316">
           {m.top_processes && m.top_processes.length > 0 ? (
             <div className="flex flex-col gap-1.5 mt-1">
               {m.top_processes.map((p, i) => (
@@ -493,13 +506,13 @@ export default function Dashboard() {
                 className="flex justify-end gap-4 text-xs mt-0.5"
                 style={{ color: "rgba(255,255,255,0.2)" }}
               >
-                <span>cpu</span>
-                <span>mem</span>
+                <span>{t("cpu_label")}</span>
+                <span>{t("mem_label")}</span>
               </div>
             </div>
           ) : (
             <p className="text-sm mt-2" style={{ color: "rgba(255,255,255,0.3)" }}>
-              No process data
+              {t("no_process_data")}
             </p>
           )}
         </MetricCard>

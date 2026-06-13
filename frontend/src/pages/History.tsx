@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Clock, Trash2, CheckCircle2, XCircle, RefreshCw } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { GetHistory, ClearHistory } from "../../wailsjs/go/main/HistoryService";
 import type { main } from "../../wailsjs/go/models";
 import { Button } from "@/components/ui/button";
@@ -12,6 +13,7 @@ function fmtTime(ts: number): string {
 
 
 export default function History() {
+  const { t } = useTranslation("history");
   const [entries, setEntries] = useState<main.HistoryEntry[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -22,7 +24,7 @@ export default function History() {
     GetHistory(100)
       .then((e) => setEntries(e ?? []))
       .catch((err: unknown) => {
-        setError(err instanceof Error ? err.message : "Failed to load history.");
+        setError(err instanceof Error ? err.message : t("load_failed"));
       })
       .finally(() => setLoading(false));
   };
@@ -31,7 +33,7 @@ export default function History() {
     try {
       await ClearHistory();
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Failed to clear history.");
+      setError(err instanceof Error ? err.message : t("clear_failed"));
       return;
     }
     load();
@@ -48,10 +50,10 @@ export default function History() {
               style={{ background: "linear-gradient(135deg,#6366f1,#4f46e5)" }}>
               <Clock size={16} className="text-white" />
             </span>
-            Operation History
+            {t("title")}
           </h2>
           <p className="text-sm mt-1.5 ml-10 text-white/40">
-            Audit log of all cleanup operations.
+            {t("description")}
           </p>
         </div>
         <div className="flex gap-2">
@@ -72,7 +74,7 @@ export default function History() {
       )}
 
       {!loading && entries.length === 0 && (
-        <p className="text-white/30 text-sm mt-4">No operations recorded yet.</p>
+        <p className="text-white/30 text-sm mt-4">{t("no_operations")}</p>
       )}
 
       <div className="flex flex-col gap-1.5">
@@ -98,7 +100,7 @@ export default function History() {
                   </Badge>
                   {e.freed_mb > 0 && (
                     <span className="text-xs text-emerald-400/70">
-                      {e.freed_mb.toFixed(1)} MB freed
+                      {t("freed_mb", { amount: e.freed_mb.toFixed(1) })}
                     </span>
                   )}
                 </div>

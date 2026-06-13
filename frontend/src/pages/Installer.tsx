@@ -1,19 +1,22 @@
 import { useState, useEffect, useRef } from "react";
 import { Package, PlayCircle, Eye, CheckCircle2, AlertCircle } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { RunInstall } from "../../wailsjs/go/main/CommandService";
 import { EventsOn, EventsOff } from "../../wailsjs/runtime/runtime";
 import { notify } from "../utils/notify";
 import SpinnerRing from "../components/SpinnerRing";
 
-const TASKS = [
-  "Find and remove .pkg installer files",
-  "Clear leftover .dmg disk images",
-  "Delete downloaded .zip archives in Downloads",
-  "Remove unused installer caches",
-  "Clean up quarantine attributes",
-];
-
 export default function Installer() {
+  const { t } = useTranslation("installer");
+
+  const TASKS = [
+    t("tasks.find_pkg"),
+    t("tasks.clear_dmg"),
+    t("tasks.delete_zip"),
+    t("tasks.remove_caches"),
+    t("tasks.clean_quarantine"),
+  ];
+
   const [running, setRunning] = useState(false);
   const [lines, setLines] = useState<string[]>([]);
   const [done, setDone] = useState(false);
@@ -43,8 +46,8 @@ export default function Installer() {
       if (result.error) setLines((prev) => [...prev, "Error: " + result.error]);
       if (!dryRun)
         notify(
-          "Mole — Installer Cleanup",
-          result.success ? "Installer cleanup done." : "Finished with errors."
+          t("notify_title"),
+          result.success ? t("notify_success") : t("notify_error")
         );
     } finally {
       setRunning(false);
@@ -63,10 +66,10 @@ export default function Installer() {
           >
             <Package size={16} className="text-white" />
           </span>
-          Installer Cleanup
+          {t("title")}
         </h2>
         <p className="text-sm mt-1.5 ml-10" style={{ color: "rgba(255,255,255,0.4)" }}>
-          Remove .pkg, .dmg, and .zip installer files that are no longer needed.
+          {t("description")}
         </p>
       </div>
 
@@ -75,7 +78,7 @@ export default function Installer() {
         className="rounded-2xl p-4 flex flex-col gap-2.5"
         style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}
       >
-        {TASKS.map((t, i) => (
+        {TASKS.map((task, i) => (
           <div
             key={i}
             className="flex items-center gap-3 text-sm"
@@ -91,7 +94,7 @@ export default function Installer() {
             >
               {i + 1}
             </span>
-            {t}
+            {task}
           </div>
         ))}
       </div>
@@ -108,7 +111,7 @@ export default function Installer() {
             color: "rgba(255,255,255,0.75)",
           }}
         >
-          <Eye size={14} /> Preview
+          <Eye size={14} /> {t("preview")}
         </button>
         <button
           disabled={running}
@@ -142,11 +145,11 @@ export default function Installer() {
                   strokeLinecap="round"
                 />
               </svg>
-              Cleaning…
+              {t("cleaning")}
             </>
           ) : (
             <>
-              <PlayCircle size={14} /> Clean Installers
+              <PlayCircle size={14} /> {t("clean_installers")}
             </>
           )}
         </button>
@@ -154,7 +157,7 @@ export default function Installer() {
 
       {/* Spinner while log is empty */}
       {running && lines.length === 0 && (
-        <SpinnerRing size={52} color="#10b981" label="Scanning for installer files…" />
+        <SpinnerRing size={52} color="#10b981" label={t("scanning_message")} />
       )}
 
       {/* Log */}
@@ -174,7 +177,7 @@ export default function Installer() {
               className="leading-5"
               style={{ color: l.toLowerCase().startsWith("error") ? "#f87171" : undefined }}
             >
-              {l || "\u00A0"}
+              {l || " "}
             </div>
           ))}
           {running && (
@@ -184,7 +187,7 @@ export default function Installer() {
                 <span />
                 <span />
               </div>
-              Cleaning up…
+              {t("cleaning_up")}
             </div>
           )}
           {done && (
@@ -192,12 +195,12 @@ export default function Installer() {
               {success ? (
                 <>
                   <CheckCircle2 size={14} style={{ color: "#34d399" }} />
-                  <span style={{ color: "#34d399" }}>Cleanup complete!</span>
+                  <span style={{ color: "#34d399" }}>{t("cleanup_complete")}</span>
                 </>
               ) : (
                 <>
                   <AlertCircle size={14} style={{ color: "#f87171" }} />
-                  <span style={{ color: "#f87171" }}>Finished with errors.</span>
+                  <span style={{ color: "#f87171" }}>{t("finished_with_errors")}</span>
                 </>
               )}
             </div>

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Code2, RefreshCw, Trash2, CheckCircle2, AlertCircle } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { GetDevCaches, CleanDevCaches } from "../../wailsjs/go/main/DevCacheService";
 import type { main } from "../../wailsjs/go/models";
 import { Button } from "@/components/ui/button";
@@ -12,6 +13,7 @@ function fmtBytes(bytes: number): string {
 }
 
 export default function DevCaches() {
+  const { t } = useTranslation("devcaches");
   const [tools, setTools] = useState<main.DevCacheTool[]>([]);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(false);
@@ -25,7 +27,7 @@ export default function DevCaches() {
     GetDevCaches()
       .then((t) => setTools(t ?? []))
       .catch((err: unknown) => {
-        setError(err instanceof Error ? err.message : "Failed to scan dev caches.");
+        setError(err instanceof Error ? err.message : t("scan_failed"));
       })
       .finally(() => setLoading(false));
   };
@@ -43,8 +45,8 @@ export default function DevCaches() {
   };
 
   const totalSelected = tools
-    .filter((t) => selected.has(t.id))
-    .reduce((sum, t) => sum + t.size_bytes, 0);
+    .filter((tool) => selected.has(tool.id))
+    .reduce((sum, tool) => sum + tool.size_bytes, 0);
 
   const clean = async () => {
     setCleaning(true);
@@ -54,7 +56,7 @@ export default function DevCaches() {
       setResults(res);
       load();
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Clean failed.");
+      setError(err instanceof Error ? err.message : t("clean_failed"));
     } finally {
       setCleaning(false);
     }
@@ -70,19 +72,22 @@ export default function DevCaches() {
           >
             <Code2 size={16} className="text-white" />
           </span>
-          Dev Caches
+          {t("title")}
         </h2>
         <p className="text-sm mt-1.5 ml-10 text-white/40">
-          Clean developer tool caches using each tool&apos;s native clean command.
+          {t("description")}
         </p>
       </div>
 
       <div className="flex items-center gap-3">
-        <Button variant="glass" size="sm" onClick={load} disabled={loading || cleaning} className="gap-2"><RefreshCw size={13} className={loading ? "animate-spin" : ""} />{loading ? "Scanning…" : "Refresh"}</Button>
+        <Button variant="glass" size="sm" onClick={load} disabled={loading || cleaning} className="gap-2">
+          <RefreshCw size={13} className={loading ? "animate-spin" : ""} />
+          {loading ? t("scanning") : t("refresh")}
+        </Button>
         <div className="flex-1" />
         {selected.size > 0 && (
           <span className="text-xs text-white/40">
-            {selected.size} selected &mdash; ~{fmtBytes(totalSelected)} to free
+            {t("selected_summary", { count: selected.size, size: fmtBytes(totalSelected) })}
           </span>
         )}
         <Button
@@ -99,7 +104,7 @@ export default function DevCaches() {
           }}
         >
           <Trash2 size={13} />
-          {cleaning ? "Cleaning…" : "Clean Selected"}
+          {cleaning ? t("cleaning") : t("clean_selected")}
         </Button>
       </div>
 
@@ -166,7 +171,7 @@ export default function DevCaches() {
               </span>
               <div className="flex-1 min-w-0">
                 <div className="text-sm text-white font-medium">{tool.name}</div>
-                {!tool.available && <div className="text-xs text-white/25">Not installed</div>}
+                {!tool.available && <div className="text-xs text-white/25">{t("not_installed")}</div>}
               </div>
               <span className="text-xs text-white/40 tabular-nums flex-shrink-0">
                 {tool.size_bytes > 0 ? fmtBytes(tool.size_bytes) : "—"}

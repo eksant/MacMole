@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { FileText, RefreshCw, Folder, AlertTriangle } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { ScanLogs, DeleteLogs } from "../../wailsjs/go/main/CommandService";
 import { notify } from "../utils/notify";
 import { Button } from "@/components/ui/button";
@@ -28,6 +29,7 @@ function fmtDate(unix: number): string {
 }
 
 export default function Logs() {
+  const { t } = useTranslation("logs");
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [scanning, setScanning] = useState(false);
@@ -81,7 +83,7 @@ export default function Logs() {
       const res = await DeleteLogs(Array.from(selected));
       setResult({ success: res.success, message: res.success ? res.output : res.error });
       if (res.success) {
-        notify("MacMole — Log Cleaner", res.output || "Logs removed successfully.");
+        notify(t("notify_title"), res.output || t("notify_default"));
         scan();
       }
     } finally {
@@ -115,11 +117,10 @@ export default function Logs() {
           >
             <FileText size={16} className="text-white" />
           </span>
-          Log Cleaner
+          {t("title")}
         </h2>
         <p className="text-sm mt-1.5 ml-10" style={{ color: "rgba(255,255,255,0.4)" }}>
-          Remove application log files from ~/Library/Logs. Safe to clean — apps recreate logs as
-          needed.
+          {t("description")}
         </p>
       </div>
 
@@ -133,26 +134,33 @@ export default function Logs() {
           }}
         >
           <span style={{ color: "rgba(167,139,250,0.9)" }}>
-            {logs.length} item{logs.length !== 1 ? "s" : ""}
+            {logs.length !== 1
+              ? t("items_count_plural", { count: logs.length })
+              : t("items_count_singular", { count: logs.length })}
           </span>
           <span className="text-white/30">·</span>
-          <span className="text-white/50">Total: {fmtBytes(totalSize)}</span>
+          <span className="text-white/50">{t("total", { size: fmtBytes(totalSize) })}</span>
         </div>
       )}
 
       {/* Toolbar */}
       <div className="flex items-center gap-3">
-        <Button variant="glass" size="sm" onClick={scan} disabled={scanning || deleting} className="gap-2"><RefreshCw size={13} className={scanning ? "animate-spin" : ""} />{scanning ? "Scanning…" : "Refresh"}</Button>
+        <Button variant="glass" size="sm" onClick={scan} disabled={scanning || deleting} className="gap-2">
+          <RefreshCw size={13} className={scanning ? "animate-spin" : ""} />
+          {scanning ? t("scanning") : t("refresh")}
+        </Button>
 
         {logs.length > 0 && (
-          <Button variant="ghost" size="sm" onClick={toggleAll} disabled={scanning || deleting} className="gap-2">{selected.size === logs.length ? "Deselect All" : "Select All"}</Button>
+          <Button variant="ghost" size="sm" onClick={toggleAll} disabled={scanning || deleting} className="gap-2">
+            {selected.size === logs.length ? t("deselect_all") : t("select_all")}
+          </Button>
         )}
 
         <div className="flex-1" />
 
         {selected.size > 0 && (
           <span className="text-xs text-white/40">
-            {selected.size} selected — {fmtBytes(totalSelected)}
+            {t("selected_summary", { count: selected.size, size: fmtBytes(totalSelected) })}
           </span>
         )}
 
@@ -170,7 +178,7 @@ export default function Logs() {
           }}
         >
           <FileText size={13} />
-          {deleting ? "Deleting…" : "Delete Selected"}
+          {deleting ? t("deleting") : t("delete_selected")}
         </Button>
       </div>
 
@@ -190,10 +198,10 @@ export default function Logs() {
 
       {/* List */}
       {scanning && logs.length === 0 && (
-        <p className="text-white/30 text-sm">Scanning ~/Library/Logs…</p>
+        <p className="text-white/30 text-sm">{t("scanning_message")}</p>
       )}
       {!scanning && logs.length === 0 && (
-        <p className="text-white/30 text-sm">No log entries found.</p>
+        <p className="text-white/30 text-sm">{t("no_log_entries")}</p>
       )}
 
       {logs.length > 0 && (
@@ -241,7 +249,7 @@ export default function Logs() {
                 {/* Name + date */}
                 <div className="flex-1 min-w-0">
                   <div className="text-sm text-white font-medium truncate">{log.name}</div>
-                  <div className="text-xs text-white/25">Modified {fmtDate(log.mod_time)}</div>
+                  <div className="text-xs text-white/25">{t("modified", { date: fmtDate(log.mod_time) })}</div>
                 </div>
 
                 {/* Size */}

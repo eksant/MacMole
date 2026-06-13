@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { HardDrive, FolderOpen, RefreshCw, AlertTriangle } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { GetDiskAnalysis } from "../../wailsjs/go/main/CommandService";
 
 interface DiskEntry {
@@ -17,6 +18,7 @@ function fmtBytes(bytes: number): string {
 }
 
 export default function Analyzer() {
+  const { t } = useTranslation("analyzer");
   const [entries, setEntries] = useState<DiskEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -57,12 +59,10 @@ export default function Analyzer() {
       <div className="flex items-start justify-between">
         <div>
           <h2 className="text-xl font-semibold text-white flex items-center gap-2">
-            <HardDrive size={20} className="text-cyan-400" /> Disk Analyzer
+            <HardDrive size={20} className="text-cyan-400" /> {t("title")}
           </h2>
           <p className="text-sm text-white/40 mt-1">
-            Disk usage overview for major directories. Run{" "}
-            <code className="font-mono text-cyan-400/70">mo analyze</code> in terminal for full
-            interactive explorer.
+            {t("description", { command: "mo analyze" })}
           </p>
         </div>
         <button
@@ -76,16 +76,16 @@ export default function Analyzer() {
           }}
         >
           <RefreshCw size={11} className={loading ? "animate-spin" : ""} />
-          {loading ? "Scanning…" : "Refresh"}
+          {loading ? t("scanning") : t("refresh")}
         </button>
       </div>
 
       {loading && entries.length === 0 && (
-        <div className="text-white/30 text-sm">Calculating sizes… (may take a moment)</div>
+        <div className="text-white/30 text-sm">{t("calculating_sizes")}</div>
       )}
 
       {!loading && entries.length === 0 && (
-        <div className="text-white/30 text-sm">No directories found.</div>
+        <div className="text-white/30 text-sm">{t("no_directories_found")}</div>
       )}
 
       {entries.length > 0 && (
@@ -96,7 +96,7 @@ export default function Analyzer() {
             style={{ background: "rgba(6,182,212,0.07)", border: "1px solid rgba(6,182,212,0.18)" }}
           >
             <span style={{ color: "rgba(6,182,212,0.9)" }}>
-              Total across {entries.length} directories
+              {t("total_across_directories", { count: entries.length })}
             </span>
             <span className="font-semibold tabular-nums text-white">{fmtBytes(totalSize)}</span>
           </div>
